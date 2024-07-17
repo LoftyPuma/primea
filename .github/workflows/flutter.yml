@@ -37,7 +37,7 @@ jobs:
         run: echo 'PATH=${GITHUB_WORKSPACE}/flutter/bin:${PATH}' >> $GITHUB_ENV
       
       - name: Install dependencies
-        run: flutter pub get
+        run: ls ${GITHUB_WORKSPACE}/flutter && flutter pub get
       
       - name: Build Web
         run: flutter build web
