@@ -29,6 +29,19 @@ jobs:
           curl -LO https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz
           tar -xf ./flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C ${GITHUB_WORKSPACE}
           export PATH="${GITHUB_WORKSPACE}/flutter/bin:$PATH"
+          flutter config --no-analytics
+          flutter config --no-cli-animations
           flutter doctor
           echo 'export PATH="${GITHUB_WORKSPACE}/flutter/bin:$PATH"' >> $GITHUB_ENV
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Build Web
+        run: flutter build web
 
+      - uses: actions/upload-artifact@v4
+        name: Upload Artifact
+        with:
+          name: flutter-web
+          path: build/web/
