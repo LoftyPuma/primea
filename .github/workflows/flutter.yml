@@ -32,7 +32,9 @@ jobs:
           flutter config --no-analytics
           flutter config --no-cli-animations
           flutter doctor
-          echo 'export PATH="${GITHUB_WORKSPACE}/flutter/bin:$PATH"' >> $GITHUB_ENV
+      
+      - name: Add Flutter to Path
+        run: echo 'PATH=${GITHUB_WORKSPACE}/flutter/bin:${PATH}' >> $GITHUB_ENV
       
       - name: Install dependencies
         run: flutter pub get
