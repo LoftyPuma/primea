@@ -25,7 +25,14 @@ class ParagonAvatar extends StatelessWidget {
             radius: 36,
             backgroundColor: Colors.transparent,
             child: paragon.image.startsWith("http")
-                ? Image.network(paragon.image)
+                ? Image.network(
+                    paragon.image,
+                    headers: const {
+                      "Sec-Fetch-Dest": "image",
+                      "Sec-Fetch-Mode": "no-cors",
+                      "Sec-Fetch-Site": "cross-site",
+                    },
+                  )
                 : Padding(
                     padding: const EdgeInsets.all(8),
                     child: ShaderMask(
