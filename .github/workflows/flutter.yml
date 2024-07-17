@@ -15,11 +15,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cache Flutter
+        id: cache-flutter
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/flutter
+          key: ${{ runner.os }}-flutter-${{ env.FLUTTER_VERSION }}
+
       - name: Install Flutter
+        if: steps.cache-flutter.outputs.cache-hit != 'true'
         run: |
-          curl -LO https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_$FLUTTER_VERSION-stable.tar.xz
-          tar -xf ./flutter_linux_$FLUTTER_VERSION-stable.tar.xz -C /usr/bin
-          export PATH="/usr/bin/flutter/bin:$PATH"
+          curl -LO https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz
+          tar -xf ./flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C ${GITHUB_WORKSPACE}
+          export PATH="${GITHUB_WORKSPACE}/flutter/bin:$PATH"
           flutter doctor
-          echo 'export PATH="/usr/bin/flutter/bin:$PATH"' >> $GITHUB_ENV
+          echo 'export PATH="${GITHUB_WORKSPACE}/flutter/bin:$PATH"' >> $GITHUB_ENV
 
