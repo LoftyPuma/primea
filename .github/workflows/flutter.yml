@@ -18,7 +18,7 @@ jobs:
 
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
 
       - name: Cache Flutter
         id: cache-flutter
@@ -40,15 +40,27 @@ jobs:
       - name: Add Flutter to Path
         run: echo "${GITHUB_WORKSPACE}/flutter/bin" >> $GITHUB_PATH
       
+      - name: Cache Flutter Dependencies
+        id: cache-flutter-deps
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache/hosted
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/*.lock') }}
+
       - name: Install dependencies
+        if: steps.cache-flutter-deps.outputs.cache-hit != 'true'
         run: flutter pub get
       
-      - name: Build Web
-        run: flutter build web --release --base-href "/${{ github.repository_id }}/"
+      - name: Get repository name
+        run: echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
 
-      - uses: actions/upload-pages-artifact@v2
+      - name: Build Web
+        run: flutter build web --release --base-href "/${{ env.REPOSITORY_NAME }}/"
+
+      - uses: actions/upload-pages-artifact@v3
         name: Upload Artifact
         with:
+          name: github-pages
           path: build/web/
   
   deploy:
@@ -64,5 +76,5 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
   
