@@ -40,19 +40,11 @@ jobs:
       - name: Add Flutter to Path
         run: echo "${GITHUB_WORKSPACE}/flutter/bin" >> $GITHUB_PATH
       
-      - name: Cache Flutter Dependencies
-        id: cache-flutter-deps
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache/hosted
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/*.lock') }}
-
       - name: Install dependencies
-        if: steps.cache-flutter-deps.outputs.cache-hit != 'true'
         run: flutter pub get
       
       - name: Build Web
-        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+        run: flutter build web --release --web-renderer html --base-href "/${{ github.event.repository.name }}/"
 
       - uses: actions/upload-pages-artifact@v3
         name: Upload Artifact
