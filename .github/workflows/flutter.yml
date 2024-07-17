@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Flutter
         run: |
-          curl https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_$FLUTTER_VERSION-stable.tar.xz
+          curl -LO https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_$FLUTTER_VERSION-stable.tar.xz
           tar -xf ./flutter_linux_$FLUTTER_VERSION-stable.tar.xz -C /usr/bin
           export PATH="/usr/bin/flutter/bin:$PATH"
           flutter doctor
