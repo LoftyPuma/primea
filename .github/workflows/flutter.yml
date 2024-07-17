@@ -34,10 +34,10 @@ jobs:
           flutter doctor
       
       - name: Add Flutter to Path
-        run: echo 'PATH=${GITHUB_WORKSPACE}/flutter/bin:${PATH}' >> $GITHUB_ENV
+        run: echo '${GITHUB_WORKSPACE}/flutter/bin' >> $GITHUB_PATH
       
       - name: Install dependencies
-        run: ls ${GITHUB_WORKSPACE}/flutter && flutter pub get
+        run: flutter pub get
       
       - name: Build Web
         run: flutter build web
