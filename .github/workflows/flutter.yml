@@ -51,11 +51,8 @@ jobs:
         if: steps.cache-flutter-deps.outputs.cache-hit != 'true'
         run: flutter pub get
       
-      - name: Get repository name
-        run: echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
-
       - name: Build Web
-        run: flutter build web --release --base-href "/${{ env.REPOSITORY_NAME }}/"
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
 
       - uses: actions/upload-pages-artifact@v3
         name: Upload Artifact
