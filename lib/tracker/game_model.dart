@@ -22,6 +22,7 @@ enum GameResult {
 class GameModel {
   static const gamesTableName = 'games';
 
+  final String? id;
   final Paragon paragon;
   final bool playerOne;
   final GameResult result;
@@ -36,6 +37,7 @@ class GameModel {
     required this.paragon,
     required this.playerOne,
     required this.result,
+    this.id,
     this.dateTime,
     this.opponentUsername,
     this.opponentParagon = Paragon.unknown,
@@ -45,26 +47,29 @@ class GameModel {
   });
 
   GameModel.fromJson(Map<String, dynamic> json)
-      : paragon = json['paragon'],
-        playerOne = json['wentFirst'],
+      : id = json['id'],
+        paragon = json['paragon'],
+        playerOne = json['player_one'],
         result = json['result'],
         dateTime =
-            json['dateTime'] != null ? DateTime.parse(json['dateTime']) : null,
-        opponentUsername = json['oppUsername'],
-        opponentParagon = json['oppParagon'],
-        mmrDelta = json['mmrDelta'],
-        primeEarned = json['primeEarned'],
-        keysActivated = List<KeyModel>.from(json['keysActivated']);
+            json['game_time'] != null ? DateTime.parse(json['dateTime']) : null,
+        opponentUsername = json['opponent_username'],
+        opponentParagon = json['opponent_paragon'],
+        mmrDelta = json['mmr_delta'],
+        primeEarned = json['prime_earned'],
+        keysActivated = List<KeyModel>.empty();
+  // keysActivated = List<KeyModel>.from(json['keysActivated']);
 
   Map<String, dynamic> toJson() => {
-        'paragon': paragon,
-        'wentFirst': playerOne,
-        'result': result,
-        'dateTime': dateTime?.toIso8601String(),
-        'oppUsername': opponentUsername,
-        'oppParagon': opponentParagon,
-        'mmrDelta': mmrDelta,
-        'primeEarned': primeEarned,
-        'keysActivated': keysActivated,
+        // 'id': id,
+        'paragon': paragon.name,
+        'player_one': playerOne,
+        'result': result.name,
+        'game_time': dateTime?.toIso8601String(),
+        'opponent_username': opponentUsername,
+        'opponent_paragon': opponentParagon.name,
+        'mmr_delta': mmrDelta,
+        // 'primeEarned': primeEarned,
+        // 'keysActivated': keysActivated,
       };
 }

@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:parallel_stats/main.dart';
+import 'package:parallel_stats/modal/game.dart';
 import 'package:parallel_stats/tracker/game_model.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_stack.dart';
@@ -17,7 +19,7 @@ int gameResultCount = GameResult.values.length;
 
 class _AccountState extends State<Account> {
   final List<GameModel> games = List.generate(
-    8,
+    2,
     (index) {
       var result = GameResult.values[Random().nextInt(gameResultCount)];
       var mmrDelta = Random().nextInt(25);
@@ -39,6 +41,9 @@ class _AccountState extends State<Account> {
       );
     },
   );
+
+  // TODO: bring the next game state up to the Account widget
+  GameModal? nextGame;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +159,20 @@ class _AccountState extends State<Account> {
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return OutlinedButton.icon(
-                        onPressed: () {},
+                        onPressed: () async {
+                          var game = await showDialog<GameModel>(
+                            context: context,
+                            builder: (context) => const GameModal(),
+                          );
+                          if (game == null) return;
+                          var returnedGame = await supabase
+                              .from(GameModel.gamesTableName)
+                              .insert(game.toJson())
+                              .single();
+                          setState(() {
+                            games.add(GameModel.fromJson(returnedGame));
+                          });
+                        },
                         label: const Text('Add Match'),
                         icon: const Icon(Icons.add),
                         style: OutlinedButton.styleFrom(

@@ -24,7 +24,7 @@ class ParagonAvatar extends StatelessWidget {
           textAlign: TextAlign.center,
           richMessage: TextSpan(
             children: [
-              TextSpan(text: "${paragon.name}\n"),
+              TextSpan(text: "${paragon.title}\n"),
               TextSpan(text: paragon.parallel.name.toTitleCase()),
             ],
           ),
