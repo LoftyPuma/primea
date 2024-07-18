@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:parallel_stats/modal/sign_in.dart';
 import 'package:parallel_stats/tracker/account.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -30,12 +31,15 @@ class App extends StatelessWidget {
       title: title,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black87),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 222, 241, 65),
+          brightness: Brightness.dark,
+        ),
         cardTheme: const CardTheme(
           shape: ContinuousRectangleBorder(),
         ),
       ),
-      darkTheme: ThemeData.dark(useMaterial3: true),
+      // darkTheme: ThemeData.dark(useMaterial3: true),
       home: SafeArea(
         child: Home(title: title),
       ),
@@ -96,8 +100,41 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Account(),
+    List<Widget> actions = [];
+    if (session != null) {
+      actions.add(
+        TextButton.icon(
+          icon: const Icon(Icons.logout),
+          label: const Text('Sign Out'),
+          onPressed: () async {
+            await supabase.auth.signOut();
+          },
+        ),
+      );
+    } else {
+      actions.add(
+        TextButton.icon(
+          icon: const Icon(Icons.add_box_outlined),
+          label: const Text('Sign In'),
+          onPressed: () async {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const Dialog(
+                  child: SignInModal(),
+                );
+              },
+            );
+          },
+        ),
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(
+        leading: Image.asset("assets/favicon.ico"),
+        actions: actions,
+      ),
+      body: const Account(),
     );
   }
 }

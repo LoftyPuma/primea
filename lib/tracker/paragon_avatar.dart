@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
-import 'package:http/http.dart' as http;
+import 'package:parallel_stats/util/string.dart';
 
 class ParagonAvatar extends StatelessWidget {
   final Paragon paragon;
@@ -21,7 +21,13 @@ class ParagonAvatar extends StatelessWidget {
           gradient: paragon.parallel.backgroundGradient,
         ),
         child: Tooltip(
-          message: paragon.name,
+          textAlign: TextAlign.center,
+          richMessage: TextSpan(
+            children: [
+              TextSpan(text: "${paragon.name}\n"),
+              TextSpan(text: paragon.parallel.name.toTitleCase()),
+            ],
+          ),
           child: CircleAvatar(
             radius: 36,
             backgroundColor: Colors.transparent,
