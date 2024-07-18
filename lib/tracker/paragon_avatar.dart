@@ -25,24 +25,8 @@ class ParagonAvatar extends StatelessWidget {
           child: CircleAvatar(
             radius: 36,
             backgroundColor: Colors.transparent,
-            child: paragon.image.startsWith("http")
-                ? FutureBuilder(
-                    future: http.get(Uri.parse(paragon.image)),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        if (snapshot.hasError) {
-                          return const Icon(Icons.error);
-                        }
-                        return CircleAvatar(
-                          radius: 36,
-                          backgroundColor: Colors.transparent,
-                          foregroundImage:
-                              MemoryImage(snapshot.data!.bodyBytes),
-                        );
-                      }
-                      return const CircularProgressIndicator();
-                    },
-                  )
+            child: paragon != Paragon.unknown
+                ? Image.asset(paragon.image)
                 : Padding(
                     padding: const EdgeInsets.all(8),
                     child: ShaderMask(
