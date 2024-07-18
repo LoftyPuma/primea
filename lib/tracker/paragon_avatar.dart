@@ -36,7 +36,7 @@ class ParagonAvatar extends StatelessWidget {
                         return CircleAvatar(
                           radius: 36,
                           backgroundColor: Colors.transparent,
-                          backgroundImage:
+                          foregroundImage:
                               MemoryImage(snapshot.data!.bodyBytes),
                         );
                       }
