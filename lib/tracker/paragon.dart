@@ -81,38 +81,38 @@ enum Paragon {
   jahn(
     name: 'Jahn',
     parallel: ParallelType.augencore,
-    image: "/assets/paragons/paragon-jahn-chief-engineer.webp",
+    image: "assets/paragons/paragon-jahn-chief-engineer.webp",
     description: 'Chief Engineer',
   ),
   arak(
     name: 'Arak',
-    image: "/assets/paragons/paragon-arak-combat-overseer.webp",
+    image: "assets/paragons/paragon-arak-combat-overseer.webp",
     parallel: ParallelType.augencore,
     description: 'Combat Overseer',
   ),
   juggernautWorkshop(
     name: 'Juggernaut Workshop',
     parallel: ParallelType.augencore,
-    image: "/assets/paragons/paragon-juggernaut-workshop.webp",
+    image: "assets/paragons/paragon-juggernaut-workshop.webp",
   ),
 
   // earthen
   gaffar(
     name: "Gaffar",
     parallel: ParallelType.earthen,
-    image: "/assets/paragons/paragon-arbiter-of-earth.webp",
+    image: "assets/paragons/paragon-arbiter-of-earth.webp",
     description: "Arbiter of Earth",
   ),
   nehemiah(
     name: "Nehemiah",
     parallel: ParallelType.earthen,
-    image: "/assets/paragons/paragon-nehemiah-defender-of-earth.webp",
+    image: "assets/paragons/paragon-nehemiah-defender-of-earth.webp",
     description: "Defender of Earth",
   ),
   shoshanna(
     name: "Shoshanna",
     parallel: ParallelType.earthen,
-    image: "/assets/paragons/paragon-shoshanna-rebuilder-of-earth.webp",
+    image: "assets/paragons/paragon-shoshanna-rebuilder-of-earth.webp",
     description: "Rebuilder of Earth",
   ),
 
@@ -120,55 +120,55 @@ enum Paragon {
   aetio(
     name: "Aetio",
     parallel: ParallelType.kathari,
-    image: "/assets/paragons/paragon-aetio-exalted-hydrolist.webp",
+    image: "assets/paragons/paragon-aetio-exalted-hydrolist.webp",
     description: "Exalted Hydrolist",
   ),
   gnaeusValerusAlpha(
     name: "Gnaeus Valerus Alpha",
     parallel: ParallelType.kathari,
-    image: "/assets/paragons/paragon-gnaeus-valerus-alpha.webp",
+    image: "assets/paragons/paragon-gnaeus-valerus-alpha.webp",
   ),
   scipiusMagnusAlpha(
     name: "Scipius Magnus Alpha",
     parallel: ParallelType.kathari,
-    image: "/assets/paragons/paragon-scipius-magnus-alpha.webp",
+    image: "assets/paragons/paragon-scipius-magnus-alpha.webp",
   ),
 
   // marcolian
   lemieux(
     name: "Lemieux",
     parallel: ParallelType.marcolian,
-    image: "/assets/paragons/paragon-lemieux-master-commando.webp",
+    image: "assets/paragons/paragon-lemieux-master-commando.webp",
     description: "Master Commando",
   ),
   catherine(
     name: "Catherine Lapointe",
     parallel: ParallelType.marcolian,
-    image: "/assets/paragons/paragon-catherine-lapointe-mad-general.webp",
+    image: "assets/paragons/paragon-catherine-lapointe-mad-general.webp",
     description: "Mad General",
   ),
   armouredDivisionHQ(
     name: "Armored Division HQ",
     parallel: ParallelType.marcolian,
-    image: "/assets/paragons/paragon-armoured-division-hq.webp",
+    image: "assets/paragons/paragon-armoured-division-hq.webp",
   ),
 
   // shroud
   brand(
     name: "Brand",
     parallel: ParallelType.shroud,
-    image: "/assets/paragons/paragon-brand-steward-eternal.webp",
+    image: "assets/paragons/paragon-brand-steward-eternal.webp",
     description: "Eternal Steward",
   ),
   newDawn(
     name: "New Dawn",
     parallel: ParallelType.shroud,
-    image: "/assets/paragons/paragon-new-dawn.webp",
+    image: "assets/paragons/paragon-new-dawn.webp",
   ),
   niamh(
     name: "Niamh",
     parallel: ParallelType.shroud,
-    image: "/assets/paragons/paragon-wielder-of-faith.webp",
+    image: "assets/paragons/paragon-wielder-of-faith.webp",
     description: "Wielder of Faith",
   );
 
