@@ -131,7 +131,7 @@ class _HomeState extends State<Home> {
     }
     return Scaffold(
       appBar: AppBar(
-        leading: Image.asset("assets/favicon.ico"),
+        leading: Image.asset("assets/favicon.png"),
         actions: actions,
       ),
       body: const Account(),
