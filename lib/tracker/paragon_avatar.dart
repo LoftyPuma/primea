@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
+import 'package:http/http.dart' as http;
 
 class ParagonAvatar extends StatelessWidget {
   final Paragon paragon;
@@ -25,12 +26,21 @@ class ParagonAvatar extends StatelessWidget {
             radius: 36,
             backgroundColor: Colors.transparent,
             child: paragon.image.startsWith("http")
-                ? Image.network(
-                    paragon.image,
-                    headers: const {
-                      "Sec-Fetch-Dest": "image",
-                      "Sec-Fetch-Mode": "no-cors",
-                      "Sec-Fetch-Site": "cross-site",
+                ? FutureBuilder(
+                    future: http.get(Uri.parse(paragon.image)),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.hasError) {
+                          return const Icon(Icons.error);
+                        }
+                        return CircleAvatar(
+                          radius: 36,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage:
+                              MemoryImage(snapshot.data!.bodyBytes),
+                        );
+                      }
+                      return const CircularProgressIndicator();
                     },
                   )
                 : Padding(
