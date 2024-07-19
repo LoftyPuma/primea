@@ -216,7 +216,6 @@ class MatchModalState extends State<MatchModal> {
                           ),
                           decoration: const InputDecoration(
                             labelText: 'PRIME',
-                            // suffix: Text("MMR"),
                           ),
                         ),
                       ),
