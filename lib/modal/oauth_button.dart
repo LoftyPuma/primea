@@ -17,11 +17,12 @@ class OAuthButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: () async {
-        await supabase.auth.signInWithOAuth(
+        supabase.auth.signInWithOAuth(
           OAuthProvider.twitch,
           authScreenLaunchMode: LaunchMode.inAppWebView,
           redirectTo: kIsWeb ? null : "io.github.loftypuma://auth/callback",
         );
+        Navigator.of(context).pop();
       },
       icon: Padding(
         padding: const EdgeInsets.only(

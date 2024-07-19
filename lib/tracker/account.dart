@@ -5,12 +5,16 @@ import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_stack.dart';
 import 'package:parallel_stats/tracker/progress_card.dart';
 import 'package:parallel_stats/tracker/quick_add.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Account extends StatefulWidget {
+  final Session? session;
   final List<MatchModel> defaultMatches;
   final Paragon chosenParagon;
+
   const Account({
     super.key,
+    this.session,
     this.defaultMatches = const [],
     required this.chosenParagon,
   });
@@ -75,6 +79,15 @@ class _AccountState extends State<Account> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (widget.session == null || widget.session!.isExpired)
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    'Sample data shown below.\nSign in to save your matches.',
+                    style: Theme.of(context).textTheme.headlineLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -159,7 +172,10 @@ class _AccountState extends State<Account> {
                                   defaultToNull: false,
                                 )
                                 .select();
-                            print(response);
+                            MatchModel game = MatchModel.fromJson(response[0]);
+                            setState(() {
+                              gameList.insert(0, game);
+                            });
                           },
                         ),
                       ),

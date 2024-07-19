@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/modal/paragon_picker.dart';
 import 'package:parallel_stats/modal/sign_in.dart';
@@ -66,13 +67,10 @@ class _HomeState extends State<Home> {
   Session? session = supabase.auth.currentSession;
   Paragon chosenParagon = Paragon.unknown;
 
-  late final StreamSubscription<AuthState> authSubscription =
-      supabase.auth.onAuthStateChange.listen(handleAuthStateChange);
-
   handleAuthStateChange(AuthState data) {
-    // if (kDebugMode) {
-    print('event: ${data.event}, session: ${data.session}');
-    // }
+    if (kDebugMode) {
+      print('event: ${data.event}, session: ${data.session}');
+    }
 
     // switch (data.event) {
     //   case AuthChangeEvent.initialSession:
@@ -102,6 +100,8 @@ class _HomeState extends State<Home> {
   void initState() {
     chosenParagon = Paragon.values
         .byName(session?.user.userMetadata?["paragon"] ?? "unknown");
+
+    supabase.auth.onAuthStateChange.listen(handleAuthStateChange);
     super.initState();
   }
 
@@ -138,6 +138,7 @@ class _HomeState extends State<Home> {
       ),
       body: Account(
         chosenParagon: chosenParagon,
+        session: session,
         defaultMatches: (session != null && !session!.isExpired)
             ? []
             : List.generate(
@@ -174,19 +175,17 @@ class _HomeState extends State<Home> {
           context: context,
           builder: (context) {
             return ParagonPicker(
-              onParagonSelected: (paragon) async {
+              onParagonSelected: (paragon) {
                 setState(() {
                   chosenParagon = paragon;
                 });
-                if (session != null && !session!.isExpired) {
-                  await supabase.auth.updateUser(
-                    UserAttributes(
-                      data: <String, dynamic>{
-                        "paragon": paragon.name,
-                      },
-                    ),
-                  );
-                }
+                supabase.auth.updateUser(
+                  UserAttributes(
+                    data: <String, dynamic>{
+                      "paragon": paragon.name,
+                    },
+                  ),
+                );
                 Navigator.pop(context);
               },
             );
