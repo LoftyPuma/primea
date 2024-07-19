@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/main.dart';
+import 'package:parallel_stats/modal/match.dart';
 import 'package:parallel_stats/tracker/game_model.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_stack.dart';
@@ -31,7 +32,7 @@ class MatchAggregation {
 }
 
 class _AccountState extends State<Account> {
-  final List<MatchModel> gameList = [];
+  final List<MatchModel> matchList = [];
   late int matchesPlayed;
   late int matchesWon;
   late int matchesLost;
@@ -41,7 +42,7 @@ class _AccountState extends State<Account> {
   @override
   initState() {
     if (widget.defaultMatches.isNotEmpty) {
-      gameList.addAll(widget.defaultMatches);
+      matchList.addAll(widget.defaultMatches);
     } else if (supabase.auth.currentUser != null) {
       supabase
           .from(MatchModel.gamesTableName)
@@ -52,7 +53,7 @@ class _AccountState extends State<Account> {
           )
           .then((games) {
         setState(() {
-          gameList.addAll(games.map((game) => MatchModel.fromJson(game)));
+          matchList.addAll(games.map((game) => MatchModel.fromJson(game)));
         });
       });
     }
@@ -62,10 +63,10 @@ class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
     var overallWinRate =
-        gameList.where((game) => game.result == GameResult.win).length /
-            gameList.length;
-    var onThePlayGames = gameList.where((game) => game.playerOne);
-    var onTheDrawGames = gameList.where((game) => !game.playerOne);
+        matchList.where((game) => game.result == GameResult.win).length /
+            matchList.length;
+    var onThePlayGames = matchList.where((game) => game.playerOne);
+    var onTheDrawGames = matchList.where((game) => !game.playerOne);
     var onThePlayWinRate =
         onThePlayGames.where((game) => game.result == GameResult.win).length /
             onThePlayGames.length;
@@ -92,7 +93,7 @@ class _AccountState extends State<Account> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ProgressCard(
-                    winRate: overallWinRate,
+                    winRate: overallWinRate.isNaN ? 0 : overallWinRate,
                     title: "Overall Win Rate",
                   ),
                   if (onThePlayGames.isNotEmpty)
@@ -162,19 +163,20 @@ class _AccountState extends State<Account> {
                             var response = await supabase
                                 .from(MatchModel.gamesTableName)
                                 .insert(
-                                  MatchModel(
-                                    paragon: widget.chosenParagon,
-                                    opponentParagon:
-                                        Paragon.values.byName(parallel.name),
-                                    playerOne: playerOne,
-                                    result: result,
-                                  ).toJson(),
-                                  defaultToNull: false,
-                                )
-                                .select();
+                              [
+                                MatchModel(
+                                  paragon: widget.chosenParagon,
+                                  opponentParagon:
+                                      Paragon.values.byName(parallel.name),
+                                  playerOne: playerOne,
+                                  result: result,
+                                ).toJson(),
+                              ],
+                              defaultToNull: false,
+                            ).select();
                             MatchModel game = MatchModel.fromJson(response[0]);
                             setState(() {
-                              gameList.insert(0, game);
+                              matchList.insert(0, game);
                             });
                           },
                         ),
@@ -191,23 +193,46 @@ class _AccountState extends State<Account> {
                   right: 8,
                   bottom: 8,
                 ),
-                itemCount: gameList.length,
+                itemCount: matchList.length,
                 itemBuilder: (context, index) {
-                  final game = gameList[index];
+                  final match = matchList[index];
                   return Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ParagonStack(game: game),
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () async {
+                          var updatedMatch = await showDialog(
+                            context: context,
+                            builder: (context) {
+                              return MatchModal(
+                                match: match,
+                              );
+                            },
+                          );
+                          print(updatedMatch);
+                          if (updatedMatch != null && updatedMatch.id != null) {
+                            await supabase
+                                .from(MatchModel.gamesTableName)
+                                .update(updatedMatch.toJson())
+                                .eq("id", match.id!);
+                            setState(() {
+                              matchList[index] = updatedMatch;
+                            });
+                          }
+                        },
+                      ),
+                      ParagonStack(game: match),
                       Padding(
                         padding: const EdgeInsets.all(8),
                         child: Tooltip(
                           message:
-                              game.playerOne ? 'On the Play' : 'On the Draw',
+                              match.playerOne ? 'On the Play' : 'On the Draw',
                           child: Icon(
-                            game.playerOne
+                            match.playerOne
                                 ? Icons.swipe_up
                                 : Icons.sim_card_download,
-                            color: game.playerOne
+                            color: match.playerOne
                                 ? Colors.yellow[600]
                                 : Colors.cyan,
                           ),
@@ -219,24 +244,24 @@ class _AccountState extends State<Account> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(game.opponentUsername ?? 'Unknown Opponent'),
-                            if (game.mmrDelta != null)
-                              Text("${game.mmrDelta} MMR"),
+                            Text(match.opponentUsername ?? 'Unknown Opponent'),
+                            if (match.mmrDelta != null)
+                              Text("${match.mmrDelta} MMR"),
                           ],
                         ),
                       ),
                       Tooltip(
-                        message: game.result.tooltip,
+                        message: match.result.tooltip,
                         child: Icon(
-                          game.result.icon,
-                          color: game.result.color,
+                          match.result.icon,
+                          color: match.result.color,
                         ),
                       ),
                     ],
                   );
                 },
               ),
-              if (gameList.isEmpty)
+              if (matchList.isEmpty)
                 const Padding(
                   padding: EdgeInsets.all(8),
                   child: Row(

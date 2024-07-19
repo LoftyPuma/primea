@@ -68,10 +68,6 @@ class _HomeState extends State<Home> {
   Paragon chosenParagon = Paragon.unknown;
 
   handleAuthStateChange(AuthState data) {
-    if (kDebugMode) {
-      print('event: ${data.event}, session: ${data.session}');
-    }
-
     // switch (data.event) {
     //   case AuthChangeEvent.initialSession:
     //   // handle initial session
