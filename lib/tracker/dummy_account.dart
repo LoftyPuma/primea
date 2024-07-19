@@ -28,34 +28,29 @@ class _DummyAccountState extends State<DummyAccount> {
 
   bool playerOne = true;
   MatchResults matchResults = MatchResults();
-  late List<MatchModel> matchList;
-
-  List<MatchModel> generateSampleMatches() {
-    return List.generate(
-      4,
-      (index) {
-        var result = MatchResult.values[Random().nextInt(gameResultCount)];
-        var mmrDelta = Random().nextInt(25);
-        if (result == MatchResult.disconnect || result == MatchResult.draw) {
-          mmrDelta = 0;
-        } else if (result == MatchResult.loss) {
-          mmrDelta = -mmrDelta;
-        }
-        return MatchModel(
-          paragon: Paragon.values[Random().nextInt(paragonsCount)],
-          playerOne: Random().nextBool(),
-          result: result,
-          opponentUsername: 'Sample Opponent #$index',
-          opponentParagon: Paragon.values[Random().nextInt(paragonsCount)],
-          mmrDelta: mmrDelta,
-        );
-      },
-    );
-  }
+  late List<MatchModel> matchList = List.generate(
+    4,
+    (index) {
+      var result = MatchResult.values[Random().nextInt(gameResultCount)];
+      var mmrDelta = Random().nextInt(25);
+      if (result == MatchResult.disconnect || result == MatchResult.draw) {
+        mmrDelta = 0;
+      } else if (result == MatchResult.loss) {
+        mmrDelta = -mmrDelta;
+      }
+      return MatchModel(
+        paragon: Paragon.values[Random().nextInt(paragonsCount)],
+        playerOne: Random().nextBool(),
+        result: result,
+        opponentUsername: 'Sample Opponent #$index',
+        opponentParagon: Paragon.values[Random().nextInt(paragonsCount)],
+        mmrDelta: mmrDelta,
+      );
+    },
+  );
 
   @override
   initState() {
-    matchList = generateSampleMatches();
     for (var i = 0; i < matchList.length; i++) {
       var match = matchList[i];
       switch (match.result) {
@@ -172,13 +167,13 @@ class _DummyAccountState extends State<DummyAccount> {
                               result: result,
                             );
                             setState(() {
-                              _listKey.currentState!.insertItem(
-                                0,
-                                duration: const Duration(milliseconds: 250),
-                              );
                               matchList.insert(0, newMatch);
                               matchResults.recordMatch(newMatch);
                             });
+                            _listKey.currentState!.insertItem(
+                              0,
+                              duration: const Duration(milliseconds: 250),
+                            );
                           },
                         ),
                       ),
@@ -216,6 +211,26 @@ class _DummyAccountState extends State<DummyAccount> {
                             matchList[index] = updatedMatch;
                           });
                         }
+                      },
+                      onDelete: (context) {
+                        setState(() {
+                          matchList.removeAt(index);
+                          matchResults.removeMatch(match);
+                        });
+                        _listKey.currentState!.removeItem(
+                          index,
+                          (context, animation) {
+                            return SizeTransition(
+                              sizeFactor: animation,
+                              child: Match(
+                                match: match,
+                                onEdit: (context) {},
+                                onDelete: (context) {},
+                              ),
+                            );
+                          },
+                          duration: const Duration(milliseconds: 250),
+                        );
                       },
                     ),
                   );

@@ -76,6 +76,10 @@ class MatchResults {
     }
   }
 
+  double get winRate => (onThePlay.win + onTheDraw.win) / total;
+
+  double get total => onThePlay.total + onTheDraw.total;
+
   recordMatch(MatchModel match) {
     switch (match.result) {
       case MatchResult.win:
@@ -89,9 +93,18 @@ class MatchResults {
     }
   }
 
-  double get winRate => (onThePlay.win + onTheDraw.win) / total;
-
-  double get total => onThePlay.total + onTheDraw.total;
+  void removeMatch(MatchModel match) {
+    switch (match.result) {
+      case MatchResult.win:
+        match.playerOne ? onThePlay.win-- : onTheDraw.win--;
+      case MatchResult.loss:
+        match.playerOne ? onThePlay.loss-- : onTheDraw.loss--;
+      case MatchResult.draw:
+        match.playerOne ? onThePlay.draw-- : onTheDraw.draw--;
+      case MatchResult.disconnect:
+        onThePlay.disconnect--;
+    }
+  }
 }
 
 class MatchModel {

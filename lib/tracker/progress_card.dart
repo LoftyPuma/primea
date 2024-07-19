@@ -12,6 +12,7 @@ class ProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double normalWinRate = winRate.isFinite ? winRate : 0;
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -25,7 +26,7 @@ class ProgressCard extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: CircularProgressIndicator(
-                  value: winRate,
+                  value: normalWinRate,
                   strokeWidth: 16,
                   strokeCap: StrokeCap.round,
                   valueColor: AlwaysStoppedAnimation<Color>(
@@ -38,7 +39,7 @@ class ProgressCard extends StatelessWidget {
               textAlign: TextAlign.center,
               text: TextSpan(children: [
                 TextSpan(
-                  text: '${(winRate * 100).toStringAsFixed(0)}%\n',
+                  text: '${(normalWinRate * 100).toStringAsFixed(0)}%\n',
                   style: Theme.of(context).textTheme.displaySmall,
                 ),
                 TextSpan(

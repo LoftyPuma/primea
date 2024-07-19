@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/main.dart';
@@ -27,44 +26,13 @@ class Account extends StatefulWidget {
 int paragonsCount = Paragon.values.length;
 int gameResultCount = MatchResult.values.length;
 
-class MatchAggregation {
-  Map<ParallelType, Map<MatchResult, int>> matches = {};
-}
-
 class _AccountState extends State<Account> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
-  late int matchesPlayed;
-  late int matchesWon;
-  late int matchesLost;
-
   bool playerOne = true;
-  // MatchAggregation matchAggregation = MatchAggregation();
-  late MatchResults matchResults;
-  late Future<List<MatchModel>> matchList;
-
-  generateSampleMatches() {
-    return List.generate(
-      4,
-      (index) {
-        var result = MatchResult.values[Random().nextInt(gameResultCount)];
-        var mmrDelta = Random().nextInt(25);
-        if (result == MatchResult.disconnect || result == MatchResult.draw) {
-          mmrDelta = 0;
-        } else if (result == MatchResult.loss) {
-          mmrDelta = -mmrDelta;
-        }
-        return MatchModel(
-          paragon: Paragon.values[Random().nextInt(paragonsCount)],
-          playerOne: Random().nextBool(),
-          result: result,
-          opponentUsername: 'Sample Opponent #$index',
-          opponentParagon: Paragon.values[Random().nextInt(paragonsCount)],
-          mmrDelta: mmrDelta,
-        );
-      },
-    );
-  }
+  MatchResults matchResults = MatchResults();
+  List<MatchModel> matchList = List.empty(growable: true);
+  late Future<List<MatchModel>> matchListFuture;
 
   Future<List<MatchModel>> fetchMatches() async {
     var matches = await supabase
@@ -80,26 +48,21 @@ class _AccountState extends State<Account> {
 
   Future<MatchResults> fetchMatchResults() async {
     var results = await supabase.rpc('get_player_results');
-    print(results);
     return MatchResults.fromJson(results);
   }
 
   @override
   initState() {
-    if (supabase.auth.currentUser != null) {
-      fetchMatchResults().then((results) {
-        setState(() {
-          matchResults = results;
-        });
-      });
+    fetchMatchResults().then((results) {
       setState(() {
-        matchList = fetchMatches();
+        matchResults = results;
       });
-    } else {
-      var matches = generateSampleMatches();
-      for (var i = 0; i < matches; i++) {}
-      matchList = Future.value(matches);
-    }
+    });
+
+    setState(() {
+      matchListFuture = fetchMatches();
+    });
+
     super.initState();
   }
 
@@ -113,15 +76,6 @@ class _AccountState extends State<Account> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (session == null || session.isExpired)
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(
-                    'Sample data shown below.\nSign in to save your matches.',
-                    style: Theme.of(context).textTheme.headlineLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -191,28 +145,29 @@ class _AccountState extends State<Account> {
                         child: QuickAddButton(
                           parallel: parallel,
                           onSelection: (parallel, result) async {
-                            var newMatch = MatchModel(
-                              paragon: widget.chosenParagon,
-                              opponentParagon:
-                                  Paragon.values.byName(parallel.name),
-                              playerOne: playerOne,
-                              result: result,
-                            );
-                            if (session != null) {
-                              var response = await supabase
-                                  .from(MatchModel.gamesTableName)
-                                  .insert(
-                                [
-                                  newMatch.toJson(),
-                                ],
-                                defaultToNull: false,
-                              ).select();
-                              newMatch = MatchModel.fromJson(response[0]);
-                            }
+                            var response = await supabase
+                                .from(MatchModel.gamesTableName)
+                                .insert(
+                              [
+                                MatchModel(
+                                  paragon: widget.chosenParagon,
+                                  opponentParagon:
+                                      Paragon.values.byName(parallel.name),
+                                  playerOne: playerOne,
+                                  result: result,
+                                ).toJson(),
+                              ],
+                              defaultToNull: false,
+                            ).select();
+                            var newMatch = MatchModel.fromJson(response[0]);
                             setState(() {
-                              // _listKey.currentState!.insertItem(0);
-                              // matchList.insert(0, newMatch);
+                              matchList.insert(0, newMatch);
+                              matchResults.recordMatch(newMatch);
                             });
+                            _listKey.currentState!.insertItem(
+                              0,
+                              duration: const Duration(milliseconds: 250),
+                            );
                           },
                         ),
                       ),
@@ -220,55 +175,56 @@ class _AccountState extends State<Account> {
                     .toList(),
               ),
               FutureBuilder(
-                future: matchList,
+                future: matchListFuture,
                 builder: (context, snapshot) {
-                  List<MatchModel> matchList;
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
                     case ConnectionState.active:
                       return const CircularProgressIndicator();
                     case ConnectionState.done:
                       if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                        matchList = snapshot.data!;
+                        for (var match in snapshot.data!.reversed) {
+                          if (!matchList.contains(match)) {
+                            matchList.insert(0, match);
+                            matchResults.recordMatch(match);
+                          }
+                        }
                         break;
-                      } else if (session == null || session.isExpired) {
-                        matchList = generateSampleMatches();
-                      } else {
-                        matchList = [];
-                        return const Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ParagonStack(
-                                game: MatchModel(
-                                  paragon: Paragon.unknown,
-                                  playerOne: true,
-                                  result: MatchResult.draw,
-                                ),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Add a match to get started!'),
-                                  ],
-                                ),
-                              ),
-                              Tooltip(
-                                message: "TBD",
-                                child: Icon(
-                                  Icons.question_mark_outlined,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
                       }
+                      continue noData;
+                    noData:
                     default:
-                      matchList = generateSampleMatches();
+                      return const Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ParagonStack(
+                              game: MatchModel(
+                                paragon: Paragon.unknown,
+                                playerOne: true,
+                                result: MatchResult.draw,
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Add a match to get started!'),
+                                ],
+                              ),
+                            ),
+                            Tooltip(
+                              message: "TBD",
+                              child: Icon(
+                                Icons.question_mark_outlined,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
                   }
                   return AnimatedList(
                     key: _listKey,
@@ -283,16 +239,11 @@ class _AccountState extends State<Account> {
                     initialItemCount: matchList.length,
                     itemBuilder: (context, index, animation) {
                       final match = matchList[index];
-                      return SlideTransition(
-                        position: animation.drive(
-                          Tween(
-                            begin: Offset.zero,
-                            end: Offset(MediaQuery.of(context).size.width, 0),
-                          ),
-                        ),
+                      return SizeTransition(
+                        sizeFactor: animation,
                         child: Match(
                           match: match,
-                          onEdit: (BuildContext context) async {
+                          onEdit: (context) async {
                             var updatedMatch = await showDialog<MatchModel>(
                               context: context,
                               builder: (context) {
@@ -314,6 +265,33 @@ class _AccountState extends State<Account> {
                                 matchList[index] = updatedMatch;
                               });
                             }
+                          },
+                          onDelete: (context) async {
+                            var removed = matchList.removeAt(index);
+
+                            var response = await supabase
+                                .from(MatchModel.gamesTableName)
+                                .delete()
+                                .eq("id", removed.id!)
+                                .select();
+                            print(response);
+                            setState(() {
+                              matchResults.removeMatch(removed);
+                            });
+                            _listKey.currentState!.removeItem(
+                              index,
+                              (context, animation) {
+                                return SizeTransition(
+                                  sizeFactor: animation,
+                                  child: Match(
+                                    match: removed,
+                                    onEdit: (context) {},
+                                    onDelete: (context) {},
+                                  ),
+                                );
+                              },
+                              duration: const Duration(milliseconds: 250),
+                            );
                           },
                         ),
                       );
