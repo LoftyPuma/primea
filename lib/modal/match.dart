@@ -112,24 +112,38 @@ class MatchModalState extends State<MatchModal> {
                 children: [
                   const Padding(
                     padding: EdgeInsets.all(16),
-                    child: Text('On the Draw'),
+                    child: Text('On the Play'),
                   ),
                   Tooltip(
                     message:
-                        playerOne ? 'You play first' : 'Opponent plays first',
+                        !playerOne ? 'You play first' : 'Opponent plays first',
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Switch(
-                        value: playerOne,
+                        value: !playerOne,
                         onChanged: (value) => setState(() {
-                          playerOne = value;
+                          playerOne = !value;
                         }),
+                        trackColor: WidgetStateColor.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
+                        ),
+                        thumbColor: WidgetStateColor.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? Theme.of(context).colorScheme.outline
+                              : Theme.of(context).colorScheme.onPrimary,
+                        ),
                       ),
                     ),
                   ),
                   const Padding(
                     padding: EdgeInsets.all(16),
-                    child: Text('On the Play'),
+                    child: Text('On the Draw'),
                   ),
                 ],
               ),
@@ -233,10 +247,16 @@ class MatchModalState extends State<MatchModal> {
                       const SizedBox(width: 64),
                       ElevatedButton(
                         onPressed: () {
+                          var currentPlayer = paragon.title.isEmpty
+                              ? paragon.name
+                              : paragon.title;
+                          var opponent = opponentParagon.title.isEmpty
+                              ? opponentParagon.name
+                              : opponentParagon.title;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                "Saving match: ${paragon.title.toTitleCase()} vs ${opponentParagon.title.toTitleCase()}",
+                                "Saving match: ${currentPlayer.toTitleCase()} vs ${opponent.toTitleCase()}",
                               ),
                             ),
                           );
@@ -246,10 +266,16 @@ class MatchModalState extends State<MatchModal> {
                               opponentParagon: opponentParagon,
                               playerOne: playerOne,
                               result: result.first,
-                              opponentUsername: opponentUsernameController.text,
-                              mmrDelta: int.tryParse(mmrDeltaController.text),
-                              primeEarned:
-                                  double.tryParse(primeController.text),
+                              opponentUsername:
+                                  opponentUsernameController.text.isEmpty
+                                      ? null
+                                      : opponentUsernameController.text,
+                              mmrDelta: mmrDeltaController.text.isEmpty
+                                  ? null
+                                  : int.tryParse(mmrDeltaController.text),
+                              primeEarned: primeController.text.isEmpty
+                                  ? null
+                                  : double.tryParse(primeController.text),
                             ),
                           );
                         },

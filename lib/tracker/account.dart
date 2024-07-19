@@ -160,23 +160,26 @@ class _AccountState extends State<Account> {
                         child: QuickAddButton(
                           parallel: parallel,
                           onSelection: (parallel, result) async {
-                            var response = await supabase
-                                .from(MatchModel.gamesTableName)
-                                .insert(
-                              [
-                                MatchModel(
-                                  paragon: widget.chosenParagon,
-                                  opponentParagon:
-                                      Paragon.values.byName(parallel.name),
-                                  playerOne: playerOne,
-                                  result: result,
-                                ).toJson(),
-                              ],
-                              defaultToNull: false,
-                            ).select();
-                            MatchModel game = MatchModel.fromJson(response[0]);
+                            var newMatch = MatchModel(
+                              paragon: widget.chosenParagon,
+                              opponentParagon:
+                                  Paragon.values.byName(parallel.name),
+                              playerOne: playerOne,
+                              result: result,
+                            );
+                            if (widget.session != null) {
+                              var response = await supabase
+                                  .from(MatchModel.gamesTableName)
+                                  .insert(
+                                [
+                                  newMatch.toJson(),
+                                ],
+                                defaultToNull: false,
+                              ).select();
+                              newMatch = MatchModel.fromJson(response[0]);
+                            }
                             setState(() {
-                              matchList.insert(0, game);
+                              matchList.insert(0, newMatch);
                             });
                           },
                         ),
@@ -202,7 +205,7 @@ class _AccountState extends State<Account> {
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () async {
-                          var updatedMatch = await showDialog(
+                          var updatedMatch = await showDialog<MatchModel>(
                             context: context,
                             builder: (context) {
                               return MatchModal(
@@ -210,12 +213,15 @@ class _AccountState extends State<Account> {
                               );
                             },
                           );
-                          print(updatedMatch);
-                          if (updatedMatch != null && updatedMatch.id != null) {
-                            await supabase
-                                .from(MatchModel.gamesTableName)
-                                .update(updatedMatch.toJson())
-                                .eq("id", match.id!);
+                          if (updatedMatch != null) {
+                            if (updatedMatch.id != null &&
+                                widget.session != null &&
+                                widget.session!.isExpired) {
+                              await supabase
+                                  .from(MatchModel.gamesTableName)
+                                  .update(updatedMatch.toJson())
+                                  .eq("id", match.id!);
+                            }
                             setState(() {
                               matchList[index] = updatedMatch;
                             });

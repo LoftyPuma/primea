@@ -138,7 +138,7 @@ class _HomeState extends State<Home> {
         defaultMatches: (session != null && !session!.isExpired)
             ? []
             : List.generate(
-                16,
+                4,
                 (index) {
                   var result =
                       GameResult.values[Random().nextInt(gameResultCount)];
@@ -157,9 +157,6 @@ class _HomeState extends State<Home> {
                     opponentParagon:
                         Paragon.values[Random().nextInt(paragonsCount)],
                     mmrDelta: mmrDelta,
-                    // dateTime: DateTime.now(),
-                    // primeEarned: 0.128,
-                    // keysActivated: [],
                   );
                 },
               ),
@@ -175,13 +172,15 @@ class _HomeState extends State<Home> {
                 setState(() {
                   chosenParagon = paragon;
                 });
-                supabase.auth.updateUser(
-                  UserAttributes(
-                    data: <String, dynamic>{
-                      "paragon": paragon.name,
-                    },
-                  ),
-                );
+                if (session != null || !session!.isExpired) {
+                  supabase.auth.updateUser(
+                    UserAttributes(
+                      data: <String, dynamic>{
+                        "paragon": paragon.name,
+                      },
+                    ),
+                  );
+                }
                 Navigator.pop(context);
               },
             );
