@@ -7,6 +7,7 @@ import 'package:parallel_stats/tracker/match_model.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/progress_card.dart';
 import 'package:parallel_stats/tracker/quick_add.dart';
+import 'package:parallel_stats/util/string.dart';
 
 class DummyAccount extends StatefulWidget {
   final Paragon chosenParagon;
@@ -166,6 +167,25 @@ class _DummyAccountState extends State<DummyAccount> {
                               playerOne: playerOne,
                               result: result,
                             );
+                            var currentPlayer =
+                                widget.chosenParagon.title.isEmpty
+                                    ? widget.chosenParagon.name
+                                    : widget.chosenParagon.title;
+                            var opponentParagon =
+                                Paragon.values.byName(parallel.name);
+                            var opponent = opponentParagon.title.isEmpty
+                                ? opponentParagon.name
+                                : opponentParagon.title;
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                showCloseIcon: true,
+                                content: Text(
+                                  "Saving match: ${currentPlayer.toTitleCase()} vs ${opponent.toTitleCase()}",
+                                ),
+                              ),
+                            );
+
                             setState(() {
                               matchList.insert(0, newMatch);
                               matchResults.recordMatch(newMatch);
@@ -209,6 +229,7 @@ class _DummyAccountState extends State<DummyAccount> {
                         if (updatedMatch != null) {
                           setState(() {
                             matchList[index] = updatedMatch;
+                            matchResults.updateMatch(match, updatedMatch);
                           });
                         }
                       },

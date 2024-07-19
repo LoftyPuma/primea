@@ -105,6 +105,11 @@ class MatchResults {
         onThePlay.disconnect--;
     }
   }
+
+  void updateMatch(MatchModel oldMatch, MatchModel newMatch) {
+    removeMatch(oldMatch);
+    recordMatch(newMatch);
+  }
 }
 
 class MatchModel {

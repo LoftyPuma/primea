@@ -246,6 +246,7 @@ class MatchModalState extends State<MatchModal> {
                             : opponentParagon.title;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
+                            showCloseIcon: true,
                             content: Text(
                               "Saving match: ${currentPlayer.toTitleCase()} vs ${opponent.toTitleCase()}",
                             ),
