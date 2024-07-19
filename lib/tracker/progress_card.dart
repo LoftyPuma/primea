@@ -39,11 +39,11 @@ class ProgressCard extends StatelessWidget {
               text: TextSpan(children: [
                 TextSpan(
                   text: '${(winRate * 100).toStringAsFixed(0)}%\n',
-                  style: Theme.of(context).textTheme.displayMedium,
+                  style: Theme.of(context).textTheme.displaySmall,
                 ),
                 TextSpan(
                   text: title,
-                  style: Theme.of(context).textTheme.labelMedium,
+                  style: Theme.of(context).textTheme.labelSmall,
                 ),
               ]),
             )

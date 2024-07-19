@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:parallel_stats/tracker/keys.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 
-enum GameResult {
+enum MatchResult {
   win(color: Colors.green, icon: Icons.check_circle, tooltip: 'Win'),
   loss(color: Colors.red, icon: Icons.cancel, tooltip: 'Loss'),
   draw(color: Colors.grey, icon: Icons.remove_circle, tooltip: 'Draw'),
   disconnect(color: Colors.orange, icon: Icons.error, tooltip: 'Disconnect');
 
-  const GameResult({
+  const MatchResult({
     required this.icon,
     required this.color,
     required this.tooltip,
@@ -19,13 +19,88 @@ enum GameResult {
   final String tooltip;
 }
 
+class TurnMatchResults {
+  double win;
+  double loss;
+  double draw;
+  double disconnect;
+
+  TurnMatchResults()
+      : win = 0,
+        loss = 0,
+        draw = 0,
+        disconnect = 0;
+
+  fromJson(Map<String, dynamic> json) {
+    switch (json['result']) {
+      case 'win':
+        win += json['count'];
+        break;
+      case 'loss':
+        loss += json['count'];
+        break;
+      case 'draw':
+        draw += json['count'];
+        break;
+      case 'disconnect':
+        disconnect += json['count'];
+        break;
+    }
+  }
+
+  double get winRate => win / total;
+
+  double get total => win + loss + draw;
+}
+
+class MatchResults {
+  TurnMatchResults onThePlay;
+  TurnMatchResults onTheDraw;
+
+  MatchResults()
+      : onTheDraw = TurnMatchResults(),
+        onThePlay = TurnMatchResults();
+
+  MatchResults.fromJson(List<dynamic> json)
+      : onTheDraw = TurnMatchResults(),
+        onThePlay = TurnMatchResults() {
+    for (final result in json) {
+      switch (result['player_one']) {
+        case true:
+          onThePlay.fromJson(result);
+          break;
+        case false:
+          onTheDraw.fromJson(result);
+          break;
+      }
+    }
+  }
+
+  recordMatch(MatchModel match) {
+    switch (match.result) {
+      case MatchResult.win:
+        match.playerOne ? onThePlay.win++ : onTheDraw.win++;
+      case MatchResult.loss:
+        match.playerOne ? onThePlay.loss++ : onTheDraw.loss++;
+      case MatchResult.draw:
+        match.playerOne ? onThePlay.draw++ : onTheDraw.draw++;
+      case MatchResult.disconnect:
+        onThePlay.disconnect++;
+    }
+  }
+
+  double get winRate => (onThePlay.win + onTheDraw.win) / total;
+
+  double get total => onThePlay.total + onTheDraw.total;
+}
+
 class MatchModel {
   static const gamesTableName = 'games';
 
   final String? id;
   final Paragon paragon;
   final bool playerOne;
-  final GameResult result;
+  final MatchResult result;
   final DateTime? dateTime;
   final String? opponentUsername;
   final Paragon opponentParagon;
@@ -50,7 +125,7 @@ class MatchModel {
       : id = json['id'],
         paragon = Paragon.values.byName(json['paragon']),
         playerOne = json['player_one'],
-        result = GameResult.values.byName(json['result']),
+        result = MatchResult.values.byName(json['result']),
         dateTime =
             json['game_time'] != null ? DateTime.parse(json['dateTime']) : null,
         opponentUsername = json['opponent_username'],

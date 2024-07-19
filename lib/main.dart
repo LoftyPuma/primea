@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/modal/paragon_picker.dart';
 import 'package:parallel_stats/modal/sign_in.dart';
 import 'package:parallel_stats/tracker/account.dart';
-import 'package:parallel_stats/tracker/game_model.dart';
+import 'package:parallel_stats/tracker/dummy_account.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -48,6 +46,41 @@ class App extends StatelessWidget {
         child: Home(title: title),
       ),
     );
+  }
+}
+
+class InheritedSession extends InheritedModel<Session> {
+  final Session? session;
+
+  const InheritedSession({
+    super.key,
+    required super.child,
+    required this.session,
+  });
+
+  static InheritedSession? maybeOf(BuildContext context, [String? aspect]) {
+    return InheritedModel.inheritFrom<InheritedSession>(context,
+        aspect: aspect);
+  }
+
+  static InheritedSession of(BuildContext context, [String? aspect]) {
+    final session =
+        InheritedModel.inheritFrom<InheritedSession>(context, aspect: aspect);
+    assert(session != null, 'No InheritedSession found in context');
+    return session!;
+  }
+
+  @override
+  bool updateShouldNotify(InheritedSession oldWidget) {
+    return oldWidget.session != session;
+  }
+
+  @override
+  bool updateShouldNotifyDependent(
+    InheritedSession oldWidget,
+    Set<Session> dependencies,
+  ) {
+    return oldWidget.session != session;
   }
 }
 
@@ -103,92 +136,74 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: Image.asset("assets/favicon.png"),
-        actions: [
-          if (session != null && !session!.isExpired)
-            TextButton.icon(
-              icon: const Icon(Icons.logout),
-              label: const Text('Sign Out'),
-              onPressed: () async {
-                await supabase.auth.signOut();
-              },
-            ),
-          if (session == null || session!.isExpired)
-            TextButton.icon(
-              icon: const Icon(Icons.login),
-              label: const Text('Sign In'),
-              onPressed: () async {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return const Dialog(
-                      child: SignInModal(),
-                    );
-                  },
-                );
-              },
-            ),
-        ],
-      ),
-      body: Account(
-        chosenParagon: chosenParagon,
-        session: session,
-        defaultMatches: (session != null && !session!.isExpired)
-            ? []
-            : List.generate(
-                4,
-                (index) {
-                  var result =
-                      GameResult.values[Random().nextInt(gameResultCount)];
-                  var mmrDelta = Random().nextInt(25);
-                  if (result == GameResult.disconnect ||
-                      result == GameResult.draw) {
-                    mmrDelta = 0;
-                  } else if (result == GameResult.loss) {
-                    mmrDelta = -mmrDelta;
-                  }
-                  return MatchModel(
-                    paragon: Paragon.values[Random().nextInt(paragonsCount)],
-                    playerOne: Random().nextBool(),
-                    result: result,
-                    opponentUsername: 'Sample Opponent #$index',
-                    opponentParagon:
-                        Paragon.values[Random().nextInt(paragonsCount)],
-                    mmrDelta: mmrDelta,
+    return InheritedSession(
+      session: session,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: Image.asset("assets/favicon.png"),
+          actions: [
+            if (session != null && !session!.isExpired)
+              TextButton.icon(
+                icon: const Icon(Icons.logout),
+                label: const Text('Sign Out'),
+                onPressed: () async {
+                  await supabase.auth.signOut();
+                },
+              ),
+            if (session == null || session!.isExpired)
+              TextButton.icon(
+                icon: const Icon(Icons.login),
+                label: const Text('Sign In'),
+                onPressed: () async {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return const Dialog(
+                        child: SignInModal(),
+                      );
+                    },
                   );
                 },
               ),
-      ),
-      floatingActionButton: IconButton(
-        onPressed: () => showModalBottomSheet(
-          showDragHandle: false,
-          enableDrag: false,
-          context: context,
-          builder: (context) {
-            return ParagonPicker(
-              onParagonSelected: (paragon) {
-                setState(() {
-                  chosenParagon = paragon;
-                });
-                if (session != null || !session!.isExpired) {
-                  supabase.auth.updateUser(
-                    UserAttributes(
-                      data: <String, dynamic>{
-                        "paragon": paragon.name,
-                      },
-                    ),
-                  );
-                }
-                Navigator.pop(context);
-              },
-            );
-          },
+          ],
         ),
-        icon: ParagonAvatar(
-          paragon: chosenParagon,
-          tooltip: "Select your Paragon",
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: session == null
+              ? DummyAccount(chosenParagon: chosenParagon)
+              : Account(
+                  chosenParagon: chosenParagon,
+                ),
+        ),
+        floatingActionButton: IconButton(
+          onPressed: () => showModalBottomSheet(
+            showDragHandle: false,
+            enableDrag: false,
+            context: context,
+            builder: (context) {
+              return ParagonPicker(
+                onParagonSelected: (paragon) {
+                  setState(() {
+                    chosenParagon = paragon;
+                  });
+                  if (session != null && !session!.isExpired) {
+                    supabase.auth.updateUser(
+                      UserAttributes(
+                        data: <String, dynamic>{
+                          "paragon": paragon.name,
+                        },
+                      ),
+                    );
+                  }
+                  Navigator.pop(context);
+                },
+              );
+            },
+          ),
+          icon: ParagonAvatar(
+            paragon: chosenParagon,
+            tooltip: "Select your Paragon",
+          ),
         ),
       ),
     );

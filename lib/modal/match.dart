@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/modal/paragon_picker.dart';
-import 'package:parallel_stats/tracker/game_model.dart';
+import 'package:parallel_stats/tracker/match_model.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
 import 'package:parallel_stats/util/string.dart';
@@ -13,7 +13,7 @@ class MatchModal extends StatefulWidget {
     this.match = const MatchModel(
       paragon: Paragon.unknown,
       playerOne: true,
-      result: GameResult.win,
+      result: MatchResult.win,
     ),
   });
 
@@ -25,7 +25,7 @@ class MatchModalState extends State<MatchModal> {
   late Paragon paragon;
   late Paragon opponentParagon;
   late bool playerOne;
-  late Set<GameResult> result;
+  late Set<MatchResult> result;
   TextEditingController opponentUsernameController = TextEditingController();
   TextEditingController mmrDeltaController = TextEditingController();
   TextEditingController primeController = TextEditingController();
@@ -155,7 +155,7 @@ class MatchModalState extends State<MatchModal> {
                   showSelectedIcon: false,
                   // selectedIcon: const Icon(Icons.check),
                   selected: result,
-                  segments: GameResult.values
+                  segments: MatchResult.values
                       .map(
                         (gameResult) => ButtonSegment(
                           value: gameResult,

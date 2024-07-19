@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/tracker/game_model.dart';
+import 'package:parallel_stats/tracker/match_model.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
 
 class ParagonStack extends StatelessWidget {
