@@ -172,7 +172,10 @@ class _DummyAccountState extends State<DummyAccount> {
                               result: result,
                             );
                             setState(() {
-                              _listKey.currentState!.insertItem(0);
+                              _listKey.currentState!.insertItem(
+                                0,
+                                duration: const Duration(milliseconds: 250),
+                              );
                               matchList.insert(0, newMatch);
                               matchResults.recordMatch(newMatch);
                             });
@@ -195,14 +198,8 @@ class _DummyAccountState extends State<DummyAccount> {
                 initialItemCount: matchList.length,
                 itemBuilder: (context, index, animation) {
                   final match = matchList[index];
-                  return SlideTransition(
-                    position: animation.drive(
-                      Tween(
-                        begin: Offset.zero,
-                        end: Offset.zero,
-                        // end: Offset(MediaQuery.of(context).size.width, 0),
-                      ),
-                    ),
+                  return SizeTransition(
+                    sizeFactor: animation,
                     child: Match(
                       match: match,
                       onEdit: (BuildContext context) async {

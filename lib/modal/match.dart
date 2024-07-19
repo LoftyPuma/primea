@@ -170,119 +170,112 @@ class MatchModalState extends State<MatchModal> {
               ),
               SizedBox(
                 width: 500,
-                child: ExpansionTile(
-                  title: const Text('Advanced Options'),
-                  initiallyExpanded: false,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: SizedBox(
-                            width: 250,
-                            child: TextField(
-                              controller: opponentUsernameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Opponent Username',
-                              ),
-                            ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: SizedBox(
+                        width: 250,
+                        child: TextField(
+                          controller: opponentUsernameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Opponent Username',
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: SizedBox(
-                            width: 50,
-                            child: TextField(
-                              controller: mmrDeltaController,
-                              textAlign: TextAlign.center,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                signed: true,
-                                decimal: false,
-                              ),
-                              decoration: const InputDecoration(
-                                labelText: 'MMR',
-                              ),
-                            ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: SizedBox(
+                        width: 50,
+                        child: TextField(
+                          controller: mmrDeltaController,
+                          textAlign: TextAlign.center,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            signed: true,
+                            decimal: false,
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: 'MMR',
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: SizedBox(
-                            width: 100,
-                            child: TextField(
-                              controller: primeController,
-                              textAlign: TextAlign.center,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                signed: false,
-                                decimal: true,
-                              ),
-                              decoration: const InputDecoration(
-                                labelText: 'PRIME',
-                                // suffix: Text("MMR"),
-                              ),
-                            ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: SizedBox(
+                        width: 100,
+                        child: TextField(
+                          controller: primeController,
+                          textAlign: TextAlign.center,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            signed: false,
+                            decimal: true,
+                          ),
+                          decoration: const InputDecoration(
+                            labelText: 'PRIME',
+                            // suffix: Text("MMR"),
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
               ),
               Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                      const SizedBox(width: 64),
-                      ElevatedButton(
-                        onPressed: () {
-                          var currentPlayer = paragon.title.isEmpty
-                              ? paragon.name
-                              : paragon.title;
-                          var opponent = opponentParagon.title.isEmpty
-                              ? opponentParagon.name
-                              : opponentParagon.title;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                "Saving match: ${currentPlayer.toTitleCase()} vs ${opponent.toTitleCase()}",
-                              ),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                    const SizedBox(width: 64),
+                    ElevatedButton(
+                      onPressed: () {
+                        var currentPlayer = paragon.title.isEmpty
+                            ? paragon.name
+                            : paragon.title;
+                        var opponent = opponentParagon.title.isEmpty
+                            ? opponentParagon.name
+                            : opponentParagon.title;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Saving match: ${currentPlayer.toTitleCase()} vs ${opponent.toTitleCase()}",
                             ),
-                          );
-                          Navigator.of(context).pop(
-                            MatchModel(
-                              paragon: paragon,
-                              opponentParagon: opponentParagon,
-                              playerOne: playerOne,
-                              result: result.first,
-                              opponentUsername:
-                                  opponentUsernameController.text.isEmpty
-                                      ? null
-                                      : opponentUsernameController.text,
-                              mmrDelta: mmrDeltaController.text.isEmpty
-                                  ? null
-                                  : int.tryParse(mmrDeltaController.text),
-                              primeEarned: primeController.text.isEmpty
-                                  ? null
-                                  : double.tryParse(primeController.text),
-                            ),
-                          );
-                        },
-                        child: const Text('Save'),
-                      ),
-                    ],
-                  )),
+                          ),
+                        );
+                        Navigator.of(context).pop(
+                          MatchModel(
+                            paragon: paragon,
+                            opponentParagon: opponentParagon,
+                            playerOne: playerOne,
+                            result: result.first,
+                            opponentUsername:
+                                opponentUsernameController.text.isEmpty
+                                    ? null
+                                    : opponentUsernameController.text,
+                            mmrDelta: mmrDeltaController.text.isEmpty
+                                ? null
+                                : int.tryParse(mmrDeltaController.text),
+                            primeEarned: primeController.text.isEmpty
+                                ? null
+                                : double.tryParse(primeController.text),
+                          ),
+                        );
+                      },
+                      child: const Text('Save'),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
