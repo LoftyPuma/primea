@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/main.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:parallel_stats/modal/oauth_button.dart';
 
 class SignInModal extends StatelessWidget {
   const SignInModal({
@@ -17,12 +16,12 @@ class SignInModal extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+        child: const Padding(
+          padding: EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'Sign In',
                 style: TextStyle(
                   fontSize: 24,
@@ -32,25 +31,17 @@ class SignInModal extends StatelessWidget {
               Expanded(
                 child: Center(
                   child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     alignment: WrapAlignment.center,
                     children: [
-                      OutlinedButton.icon(
-                        onPressed: () async {
-                          await supabase.auth.signInWithOAuth(
-                            OAuthProvider.twitch,
-                          );
-                        },
-                        icon: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 8,
-                              top: 8,
-                              bottom: 8,
-                            ),
-                            child: Image.asset(
-                              'assets/brands/twitch/glitch_flat_purple.png',
-                              width: 24,
-                            )),
-                        label: const Text('Sign in with Twitch'),
+                      OAuthButton(
+                        label: "Sign in with Twitch",
+                        icon: "assets/brands/twitch/glitch_flat_purple.png",
+                      ),
+                      OAuthButton(
+                        label: "Sign in with Discord",
+                        icon: "assets/brands/discord/blue_mark.png",
                       ),
                     ],
                   ),

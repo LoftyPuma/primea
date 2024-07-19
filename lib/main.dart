@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:parallel_stats/modal/paragon_picker.dart';
 import 'package:parallel_stats/modal/sign_in.dart';
 import 'package:parallel_stats/tracker/account.dart';
+import 'package:parallel_stats/tracker/game_model.dart';
+import 'package:parallel_stats/tracker/paragon.dart';
+import 'package:parallel_stats/tracker/paragon_avatar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -39,7 +43,6 @@ class App extends StatelessWidget {
           shape: ContinuousRectangleBorder(),
         ),
       ),
-      // darkTheme: ThemeData.dark(useMaterial3: true),
       home: SafeArea(
         child: Home(title: title),
       ),
@@ -61,18 +64,15 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   Session? session = supabase.auth.currentSession;
+  Paragon chosenParagon = Paragon.unknown;
 
-  late final StreamSubscription<AuthState> authSubscription;
-
-  init() {
-    authSubscription =
-        supabase.auth.onAuthStateChange.listen(handleAuthStateChange);
-  }
+  late final StreamSubscription<AuthState> authSubscription =
+      supabase.auth.onAuthStateChange.listen(handleAuthStateChange);
 
   handleAuthStateChange(AuthState data) {
-    if (kDebugMode) {
-      print('event: ${data.event}, session: ${data.session}');
-    }
+    // if (kDebugMode) {
+    print('event: ${data.event}, session: ${data.session}');
+    // }
 
     // switch (data.event) {
     //   case AuthChangeEvent.initialSession:
@@ -99,42 +99,104 @@ class _HomeState extends State<Home> {
   }
 
   @override
+  void initState() {
+    chosenParagon = Paragon.values
+        .byName(session?.user.userMetadata?["paragon"] ?? "unknown");
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    List<Widget> actions = [];
-    if (session != null) {
-      actions.add(
-        TextButton.icon(
-          icon: const Icon(Icons.logout),
-          label: const Text('Sign Out'),
-          onPressed: () async {
-            await supabase.auth.signOut();
-          },
-        ),
-      );
-    } else {
-      actions.add(
-        TextButton.icon(
-          icon: const Icon(Icons.add_box_outlined),
-          label: const Text('Sign In'),
-          onPressed: () async {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const Dialog(
-                  child: SignInModal(),
+    return Scaffold(
+      appBar: AppBar(
+        leading: Image.asset("assets/favicon.png"),
+        actions: [
+          if (session != null && !session!.isExpired)
+            TextButton.icon(
+              icon: const Icon(Icons.logout),
+              label: const Text('Sign Out'),
+              onPressed: () async {
+                await supabase.auth.signOut();
+              },
+            ),
+          if (session == null || session!.isExpired)
+            TextButton.icon(
+              icon: const Icon(Icons.login),
+              label: const Text('Sign In'),
+              onPressed: () async {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const Dialog(
+                      child: SignInModal(),
+                    );
+                  },
                 );
+              },
+            ),
+        ],
+      ),
+      body: Account(
+        chosenParagon: chosenParagon,
+        defaultMatches: (session != null && !session!.isExpired)
+            ? []
+            : List.generate(
+                16,
+                (index) {
+                  var result =
+                      GameResult.values[Random().nextInt(gameResultCount)];
+                  var mmrDelta = Random().nextInt(25);
+                  if (result == GameResult.disconnect ||
+                      result == GameResult.draw) {
+                    mmrDelta = 0;
+                  } else if (result == GameResult.loss) {
+                    mmrDelta = -mmrDelta;
+                  }
+                  return MatchModel(
+                    paragon: Paragon.values[Random().nextInt(paragonsCount)],
+                    playerOne: Random().nextBool(),
+                    result: result,
+                    opponentUsername: 'Sample Opponent #$index',
+                    opponentParagon:
+                        Paragon.values[Random().nextInt(paragonsCount)],
+                    mmrDelta: mmrDelta,
+                    // dateTime: DateTime.now(),
+                    // primeEarned: 0.128,
+                    // keysActivated: [],
+                  );
+                },
+              ),
+      ),
+      floatingActionButton: IconButton(
+        onPressed: () => showModalBottomSheet(
+          showDragHandle: false,
+          enableDrag: false,
+          context: context,
+          builder: (context) {
+            return ParagonPicker(
+              onParagonSelected: (paragon) async {
+                setState(() {
+                  chosenParagon = paragon;
+                });
+                if (session != null && !session!.isExpired) {
+                  await supabase.auth.updateUser(
+                    UserAttributes(
+                      data: <String, dynamic>{
+                        "paragon": paragon.name,
+                      },
+                    ),
+                  );
+                }
+                Navigator.pop(context);
               },
             );
           },
         ),
-      );
-    }
-    return Scaffold(
-      appBar: AppBar(
-        leading: Image.asset("assets/favicon.png"),
-        actions: actions,
+        icon: ParagonAvatar(
+          paragon: chosenParagon,
+          tooltip: "Select your Paragon",
+        ),
       ),
-      body: const Account(),
     );
   }
 }

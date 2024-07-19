@@ -78,6 +78,11 @@ enum Paragon {
   ),
 
   // augencore
+  augencore(
+    title: "",
+    parallel: ParallelType.augencore,
+    image: "assets/unknown_origin.png",
+  ),
   jahn(
     title: 'Jahn',
     parallel: ParallelType.augencore,
@@ -97,6 +102,11 @@ enum Paragon {
   ),
 
   // earthen
+  earthen(
+    title: "",
+    parallel: ParallelType.earthen,
+    image: "assets/unknown_origin.png",
+  ),
   gaffar(
     title: "Gaffar",
     parallel: ParallelType.earthen,
@@ -117,6 +127,11 @@ enum Paragon {
   ),
 
   // kathari
+  kathari(
+    title: "",
+    parallel: ParallelType.kathari,
+    image: "assets/unknown_origin.png",
+  ),
   aetio(
     title: "Aetio",
     parallel: ParallelType.kathari,
@@ -135,6 +150,11 @@ enum Paragon {
   ),
 
   // marcolian
+  marcolian(
+    title: "",
+    parallel: ParallelType.marcolian,
+    image: "assets/unknown_origin.png",
+  ),
   lemieux(
     title: "Lemieux",
     parallel: ParallelType.marcolian,
@@ -154,6 +174,11 @@ enum Paragon {
   ),
 
   // shroud
+  shroud(
+    title: "",
+    parallel: ParallelType.shroud,
+    image: "assets/unknown_origin.png",
+  ),
   brand(
     title: "Brand",
     parallel: ParallelType.shroud,

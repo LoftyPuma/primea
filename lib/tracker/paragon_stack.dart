@@ -3,7 +3,7 @@ import 'package:parallel_stats/tracker/game_model.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
 
 class ParagonStack extends StatelessWidget {
-  final GameModel game;
+  final MatchModel game;
 
   const ParagonStack({
     super.key,

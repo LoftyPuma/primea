@@ -1,14 +1,19 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/main.dart';
-import 'package:parallel_stats/modal/game.dart';
 import 'package:parallel_stats/tracker/game_model.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_stack.dart';
+import 'package:parallel_stats/tracker/progress_card.dart';
+import 'package:parallel_stats/tracker/quick_add.dart';
 
 class Account extends StatefulWidget {
-  const Account({super.key});
+  final List<MatchModel> defaultMatches;
+  final Paragon chosenParagon;
+  const Account({
+    super.key,
+    this.defaultMatches = const [],
+    required this.chosenParagon,
+  });
 
   @override
   State<Account> createState() => _AccountState();
@@ -18,40 +23,61 @@ int paragonsCount = Paragon.values.length;
 int gameResultCount = GameResult.values.length;
 
 class _AccountState extends State<Account> {
-  final List<GameModel> games = List.generate(
-    2,
-    (index) {
-      var result = GameResult.values[Random().nextInt(gameResultCount)];
-      var mmrDelta = Random().nextInt(25);
-      if (result == GameResult.disconnect || result == GameResult.draw) {
-        mmrDelta = 0;
-      } else if (result == GameResult.loss) {
-        mmrDelta = -mmrDelta;
-      }
-      return GameModel(
-        paragon: Paragon.values[Random().nextInt(paragonsCount)],
-        playerOne: Random().nextBool(),
-        result: result,
-        opponentUsername: 'Sample Opponent #$index',
-        opponentParagon: Paragon.values[Random().nextInt(paragonsCount)],
-        mmrDelta: mmrDelta,
-        // dateTime: DateTime.now(),
-        // primeEarned: 0.128,
-        // keysActivated: [],
-      );
-    },
-  );
+  final List<MatchModel> gameList = [];
+  // final List<GameModel> games = List.generate(
+  //   2,
+  //   (index) {
+  //     var result = GameResult.values[Random().nextInt(gameResultCount)];
+  //     var mmrDelta = Random().nextInt(25);
+  //     if (result == GameResult.disconnect || result == GameResult.draw) {
+  //       mmrDelta = 0;
+  //     } else if (result == GameResult.loss) {
+  //       mmrDelta = -mmrDelta;
+  //     }
+  //     return GameModel(
+  //       paragon: Paragon.values[Random().nextInt(paragonsCount)],
+  //       playerOne: Random().nextBool(),
+  //       result: result,
+  //       opponentUsername: 'Sample Opponent #$index',
+  //       opponentParagon: Paragon.values[Random().nextInt(paragonsCount)],
+  //       mmrDelta: mmrDelta,
+  //       // dateTime: DateTime.now(),
+  //       // primeEarned: 0.128,
+  //       // keysActivated: [],
+  //     );
+  //   },
+  // );
 
-  // TODO: bring the next game state up to the Account widget
-  GameModal? nextGame;
+  bool playerOne = true;
+
+  @override
+  initState() {
+    if (widget.defaultMatches.isNotEmpty) {
+      gameList.addAll(widget.defaultMatches);
+    } else {
+      supabase
+          .from(MatchModel.gamesTableName)
+          .select()
+          .order(
+            "created_at",
+            ascending: false,
+          )
+          .then((games) {
+        setState(() {
+          gameList.addAll(games.map((game) => MatchModel.fromJson(game)));
+        });
+      });
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     var overallWinRate =
-        games.where((game) => game.result == GameResult.win).length /
-            games.length;
-    var onThePlayGames = games.where((game) => game.playerOne);
-    var onTheDrawGames = games.where((game) => !game.playerOne);
+        gameList.where((game) => game.result == GameResult.win).length /
+            gameList.length;
+    var onThePlayGames = gameList.where((game) => game.playerOne);
+    var onTheDrawGames = gameList.where((game) => !game.playerOne);
     var onThePlayWinRate =
         onThePlayGames.where((game) => game.result == GameResult.win).length /
             onThePlayGames.length;
@@ -68,83 +94,79 @@ class _AccountState extends State<Account> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                  ProgressCard(
+                    winRate: overallWinRate,
+                    title: "Overall Win Rate",
+                  ),
+                  if (onThePlayGames.isNotEmpty)
+                    ProgressCard(
+                      winRate: onThePlayWinRate,
+                      title: "On the Play Win Rate",
                     ),
-                    child: SizedBox.square(
-                      dimension: 200,
-                      child: Center(
-                        child: RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(children: [
-                            TextSpan(
-                              text:
-                                  '${(overallWinRate * 100).toStringAsFixed(0)}%\n',
-                              style: Theme.of(context).textTheme.displayMedium,
-                            ),
-                            TextSpan(
-                              text: 'Overall Win Rate',
-                              style: Theme.of(context).textTheme.labelMedium,
-                            ),
-                          ]),
-                        ),
+                  if (onTheDrawGames.isNotEmpty)
+                    ProgressCard(
+                      winRate: onTheDrawWinRate,
+                      title: "On the Draw Win Rate",
+                    ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('On the Draw'),
+                  ),
+                  Tooltip(
+                    message:
+                        playerOne ? 'You play first' : 'Opponent plays first',
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Switch(
+                        value: playerOne,
+                        onChanged: (value) => setState(() {
+                          playerOne = value;
+                        }),
                       ),
                     ),
                   ),
-                  if (onThePlayGames.isNotEmpty)
-                    Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: SizedBox.square(
-                        dimension: 200,
-                        child: Center(
-                          child: RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(children: [
-                              TextSpan(
-                                text:
-                                    '${(onThePlayWinRate * 100).toStringAsFixed(0)}%\n',
-                                style:
-                                    Theme.of(context).textTheme.displayMedium,
-                              ),
-                              TextSpan(
-                                text: 'On the Play Win Rate',
-                                style: Theme.of(context).textTheme.labelMedium,
-                              ),
-                            ]),
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (onTheDrawGames.isNotEmpty)
-                    Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: SizedBox.square(
-                        dimension: 200,
-                        child: Center(
-                          child: RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(children: [
-                              TextSpan(
-                                text:
-                                    '${(onTheDrawWinRate * 100).toStringAsFixed(0)}%\n',
-                                style:
-                                    Theme.of(context).textTheme.displayMedium,
-                              ),
-                              TextSpan(
-                                text: 'On the Draw Win Rate',
-                                style: Theme.of(context).textTheme.labelMedium,
-                              ),
-                            ]),
-                          ),
-                        ),
-                      ),
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('On the Play'),
+                  ),
                 ],
+              ),
+              Wrap(
+                spacing: 8,
+                alignment: WrapAlignment.spaceAround,
+                children: ParallelType.values
+                    .where((parallel) => parallel != ParallelType.universal)
+                    .map(
+                      (parallel) => Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: QuickAddButton(
+                          parallel: parallel,
+                          onSelection: (parallel, result) async {
+                            var response = await supabase
+                                .from(MatchModel.gamesTableName)
+                                .insert(
+                                  MatchModel(
+                                    paragon: widget.chosenParagon,
+                                    opponentParagon:
+                                        Paragon.values.byName(parallel.name),
+                                    playerOne: playerOne,
+                                    result: result,
+                                  ).toJson(),
+                                  defaultToNull: false,
+                                )
+                                .select();
+                            print(response);
+                          },
+                        ),
+                      ),
+                    )
+                    .toList(),
               ),
               ListView.builder(
                 shrinkWrap: true,
@@ -155,88 +177,65 @@ class _AccountState extends State<Account> {
                   right: 8,
                   bottom: 8,
                 ),
-                itemCount: games.length + 1,
+                itemCount: gameList.length,
                 itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return OutlinedButton.icon(
-                        onPressed: () async {
-                          var game = await showDialog<GameModel>(
-                            context: context,
-                            builder: (context) => const GameModal(),
-                          );
-                          if (game == null) return;
-                          var returnedGame = await supabase
-                              .from(GameModel.gamesTableName)
-                              .insert(game.toJson())
-                              .single();
-                          setState(() {
-                            games.add(GameModel.fromJson(returnedGame));
-                          });
-                        },
-                        label: const Text('Add Match'),
-                        icon: const Icon(Icons.add),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(72),
-                        ));
-                  } else {
-                    final game = games[index - 1];
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ParagonStack(game: game),
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Tooltip(
-                            message:
-                                game.playerOne ? 'On the Play' : 'On the Draw',
-                            child: Icon(
-                              game.playerOne
-                                  ? Icons.swipe_up
-                                  : Icons.sim_card_download,
-                              color: game.playerOne
-                                  ? Colors.yellow[600]
-                                  : Colors.cyan,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(game.opponentUsername ?? 'Unknown Opponent'),
-                              if (game.mmrDelta != null)
-                                Text("${game.mmrDelta} MMR"),
-                            ],
-                          ),
-                        ),
-                        Tooltip(
-                          message: game.result.tooltip,
+                  final game = gameList[index];
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ParagonStack(game: game),
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Tooltip(
+                          message:
+                              game.playerOne ? 'On the Play' : 'On the Draw',
                           child: Icon(
-                            game.result.icon,
-                            color: game.result.color,
+                            game.playerOne
+                                ? Icons.swipe_up
+                                : Icons.sim_card_download,
+                            color: game.playerOne
+                                ? Colors.yellow[600]
+                                : Colors.cyan,
                           ),
                         ),
-                      ],
-                    );
-                  }
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(game.opponentUsername ?? 'Unknown Opponent'),
+                            if (game.mmrDelta != null)
+                              Text("${game.mmrDelta} MMR"),
+                          ],
+                        ),
+                      ),
+                      Tooltip(
+                        message: game.result.tooltip,
+                        child: Icon(
+                          game.result.icon,
+                          color: game.result.color,
+                        ),
+                      ),
+                    ],
+                  );
                 },
               ),
-              if (games.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(8),
+              if (gameList.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(8),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ParagonStack(
-                        game: GameModel(
+                        game: MatchModel(
                           paragon: Paragon.unknown,
                           playerOne: true,
                           result: GameResult.draw,
                         ),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -246,7 +245,7 @@ class _AccountState extends State<Account> {
                           ],
                         ),
                       ),
-                      const Tooltip(
+                      Tooltip(
                         message: "TBD",
                         child: Icon(
                           Icons.question_mark_outlined,

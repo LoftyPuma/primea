@@ -61,6 +61,7 @@ flutter:
     - assets/unknown_origin.png
     - assets/paragons/
     - assets/brands/twitch/
+    - assets/brands/discord/
     - assets/favicon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see

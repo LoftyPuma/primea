@@ -19,7 +19,7 @@ enum GameResult {
   final String tooltip;
 }
 
-class GameModel {
+class MatchModel {
   static const gamesTableName = 'games';
 
   final String? id;
@@ -33,7 +33,7 @@ class GameModel {
   final double? primeEarned;
   final List<KeyModel> keysActivated;
 
-  GameModel({
+  const MatchModel({
     required this.paragon,
     required this.playerOne,
     required this.result,
@@ -46,15 +46,15 @@ class GameModel {
     this.keysActivated = const [],
   });
 
-  GameModel.fromJson(Map<String, dynamic> json)
+  MatchModel.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        paragon = json['paragon'],
+        paragon = Paragon.values.byName(json['paragon']),
         playerOne = json['player_one'],
-        result = json['result'],
+        result = GameResult.values.byName(json['result']),
         dateTime =
             json['game_time'] != null ? DateTime.parse(json['dateTime']) : null,
         opponentUsername = json['opponent_username'],
-        opponentParagon = json['opponent_paragon'],
+        opponentParagon = Paragon.values.byName(json['opponent_paragon']),
         mmrDelta = json['mmr_delta'],
         primeEarned = json['prime_earned'],
         keysActivated = List<KeyModel>.empty();

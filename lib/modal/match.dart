@@ -5,21 +5,42 @@ import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
 import 'package:parallel_stats/util/string.dart';
 
-class GameModal extends StatefulWidget {
-  const GameModal({super.key});
+class MatchModal extends StatefulWidget {
+  final MatchModel match;
+
+  const MatchModal({
+    super.key,
+    this.match = const MatchModel(
+      paragon: Paragon.unknown,
+      playerOne: true,
+      result: GameResult.win,
+    ),
+  });
 
   @override
-  State<StatefulWidget> createState() => GameModalState();
+  State<StatefulWidget> createState() => MatchModalState();
 }
 
-class GameModalState extends State<GameModal> {
-  Paragon paragon = Paragon.unknown;
-  Paragon opponentParagon = Paragon.unknown;
-  bool playerOne = true;
-  Set<GameResult> result = {GameResult.draw};
+class MatchModalState extends State<MatchModal> {
+  late Paragon paragon;
+  late Paragon opponentParagon;
+  late bool playerOne;
+  late Set<GameResult> result;
   TextEditingController opponentUsernameController = TextEditingController();
   TextEditingController mmrDeltaController = TextEditingController();
   TextEditingController primeController = TextEditingController();
+
+  @override
+  void initState() {
+    paragon = widget.match.paragon;
+    opponentParagon = widget.match.opponentParagon;
+    playerOne = widget.match.playerOne;
+    result = {widget.match.result};
+    opponentUsernameController.text = widget.match.opponentUsername ?? '';
+    mmrDeltaController.text = widget.match.mmrDelta?.toString() ?? '';
+    primeController.text = widget.match.primeEarned?.toString() ?? '';
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +112,7 @@ class GameModalState extends State<GameModal> {
                 children: [
                   const Padding(
                     padding: EdgeInsets.all(16),
-                    child: Text('On the Play'),
+                    child: Text('On the Draw'),
                   ),
                   Tooltip(
                     message:
@@ -105,6 +126,10 @@ class GameModalState extends State<GameModal> {
                         }),
                       ),
                     ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('On the Play'),
                   ),
                 ],
               ),
@@ -208,23 +233,25 @@ class GameModalState extends State<GameModal> {
                       const SizedBox(width: 64),
                       ElevatedButton(
                         onPressed: () {
-                          final game = GameModel(
-                            paragon: paragon,
-                            opponentParagon: opponentParagon,
-                            playerOne: playerOne,
-                            result: result.first,
-                            opponentUsername: opponentUsernameController.text,
-                            mmrDelta: int.tryParse(mmrDeltaController.text),
-                            primeEarned: double.tryParse(primeController.text),
-                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                "Saving game: ${game.paragon.title.toTitleCase()} vs ${game.opponentParagon.title.toTitleCase()}",
+                                "Saving match: ${paragon.title.toTitleCase()} vs ${opponentParagon.title.toTitleCase()}",
                               ),
                             ),
                           );
-                          Navigator.of(context).pop(game);
+                          Navigator.of(context).pop(
+                            MatchModel(
+                              paragon: paragon,
+                              opponentParagon: opponentParagon,
+                              playerOne: playerOne,
+                              result: result.first,
+                              opponentUsername: opponentUsernameController.text,
+                              mmrDelta: int.tryParse(mmrDeltaController.text),
+                              primeEarned:
+                                  double.tryParse(primeController.text),
+                            ),
+                          );
                         },
                         child: const Text('Save'),
                       ),

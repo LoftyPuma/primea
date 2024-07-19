@@ -4,10 +4,12 @@ import 'package:parallel_stats/util/string.dart';
 
 class ParagonAvatar extends StatelessWidget {
   final Paragon paragon;
+  final String? tooltip;
 
   const ParagonAvatar({
     super.key,
     required this.paragon,
+    this.tooltip,
   });
 
   @override
@@ -24,14 +26,17 @@ class ParagonAvatar extends StatelessWidget {
           textAlign: TextAlign.center,
           richMessage: TextSpan(
             children: [
-              TextSpan(text: "${paragon.title}\n"),
-              TextSpan(text: paragon.parallel.name.toTitleCase()),
+              if (tooltip != null) TextSpan(text: tooltip),
+              if (tooltip == null)
+                TextSpan(
+                    text:
+                        "${paragon.title}\n${paragon.parallel.name.toTitleCase()}"),
             ],
           ),
           child: CircleAvatar(
             radius: 36,
             backgroundColor: Colors.transparent,
-            child: paragon != Paragon.unknown
+            child: paragon.image != Paragon.unknown.image
                 ? Image.asset(paragon.image)
                 : Padding(
                     padding: const EdgeInsets.all(8),
