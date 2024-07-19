@@ -21,12 +21,16 @@ class Match extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.edit),
-          onPressed: () => onEdit(context),
+          onPressed: () {
+            onEdit(context);
+          },
         ),
         IconButton(
           icon: const Icon(Icons.delete),
           color: Colors.red,
-          onPressed: () => onDelete(context),
+          onPressed: () {
+            onDelete(context);
+          },
         ),
         ParagonStack(game: match),
         Padding(
