@@ -22,31 +22,15 @@ class Account extends StatefulWidget {
 int paragonsCount = Paragon.values.length;
 int gameResultCount = GameResult.values.length;
 
+class MatchAggregation {
+  Map<ParallelType, Map<GameResult, int>> matches = {};
+}
+
 class _AccountState extends State<Account> {
   final List<MatchModel> gameList = [];
-  // final List<GameModel> games = List.generate(
-  //   2,
-  //   (index) {
-  //     var result = GameResult.values[Random().nextInt(gameResultCount)];
-  //     var mmrDelta = Random().nextInt(25);
-  //     if (result == GameResult.disconnect || result == GameResult.draw) {
-  //       mmrDelta = 0;
-  //     } else if (result == GameResult.loss) {
-  //       mmrDelta = -mmrDelta;
-  //     }
-  //     return GameModel(
-  //       paragon: Paragon.values[Random().nextInt(paragonsCount)],
-  //       playerOne: Random().nextBool(),
-  //       result: result,
-  //       opponentUsername: 'Sample Opponent #$index',
-  //       opponentParagon: Paragon.values[Random().nextInt(paragonsCount)],
-  //       mmrDelta: mmrDelta,
-  //       // dateTime: DateTime.now(),
-  //       // primeEarned: 0.128,
-  //       // keysActivated: [],
-  //     );
-  //   },
-  // );
+  late int matchesPlayed;
+  late int matchesWon;
+  late int matchesLost;
 
   bool playerOne = true;
 
@@ -54,7 +38,7 @@ class _AccountState extends State<Account> {
   initState() {
     if (widget.defaultMatches.isNotEmpty) {
       gameList.addAll(widget.defaultMatches);
-    } else {
+    } else if (supabase.auth.currentUser != null) {
       supabase
           .from(MatchModel.gamesTableName)
           .select()
@@ -116,24 +100,38 @@ class _AccountState extends State<Account> {
                 children: [
                   const Padding(
                     padding: EdgeInsets.all(16),
-                    child: Text('On the Draw'),
+                    child: Text('On the Play'),
                   ),
                   Tooltip(
                     message:
-                        playerOne ? 'You play first' : 'Opponent plays first',
+                        !playerOne ? 'You play first' : 'Opponent plays first',
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Switch(
-                        value: playerOne,
+                        value: !playerOne,
                         onChanged: (value) => setState(() {
-                          playerOne = value;
+                          playerOne = !value;
                         }),
+                        trackColor: WidgetStateColor.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer,
+                        ),
+                        thumbColor: WidgetStateColor.resolveWith(
+                          (states) => states.contains(WidgetState.selected)
+                              ? Theme.of(context).colorScheme.outline
+                              : Theme.of(context).colorScheme.onPrimary,
+                        ),
                       ),
                     ),
                   ),
                   const Padding(
                     padding: EdgeInsets.all(16),
-                    child: Text('On the Play'),
+                    child: Text('On the Draw'),
                   ),
                 ],
               ),
