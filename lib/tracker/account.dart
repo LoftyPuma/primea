@@ -63,6 +63,27 @@ class _AccountState extends State<Account> {
       matchListFuture = fetchMatches();
     });
 
+    // TODO: Implement streaming matches
+    // supabase
+    //     .from(MatchModel.gamesTableName)
+    //     .stream(primaryKey: ['id']).listen((List<Map<String, dynamic>> data) {
+    //   print(data);
+    //   for (var match in data) {
+    //     final newMatch = MatchModel.fromJson(match);
+    //     if (matchList.indexWhere((element) => element.id == newMatch.id) !=
+    //         -1) {
+    //       continue;
+    //     }
+    //     setState(() {
+    //       matchList.insert(0, MatchModel.fromJson(match));
+    //       _listKey.currentState?.insertItem(
+    //         0,
+    //         duration: const Duration(milliseconds: 250),
+    //       );
+    //     });
+    //   }
+    // });
+
     super.initState();
   }
 
@@ -79,17 +100,23 @@ class _AccountState extends State<Account> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  ProgressCard(
-                    winRate: matchResults.winRate,
-                    title: "Win Rate",
+                  FittedBox(
+                    child: ProgressCard(
+                      winRate: matchResults.winRate,
+                      title: "Win Rate",
+                    ),
                   ),
-                  ProgressCard(
-                    winRate: matchResults.onThePlay.winRate,
-                    title: "On the Play",
+                  FittedBox(
+                    child: ProgressCard(
+                      winRate: matchResults.onThePlay.winRate,
+                      title: "On the Play",
+                    ),
                   ),
-                  ProgressCard(
-                    winRate: matchResults.onTheDraw.winRate,
-                    title: "On the Draw",
+                  FittedBox(
+                    child: ProgressCard(
+                      winRate: matchResults.onTheDraw.winRate,
+                      title: "On the Draw",
+                    ),
                   ),
                 ],
               ),
@@ -269,15 +296,16 @@ class _AccountState extends State<Account> {
                           onDelete: (context) async {
                             var removed = matchList.removeAt(index);
 
-                            var response = await supabase
+                            await supabase
                                 .from(MatchModel.gamesTableName)
                                 .delete()
                                 .eq("id", removed.id!)
                                 .select();
-                            print(response);
+
                             setState(() {
                               matchResults.removeMatch(removed);
                             });
+
                             _listKey.currentState!.removeItem(
                               index,
                               (context, animation) {

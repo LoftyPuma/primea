@@ -50,7 +50,7 @@ class Match extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(match.opponentUsername ?? 'Unknown Opponent'),
-              if (match.mmrDelta != null) Text("${match.mmrDelta} MMR"),
+              Text("${match.mmrDelta ?? "?"} MMR"),
             ],
           ),
         ),

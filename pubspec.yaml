@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  file_picker: ^8.0.0+1
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.10+1
@@ -63,6 +64,7 @@ flutter:
     - assets/brands/twitch/
     - assets/brands/discord/
     - assets/favicon.png
+    - assets/fonts/monaspace-v1.101/fonts/variable/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -75,17 +77,22 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+  fonts:
+    - family: Argon
+      fonts:
+        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceArgonVarVF[wght,wdth,slnt].ttf
+    - family: Krypton
+      fonts:
+        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceArgonVarVF[wght,wdth,slnt].ttf
+    - family: Neon
+      fonts:
+        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceArgonVarVF[wght,wdth,slnt].ttf
+    - family: Radon
+      fonts:
+        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceArgonVarVF[wght,wdth,slnt].ttf
+    - family: Xenon
+      fonts:
+        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceArgonVarVF[wght,wdth,slnt].ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

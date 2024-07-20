@@ -142,7 +142,7 @@ class MatchModel {
   MatchModel.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         paragon = Paragon.values.byName(json['paragon']),
-        playerOne = json['player_one'],
+        playerOne = json['player_one'] ?? true,
         result = MatchResult.values.byName(json['result']),
         dateTime =
             json['game_time'] != null ? DateTime.parse(json['dateTime']) : null,

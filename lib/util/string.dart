@@ -1,6 +1,6 @@
 extension StringExtension on String {
-  String toTitleCase() {
-    return split(' ').map((word) => word.capitalize()).join(' ');
+  String toTitleCase({String delimiter = ' '}) {
+    return split(delimiter).map((word) => word.capitalize()).join(' ');
   }
 
   String capitalize() {

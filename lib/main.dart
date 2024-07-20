@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:parallel_stats/modal/import.dart';
 import 'package:parallel_stats/modal/paragon_picker.dart';
 import 'package:parallel_stats/modal/sign_in.dart';
 import 'package:parallel_stats/tracker/account.dart';
 import 'package:parallel_stats/tracker/dummy_account.dart';
+import 'package:parallel_stats/tracker/match_model.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -143,6 +145,47 @@ class _HomeState extends State<Home> {
           leading: Image.asset("assets/favicon.png"),
           actions: [
             if (session != null && !session!.isExpired)
+              OutlinedButton.icon(
+                icon: const Icon(Icons.upload_file),
+                label: const Text("Import CSV"),
+                onPressed: () async {
+                  final importedMatches = await showDialog<List<MatchModel>>(
+                    context: context,
+                    builder: (context) => const Dialog(
+                      child: Import(),
+                    ),
+                  );
+                  if (importedMatches != null) {
+                    final importResult = await supabase
+                        .from(MatchModel.gamesTableName)
+                        .insert(
+                          importedMatches
+                              .map((match) => match.toJson())
+                              .toList(),
+                        )
+                        .select();
+                    if (mounted) {
+                      // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(context).showMaterialBanner(
+                        MaterialBanner(
+                          content: Text(
+                              "Imported ${importResult.length} matches. Refresh the page to see them."),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                ScaffoldMessenger.of(context)
+                                    .hideCurrentMaterialBanner();
+                              },
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
+            if (session != null && !session!.isExpired)
               TextButton.icon(
                 icon: const Icon(Icons.logout),
                 label: const Text('Sign Out'),
@@ -154,14 +197,12 @@ class _HomeState extends State<Home> {
               TextButton.icon(
                 icon: const Icon(Icons.login),
                 label: const Text('Sign In'),
-                onPressed: () async {
+                onPressed: () {
                   showDialog(
                     context: context,
-                    builder: (context) {
-                      return const Dialog(
-                        child: SignInModal(),
-                      );
-                    },
+                    builder: (context) => const Dialog(
+                      child: SignInModal(),
+                    ),
                   );
                 },
               ),
