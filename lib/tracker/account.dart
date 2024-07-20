@@ -130,7 +130,7 @@ class _AccountState extends State<Account> {
                   ),
                   Tooltip(
                     message:
-                        !playerOne ? 'You play first' : 'Opponent plays first',
+                        playerOne ? 'You play first' : 'Opponent plays first',
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Switch(
@@ -294,6 +294,7 @@ class _AccountState extends State<Account> {
                             }
                           },
                           onDelete: (context) async {
+                            // TODO: Fix this delete not deleting
                             var removed = matchList.removeAt(index);
 
                             await supabase

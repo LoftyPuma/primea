@@ -116,7 +116,7 @@ class MatchModalState extends State<MatchModal> {
                   ),
                   Tooltip(
                     message:
-                        !playerOne ? 'You play first' : 'Opponent plays first',
+                        playerOne ? 'You play first' : 'Opponent plays first',
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Switch(

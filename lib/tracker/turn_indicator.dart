@@ -21,7 +21,7 @@ class TurnIndicator extends StatelessWidget {
           child: Text('On the Play'),
         ),
         Tooltip(
-          message: !playerOne ? 'You play first' : 'Opponent plays first',
+          message: playerOne ? 'You play first' : 'Opponent plays first',
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Switch(
