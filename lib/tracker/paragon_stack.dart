@@ -17,11 +17,11 @@ class ParagonStack extends StatelessWidget {
       child: Stack(
         alignment: Alignment.centerLeft,
         children: [
-          ParagonAvatar(paragon: game.paragon),
           Positioned(
             left: 64,
             child: ParagonAvatar(paragon: game.opponentParagon),
           ),
+          ParagonAvatar(paragon: game.paragon),
         ],
       ),
     );

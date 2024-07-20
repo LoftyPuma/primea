@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 enum ParallelType {
   universal(
     backgroundGradient: LinearGradient(
-      begin: Alignment.bottomLeft,
-      end: Alignment.topRight,
+      begin: Alignment.bottomRight,
+      end: Alignment.topLeft,
       colors: [
         Colors.black87,
         Colors.transparent,
@@ -13,8 +13,8 @@ enum ParallelType {
   ),
   augencore(
     backgroundGradient: LinearGradient(
-      begin: Alignment.bottomLeft,
-      end: Alignment.topRight,
+      begin: Alignment.bottomRight,
+      end: Alignment.topLeft,
       colors: [
         Color.fromARGB(225, 255, 116, 50),
         Colors.transparent,
@@ -23,8 +23,8 @@ enum ParallelType {
   ),
   earthen(
     backgroundGradient: LinearGradient(
-      begin: Alignment.bottomLeft,
-      end: Alignment.topRight,
+      begin: Alignment.bottomRight,
+      end: Alignment.topLeft,
       colors: [
         Color.fromARGB(225, 73, 188, 49),
         Colors.transparent,
@@ -33,8 +33,8 @@ enum ParallelType {
   ),
   kathari(
     backgroundGradient: LinearGradient(
-      begin: Alignment.bottomLeft,
-      end: Alignment.topRight,
+      begin: Alignment.bottomRight,
+      end: Alignment.topLeft,
       colors: [
         Color.fromARGB(225, 30, 144, 221),
         Colors.transparent,
@@ -43,8 +43,8 @@ enum ParallelType {
   ),
   marcolian(
     backgroundGradient: LinearGradient(
-      begin: Alignment.bottomLeft,
-      end: Alignment.topRight,
+      begin: Alignment.bottomRight,
+      end: Alignment.topLeft,
       colors: [
         Color.fromARGB(225, 226, 10, 26),
         Colors.transparent,
@@ -53,8 +53,8 @@ enum ParallelType {
   ),
   shroud(
     backgroundGradient: LinearGradient(
-      begin: Alignment.bottomLeft,
-      end: Alignment.topRight,
+      begin: Alignment.bottomRight,
+      end: Alignment.topLeft,
       colors: [
         Color.fromARGB(225, 100, 56, 198),
         Colors.transparent,
