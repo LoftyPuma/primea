@@ -259,6 +259,7 @@ class MatchModalState extends State<MatchModal> {
                             opponentParagon: opponentParagon,
                             playerOne: playerOne,
                             result: result.first,
+                            matchTime: widget.match.matchTime,
                             opponentUsername:
                                 opponentUsernameController.text.isEmpty
                                     ? null
