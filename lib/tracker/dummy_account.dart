@@ -46,7 +46,7 @@ class _DummyAccountState extends State<DummyAccount> {
         opponentUsername: 'Sample Opponent #$index',
         opponentParagon: Paragon.values[Random().nextInt(paragonsCount)],
         mmrDelta: mmrDelta,
-        primeEarned: Random().nextDouble(),
+        primeEarned: result == MatchResult.win ? Random().nextDouble() : 0,
         matchTime: DateTime.now().subtract(
           Duration(
             days: Random().nextInt(30),
