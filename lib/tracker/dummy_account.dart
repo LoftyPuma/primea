@@ -174,6 +174,7 @@ class _DummyAccountState extends State<DummyAccount> {
                                   Paragon.values.byName(parallel.name),
                               playerOne: playerOne,
                               result: result,
+                              matchTime: DateTime.now(),
                             );
                             var currentPlayer =
                                 widget.chosenParagon.title.isEmpty
