@@ -30,7 +30,7 @@ class _DummyAccountState extends State<DummyAccount> {
   bool playerOne = true;
   MatchResults matchResults = MatchResults();
   late List<MatchModel> matchList = List.generate(
-    4,
+    8,
     (index) {
       var result = MatchResult.values[Random().nextInt(gameResultCount)];
       var mmrDelta = Random().nextInt(25);
@@ -46,9 +46,17 @@ class _DummyAccountState extends State<DummyAccount> {
         opponentUsername: 'Sample Opponent #$index',
         opponentParagon: Paragon.values[Random().nextInt(paragonsCount)],
         mmrDelta: mmrDelta,
+        primeEarned: Random().nextDouble(),
+        matchTime: DateTime.now().subtract(
+          Duration(
+            days: Random().nextInt(30),
+            hours: Random().nextInt(24),
+            minutes: Random().nextInt(60),
+          ),
+        ),
       );
     },
-  );
+  )..sort((a, b) => b.matchTime!.compareTo(a.matchTime!));
 
   @override
   initState() {

@@ -24,13 +24,29 @@ class ParagonAvatar extends StatelessWidget {
         ),
         child: Tooltip(
           textAlign: TextAlign.center,
+          preferBelow: true,
+          verticalOffset: 48,
           richMessage: TextSpan(
             children: [
               if (tooltip != null) TextSpan(text: tooltip),
               if (tooltip == null)
                 TextSpan(
-                    text:
-                        "${paragon.title}\n${paragon.parallel.name.toTitleCase()}"),
+                  children: [
+                    if (paragon.title.isNotEmpty)
+                      TextSpan(
+                        text: paragon.title,
+                        // style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                    if (paragon.title.isNotEmpty &&
+                        paragon.parallel.name != ParallelType.universal.name)
+                      const TextSpan(text: '\n'),
+                    if (paragon.parallel.name != ParallelType.universal.name)
+                      TextSpan(
+                        text: paragon.parallel.name.toTitleCase(),
+                        // style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                  ],
+                )
             ],
           ),
           child: CircleAvatar(

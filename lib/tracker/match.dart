@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:parallel_stats/tracker/match_model.dart';
 import 'package:parallel_stats/tracker/paragon_stack.dart';
 
@@ -49,8 +50,37 @@ class Match extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(match.opponentUsername ?? 'Unknown Opponent'),
-              Text("${match.mmrDelta ?? "?"} MMR"),
+              Text(
+                match.opponentUsername ?? 'Unknown Opponent',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              if (match.matchTime != null)
+                Text(
+                  DateFormat.MMMMd().add_jm().format(match.matchTime!),
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    if (match.mmrDelta != null)
+                      TextSpan(
+                        text: "${match.mmrDelta} MMR",
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                    if (match.mmrDelta != null && match.primeEarned != null)
+                      TextSpan(
+                        text: " • ",
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                    if (match.primeEarned != null)
+                      TextSpan(
+                        text:
+                            "${match.primeEarned?.toStringAsPrecision(3)} PRIME",
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

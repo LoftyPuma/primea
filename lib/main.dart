@@ -98,30 +98,13 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+  // late final TabController _tabController;
+
   Session? session = supabase.auth.currentSession;
   Paragon chosenParagon = Paragon.unknown;
 
   handleAuthStateChange(AuthState data) {
-    // switch (data.event) {
-    //   case AuthChangeEvent.initialSession:
-    //   // handle initial session
-    //   case AuthChangeEvent.signedIn:
-    //   // handle signed in
-    //   case AuthChangeEvent.signedOut:
-    //   // handle signed out
-    //   case AuthChangeEvent.passwordRecovery:
-    //   // handle password recovery
-    //   case AuthChangeEvent.tokenRefreshed:
-    //   // handle token refreshed
-    //   case AuthChangeEvent.userUpdated:
-    //   // handle user updated
-    //   case AuthChangeEvent.userDeleted:
-    //   // handle user deleted
-    //   case AuthChangeEvent.mfaChallengeVerified:
-    //   // handle mfa challenge verified
-    //   default:
-    // }
     setState(() {
       session = data.session;
     });
@@ -129,6 +112,12 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
+    // _tabController = TabController(
+    //   length: 2,
+    //   vsync: this,
+    //   animationDuration: const Duration(milliseconds: 250),
+    // );
+
     chosenParagon = Paragon.values
         .byName(session?.user.userMetadata?["paragon"] ?? "unknown");
 
@@ -142,7 +131,12 @@ class _HomeState extends State<Home> {
       session: session,
       child: Scaffold(
         appBar: AppBar(
-          leading: Image.asset("assets/favicon.png"),
+          // leading: IconButton(
+          //   icon: const Icon(Icons.menu),
+          //   onPressed: () {},
+          // ),
+          centerTitle: true,
+          title: Image.asset("assets/favicon.png"),
           actions: [
             if (session != null && !session!.isExpired)
               OutlinedButton.icon(
@@ -166,19 +160,12 @@ class _HomeState extends State<Home> {
                         .select();
                     if (mounted) {
                       // ignore: use_build_context_synchronously
-                      ScaffoldMessenger.of(context).showMaterialBanner(
-                        MaterialBanner(
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          showCloseIcon: true,
                           content: Text(
-                              "Imported ${importResult.length} matches. Refresh the page to see them."),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                ScaffoldMessenger.of(context)
-                                    .hideCurrentMaterialBanner();
-                              },
-                              child: const Text("OK"),
-                            ),
-                          ],
+                            "Imported ${importResult.length} matches.",
+                          ),
                         ),
                       );
                     }
@@ -208,14 +195,57 @@ class _HomeState extends State<Home> {
               ),
           ],
         ),
-        body: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 250),
-          child: session == null
-              ? DummyAccount(chosenParagon: chosenParagon)
-              : Account(
-                  chosenParagon: chosenParagon,
-                ),
+        extendBody: true,
+        // bottomNavigationBar: BottomAppBar(
+        //   clipBehavior: Clip.antiAlias,
+        //   shape: const CircularNotchedRectangle(),
+        //   notchMargin: 0,
+        //   child: TabBar(
+        //     controller: _tabController,
+        //     tabAlignment: TabAlignment.fill,
+        //     tabs: const [
+        //       Tab(
+        //         icon: Icon(Icons.games_outlined),
+        //         text: "Matches",
+        //       ),
+        //       Tab(
+        //         icon: Icon(Icons.dashboard_sharp),
+        //         text: "Dashboard",
+        //       ),
+        //     ],
+        //   ),
+        // ),
+        body: ListView(
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              child: session == null
+                  ? DummyAccount(chosenParagon: chosenParagon)
+                  : Account(
+                      chosenParagon: chosenParagon,
+                    ),
+            ),
+          ],
         ),
+        // body: TabBarView(
+        //   controller: _tabController,
+        //   children: [
+        //     ListView(
+        //       children: [
+        //         AnimatedSwitcher(
+        //           duration: const Duration(milliseconds: 250),
+        //           child: session == null
+        //               ? DummyAccount(chosenParagon: chosenParagon)
+        //               : Account(
+        //                   chosenParagon: chosenParagon,
+        //                 ),
+        //         ),
+        //       ],
+        //     ),
+        //     const Dashboard(),
+        //   ],
+        // ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
         floatingActionButton: IconButton(
           onPressed: () => showModalBottomSheet(
             showDragHandle: false,

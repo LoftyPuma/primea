@@ -116,10 +116,11 @@ class MatchModel {
   static const gamesTableName = 'games';
 
   final String? id;
+  final DateTime? createdAt;
   final Paragon paragon;
   final bool playerOne;
   final MatchResult result;
-  final DateTime? dateTime;
+  final DateTime? matchTime;
   final String? opponentUsername;
   final Paragon opponentParagon;
   final int? mmrDelta;
@@ -131,7 +132,8 @@ class MatchModel {
     required this.playerOne,
     required this.result,
     this.id,
-    this.dateTime,
+    this.matchTime,
+    this.createdAt,
     this.opponentUsername,
     this.opponentParagon = Paragon.unknown,
     this.mmrDelta,
@@ -144,25 +146,34 @@ class MatchModel {
         paragon = Paragon.values.byName(json['paragon']),
         playerOne = json['player_one'] ?? true,
         result = MatchResult.values.byName(json['result']),
-        dateTime =
-            json['game_time'] != null ? DateTime.parse(json['dateTime']) : null,
+        createdAt = json['created_at'] != null
+            ? DateTime.parse(json['created_at'])
+            : null,
+        matchTime = json['game_time'] != null
+            ? DateTime.parse(json['game_time'])
+            : null,
         opponentUsername = json['opponent_username'],
         opponentParagon = Paragon.values.byName(json['opponent_paragon']),
         mmrDelta = json['mmr_delta'],
-        primeEarned = json['prime_earned'],
+        primeEarned = json['prime_estimate'],
         keysActivated = List<KeyModel>.empty();
   // keysActivated = List<KeyModel>.from(json['keysActivated']);
 
-  Map<String, dynamic> toJson() => {
-        // 'id': id,
-        'paragon': paragon.name,
-        'player_one': playerOne,
-        'result': result.name,
-        'game_time': dateTime?.toIso8601String(),
-        'opponent_username': opponentUsername,
-        'opponent_paragon': opponentParagon.name,
-        'mmr_delta': mmrDelta,
-        // 'primeEarned': primeEarned,
-        // 'keysActivated': keysActivated,
-      };
+  Map<String, dynamic> toJson() {
+    final json = {
+      'paragon': paragon.name,
+      'player_one': playerOne,
+      'result': result.name,
+      'game_time': matchTime?.toIso8601String(),
+      'opponent_username': opponentUsername,
+      'opponent_paragon': opponentParagon.name,
+      'mmr_delta': mmrDelta,
+      'prime_estimate': primeEarned,
+      // 'keysActivated': keysActivated,
+    };
+    if (id != null) {
+      json['id'] = id;
+    }
+    return json;
+  }
 }

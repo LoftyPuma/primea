@@ -114,7 +114,7 @@ class _ImportState extends State<Import> {
         paragon: paragon,
         playerOne: playerOne,
         result: result,
-        dateTime: dateTime,
+        matchTime: dateTime,
         opponentUsername: opponentUsername,
         opponentParagon: opponentParagon,
         mmrDelta: mmrDelta,
@@ -176,7 +176,7 @@ class _ImportState extends State<Import> {
               Paragon.values[Random().nextInt(Paragon.values.length)],
           mmrDelta: mmrDelta,
           primeEarned: Random().nextDouble(),
-          dateTime: DateTime.now().subtract(
+          matchTime: DateTime.now().subtract(
             Duration(
               days: Random().nextInt(720),
               minutes: Random().nextInt(1440),
@@ -333,7 +333,7 @@ class _ImportState extends State<Import> {
                                 row.primeEarned?.toStringAsPrecision(3) ?? ""),
                           ),
                           TableCell(
-                            child: Text(row.dateTime
+                            child: Text(row.matchTime
                                     ?.toUtc()
                                     .toIso8601String()
                                     .split(".")[0] ??

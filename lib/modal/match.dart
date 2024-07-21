@@ -254,6 +254,7 @@ class MatchModalState extends State<MatchModal> {
                         );
                         Navigator.of(context).pop(
                           MatchModel(
+                            id: widget.match.id,
                             paragon: paragon,
                             opponentParagon: opponentParagon,
                             playerOne: playerOne,

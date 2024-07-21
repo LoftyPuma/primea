@@ -28,16 +28,18 @@ int gameResultCount = MatchResult.values.length;
 
 class _AccountState extends State<Account> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  late StreamSubscription<List<Map<String, dynamic>>> _subscription;
 
   bool playerOne = true;
   MatchResults matchResults = MatchResults();
   List<MatchModel> matchList = List.empty(growable: true);
-  late Future<List<MatchModel>> matchListFuture;
 
-  Future<List<MatchModel>> fetchMatches() async {
+  Future<List<MatchModel>> fetchMatches(MatchModel oldestMatch) async {
     var matches = await supabase
         .from(MatchModel.gamesTableName)
         .select()
+        .lt('game_time',
+            (oldestMatch.matchTime ?? oldestMatch.createdAt!).toIso8601String())
         .order(
           "created_at",
           ascending: false,
@@ -51,6 +53,66 @@ class _AccountState extends State<Account> {
     return MatchResults.fromJson(results);
   }
 
+  Widget placeholder = const Padding(
+    padding: EdgeInsets.all(8),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ParagonStack(
+          game: MatchModel(
+            paragon: Paragon.unknown,
+            playerOne: true,
+            result: MatchResult.draw,
+          ),
+        ),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Add a match to get started!'),
+            ],
+          ),
+        ),
+        Tooltip(
+          message: "TBD",
+          child: Icon(
+            Icons.question_mark_outlined,
+          ),
+        ),
+      ],
+    ),
+  );
+
+  void handleMatchStream(List<Map<String, dynamic>> data) {
+    // print("data streamed: $data");
+    // int lastInertIndex = 0;
+    // reverse the data so the newest matches are at the end of the list
+    for (var match in data.reversed) {
+      final newMatch = MatchModel.fromJson(match);
+      final matchIndex =
+          matchList.indexWhere((match) => match.id == newMatch.id);
+      if (matchIndex != -1) {
+        setState(() {
+          matchResults.updateMatch(matchList[matchIndex], newMatch);
+          // TODO: Sort the list if the match time has changed
+          matchList[matchIndex] = newMatch;
+        });
+      } else {
+        setState(() {
+          // TODO: insert the match in the correct order based on match time
+          matchList.add(newMatch);
+          matchResults.recordMatch(newMatch);
+          _listKey.currentState?.insertItem(
+            matchList.length - 1,
+            duration: const Duration(milliseconds: 250),
+          );
+        });
+      }
+    }
+  }
+
   @override
   initState() {
     fetchMatchResults().then((results) {
@@ -59,203 +121,145 @@ class _AccountState extends State<Account> {
       });
     });
 
-    setState(() {
-      matchListFuture = fetchMatches();
-    });
-
-    // TODO: Implement streaming matches
-    // supabase
-    //     .from(MatchModel.gamesTableName)
-    //     .stream(primaryKey: ['id']).listen((List<Map<String, dynamic>> data) {
-    //   print(data);
-    //   for (var match in data) {
-    //     final newMatch = MatchModel.fromJson(match);
-    //     if (matchList.indexWhere((element) => element.id == newMatch.id) !=
-    //         -1) {
-    //       continue;
-    //     }
-    //     setState(() {
-    //       matchList.insert(0, MatchModel.fromJson(match));
-    //       _listKey.currentState?.insertItem(
-    //         0,
-    //         duration: const Duration(milliseconds: 250),
-    //       );
-    //     });
-    //   }
-    // });
+    _subscription = supabase
+        .from(MatchModel.gamesTableName)
+        .stream(primaryKey: ['id'])
+        .order("game_time", ascending: false)
+        .order("created_at", ascending: false)
+        // .limit(4)
+        .listen(handleMatchStream);
 
     super.initState();
   }
 
   @override
+  void didUpdateWidget(covariant Account oldWidget) {
+    _subscription.cancel();
+    _subscription = supabase
+        .from(MatchModel.gamesTableName)
+        .stream(primaryKey: ['id'])
+        .order("created_at", ascending: true)
+        // .limit(4)
+        .listen(handleMatchStream);
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final Session? session = InheritedSession.maybeOf(context)?.session;
-    return SingleChildScrollView(
-      child: Center(
-        child: SizedBox(
-          width: 720,
-          child: Column(
+
+    return SizedBox(
+      width: 720,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                FittedBox(
+                  child: ProgressCard(
+                    winRate: matchResults.winRate,
+                    title: "Win Rate",
+                  ),
+                ),
+                FittedBox(
+                  child: ProgressCard(
+                    winRate: matchResults.onThePlay.winRate,
+                    title: "On the Play",
+                  ),
+                ),
+                FittedBox(
+                  child: ProgressCard(
+                    winRate: matchResults.onTheDraw.winRate,
+                    title: "On the Draw",
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  FittedBox(
-                    child: ProgressCard(
-                      winRate: matchResults.winRate,
-                      title: "Win Rate",
-                    ),
-                  ),
-                  FittedBox(
-                    child: ProgressCard(
-                      winRate: matchResults.onThePlay.winRate,
-                      title: "On the Play",
-                    ),
-                  ),
-                  FittedBox(
-                    child: ProgressCard(
-                      winRate: matchResults.onTheDraw.winRate,
-                      title: "On the Draw",
-                    ),
-                  ),
-                ],
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('On the Play'),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text('On the Play'),
-                  ),
-                  Tooltip(
-                    message:
-                        playerOne ? 'You play first' : 'Opponent plays first',
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Switch(
-                        value: !playerOne,
-                        onChanged: (value) => setState(() {
-                          playerOne = !value;
-                        }),
-                        trackColor: WidgetStateColor.resolveWith(
-                          (states) => states.contains(WidgetState.selected)
-                              ? Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest
-                              : Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
-                        ),
-                        thumbColor: WidgetStateColor.resolveWith(
-                          (states) => states.contains(WidgetState.selected)
-                              ? Theme.of(context).colorScheme.outline
-                              : Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      ),
+              Tooltip(
+                message: playerOne ? 'You play first' : 'Opponent plays first',
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Switch(
+                    value: !playerOne,
+                    onChanged: (value) => setState(() {
+                      playerOne = !value;
+                    }),
+                    trackColor: WidgetStateColor.resolveWith(
+                      (states) => states.contains(WidgetState.selected)
+                          ? Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                          : Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                    thumbColor: WidgetStateColor.resolveWith(
+                      (states) => states.contains(WidgetState.selected)
+                          ? Theme.of(context).colorScheme.outline
+                          : Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text('On the Draw'),
-                  ),
-                ],
+                ),
               ),
-              Wrap(
-                spacing: 8,
-                alignment: WrapAlignment.spaceAround,
-                children: ParallelType.values
-                    .where((parallel) => parallel != ParallelType.universal)
-                    .map(
-                      (parallel) => Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: QuickAddButton(
-                          parallel: parallel,
-                          onSelection: (parallel, result) async {
-                            var response = await supabase
-                                .from(MatchModel.gamesTableName)
-                                .insert(
-                              [
-                                MatchModel(
-                                  paragon: widget.chosenParagon,
-                                  opponentParagon:
-                                      Paragon.values.byName(parallel.name),
-                                  playerOne: playerOne,
-                                  result: result,
-                                ).toJson(),
-                              ],
-                              defaultToNull: false,
-                            ).select();
-                            var newMatch = MatchModel.fromJson(response[0]);
-                            setState(() {
-                              matchList.insert(0, newMatch);
-                              matchResults.recordMatch(newMatch);
-                            });
-                            _listKey.currentState!.insertItem(
-                              0,
-                              duration: const Duration(milliseconds: 250),
-                            );
-                          },
-                        ),
-                      ),
-                    )
-                    .toList(),
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('On the Draw'),
               ),
-              FutureBuilder(
-                future: matchListFuture,
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                    case ConnectionState.active:
-                      return const CircularProgressIndicator();
-                    case ConnectionState.done:
-                      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                        for (var match in snapshot.data!.reversed) {
-                          if (!matchList.contains(match)) {
-                            matchList.insert(0, match);
-                            matchResults.recordMatch(match);
-                          }
-                        }
-                        break;
-                      }
-                      continue noData;
-                    noData:
-                    default:
-                      return const Padding(
-                        padding: EdgeInsets.all(8),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ParagonStack(
-                              game: MatchModel(
-                                paragon: Paragon.unknown,
-                                playerOne: true,
-                                result: MatchResult.draw,
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Add a match to get started!'),
-                                ],
-                              ),
-                            ),
-                            Tooltip(
-                              message: "TBD",
-                              child: Icon(
-                                Icons.question_mark_outlined,
-                              ),
-                            ),
+            ],
+          ),
+          Wrap(
+            spacing: 8,
+            alignment: WrapAlignment.spaceAround,
+            children: ParallelType.values
+                .where((parallel) => parallel != ParallelType.universal)
+                .map(
+                  (parallel) => Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: QuickAddButton(
+                      parallel: parallel,
+                      onSelection: (parallel, result) async {
+                        await supabase.from(MatchModel.gamesTableName).insert(
+                          [
+                            MatchModel(
+                              paragon: widget.chosenParagon,
+                              opponentParagon:
+                                  Paragon.values.byName(parallel.name),
+                              playerOne: playerOne,
+                              result: result,
+                              matchTime: DateTime.now(),
+                            ).toJson(),
                           ],
-                        ),
-                      );
-                  }
-                  return AnimatedList(
+                          defaultToNull: false,
+                        );
+                      },
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: matchList.isEmpty
+                ? placeholder
+                : AnimatedList(
                     key: _listKey,
                     shrinkWrap: true,
+                    reverse: true,
                     physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.only(
                       top: 8,
@@ -265,7 +269,7 @@ class _AccountState extends State<Account> {
                     ),
                     initialItemCount: matchList.length,
                     itemBuilder: (context, index, animation) {
-                      final match = matchList[index];
+                      final match = matchList.elementAt(index);
                       return SizeTransition(
                         sizeFactor: animation,
                         child: Match(
@@ -282,26 +286,23 @@ class _AccountState extends State<Account> {
                             if (updatedMatch != null) {
                               if (updatedMatch.id != null &&
                                   session != null &&
-                                  session.isExpired) {
+                                  !session.isExpired) {
                                 await supabase
                                     .from(MatchModel.gamesTableName)
                                     .update(updatedMatch.toJson())
                                     .eq("id", match.id!);
                               }
-                              setState(() {
-                                matchList[index] = updatedMatch;
-                              });
                             }
                           },
                           onDelete: (context) async {
-                            // TODO: Fix this delete not deleting
                             var removed = matchList.removeAt(index);
 
-                            await supabase
+                            final response = await supabase
                                 .from(MatchModel.gamesTableName)
                                 .delete()
                                 .eq("id", removed.id!)
                                 .select();
+                            print("delete response: $response");
 
                             setState(() {
                               matchResults.removeMatch(removed);
@@ -325,12 +326,12 @@ class _AccountState extends State<Account> {
                         ),
                       );
                     },
-                  );
-                },
-              ),
-            ],
+                  ),
           ),
-        ),
+          const SizedBox(
+            height: 80,
+          ),
+        ],
       ),
     );
   }
