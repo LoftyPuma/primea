@@ -5,8 +5,8 @@ import 'package:parallel_stats/tracker/paragon_stack.dart';
 
 class Match extends StatelessWidget {
   final MatchModel match;
-  final Function(BuildContext context) onEdit;
-  final Function(BuildContext context) onDelete;
+  final Function(BuildContext context)? onEdit;
+  final Function(BuildContext context)? onDelete;
 
   const Match({
     super.key,
@@ -22,16 +22,20 @@ class Match extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.edit),
-          onPressed: () {
-            onEdit(context);
-          },
+          onPressed: onEdit == null
+              ? null
+              : () {
+                  onEdit!(context);
+                },
         ),
         IconButton(
           icon: const Icon(Icons.delete),
           color: Colors.red,
-          onPressed: () {
-            onDelete(context);
-          },
+          onPressed: onDelete == null
+              ? null
+              : () {
+                  onDelete!(context);
+                },
         ),
         ParagonStack(game: match),
         Padding(

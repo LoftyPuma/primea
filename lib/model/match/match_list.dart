@@ -131,8 +131,8 @@ class MatchList extends ChangeNotifier {
         sizeFactor: animation,
         child: Match(
           match: removed,
-          onEdit: (context) {},
-          onDelete: (context) {},
+          onEdit: null,
+          onDelete: null,
         ),
       ),
       duration: const Duration(milliseconds: 250),

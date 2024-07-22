@@ -105,15 +105,19 @@ class MatchResultsCount {
     switch (match.result) {
       case MatchResultOption.win:
         win -= 1;
+        win = win < 0 ? 0 : win;
         break;
       case MatchResultOption.loss:
         loss -= 1;
+        loss = loss < 0 ? 0 : loss;
         break;
       case MatchResultOption.draw:
         draw -= 1;
+        draw = draw < 0 ? 0 : draw;
         break;
       case MatchResultOption.disconnect:
         disconnect -= 1;
+        disconnect = disconnect < 0 ? 0 : disconnect;
         break;
     }
   }
