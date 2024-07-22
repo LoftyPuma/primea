@@ -5,7 +5,9 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/modal/match.dart';
-import 'package:parallel_stats/tracker/match_model.dart';
+import 'package:parallel_stats/model/match/match_model.dart';
+import 'package:parallel_stats/model/match/match_result_option.dart';
+import 'package:parallel_stats/model/match/player_turn.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/match.dart';
 
@@ -65,9 +67,9 @@ class _ImportState extends State<Import> {
 
       Paragon paragon = Paragon.unknown;
       Paragon opponentParagon = Paragon.unknown;
-      bool playerOne = true;
-      MatchResult result = MatchResult.draw;
-      DateTime? dateTime;
+      MatchResultOption result = MatchResultOption.draw;
+      PlayerTurn turn = PlayerTurn.onThePlay;
+      DateTime matchTime = DateTime.now().toUtc();
       String? opponentUsername;
       int? mmrDelta;
       double? primeEarned;
@@ -86,7 +88,9 @@ class _ImportState extends State<Import> {
               opponentParagon = Paragon.values.byName(values[i]);
               break;
             case CsvColumn.playerOne:
-              playerOne = bool.parse(values[i], caseSensitive: false);
+              turn = bool.parse(values[i], caseSensitive: false)
+                  ? PlayerTurn.onThePlay
+                  : PlayerTurn.onTheDraw;
               break;
             case CsvColumn.opponentUsername:
               opponentUsername = values[i];
@@ -98,10 +102,10 @@ class _ImportState extends State<Import> {
               primeEarned = double.parse(values[i]);
               break;
             case CsvColumn.result:
-              result = MatchResult.values.byName(values[i]);
+              result = MatchResultOption.values.byName(values[i]);
               break;
             case CsvColumn.timestamp:
-              dateTime = DateTime.parse(values[i]);
+              matchTime = DateTime.parse(values[i]);
               break;
           }
         } catch (e) {
@@ -112,9 +116,9 @@ class _ImportState extends State<Import> {
       }
       matches.add(MatchModel(
         paragon: paragon,
-        playerOne: playerOne,
+        playerTurn: turn,
         result: result,
-        matchTime: dateTime,
+        matchTime: matchTime,
         opponentUsername: opponentUsername,
         opponentParagon: opponentParagon,
         mmrDelta: mmrDelta,
@@ -159,17 +163,19 @@ class _ImportState extends State<Import> {
     return List.generate(
       4,
       (index) {
-        var result =
-            MatchResult.values[Random().nextInt(MatchResult.values.length)];
+        var result = MatchResultOption
+            .values[Random().nextInt(MatchResultOption.values.length)];
         var mmrDelta = Random().nextInt(25);
-        if (result == MatchResult.disconnect || result == MatchResult.draw) {
+        if (result == MatchResultOption.disconnect ||
+            result == MatchResultOption.draw) {
           mmrDelta = 0;
-        } else if (result == MatchResult.loss) {
+        } else if (result == MatchResultOption.loss) {
           mmrDelta = -mmrDelta;
         }
         return MatchModel(
           paragon: Paragon.values[Random().nextInt(Paragon.values.length)],
-          playerOne: Random().nextBool(),
+          playerTurn:
+              Random().nextBool() ? PlayerTurn.onThePlay : PlayerTurn.onTheDraw,
           result: result,
           opponentUsername: 'Opponent #$index',
           opponentParagon:
@@ -238,7 +244,7 @@ class _ImportState extends State<Import> {
                   ),
                   WidgetSpan(
                     child: SelectableText(
-                      "[${MatchResult.values.map((result) => result.name).join(', ')}]",
+                      "[${MatchResultOption.values.map((result) => result.name).join(', ')}]",
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontFamily: "Krypton",
                             textBaseline: TextBaseline.alphabetic,
@@ -319,7 +325,7 @@ class _ImportState extends State<Import> {
                           ),
                           TableCell(
                             child: Text(
-                              row.playerOne ? 'true' : 'false',
+                              row.playerTurn.value ? 'true' : 'false',
                             ),
                           ),
                           TableCell(

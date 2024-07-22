@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/modal/paragon_picker.dart';
-import 'package:parallel_stats/tracker/match_model.dart';
+import 'package:parallel_stats/model/match/match_model.dart';
+import 'package:parallel_stats/model/match/match_result_option.dart';
+import 'package:parallel_stats/model/match/player_turn.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
 import 'package:parallel_stats/util/string.dart';
@@ -12,8 +14,8 @@ class MatchModal extends StatefulWidget {
     super.key,
     this.match = const MatchModel(
       paragon: Paragon.unknown,
-      playerOne: true,
-      result: MatchResult.win,
+      playerTurn: PlayerTurn.onThePlay,
+      result: MatchResultOption.win,
     ),
   });
 
@@ -24,8 +26,8 @@ class MatchModal extends StatefulWidget {
 class MatchModalState extends State<MatchModal> {
   late Paragon paragon;
   late Paragon opponentParagon;
-  late bool playerOne;
-  late Set<MatchResult> result;
+  late PlayerTurn playerTurn;
+  late Set<MatchResultOption> result;
   TextEditingController opponentUsernameController = TextEditingController();
   TextEditingController mmrDeltaController = TextEditingController();
   TextEditingController primeController = TextEditingController();
@@ -34,7 +36,7 @@ class MatchModalState extends State<MatchModal> {
   void initState() {
     paragon = widget.match.paragon;
     opponentParagon = widget.match.opponentParagon;
-    playerOne = widget.match.playerOne;
+    playerTurn = widget.match.playerTurn;
     result = {widget.match.result};
     opponentUsernameController.text = widget.match.opponentUsername ?? '';
     mmrDeltaController.text = widget.match.mmrDelta?.toString() ?? '';
@@ -115,14 +117,17 @@ class MatchModalState extends State<MatchModal> {
                     child: Text('On the Play'),
                   ),
                   Tooltip(
-                    message:
-                        playerOne ? 'You play first' : 'Opponent plays first',
+                    message: playerTurn.value
+                        ? 'You play first'
+                        : 'Opponent plays first',
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Switch(
-                        value: !playerOne,
+                        value: !playerTurn.value,
                         onChanged: (value) => setState(() {
-                          playerOne = !value;
+                          playerTurn = value
+                              ? PlayerTurn.onTheDraw
+                              : PlayerTurn.onThePlay;
                         }),
                         trackColor: WidgetStateColor.resolveWith(
                           (states) => states.contains(WidgetState.selected)
@@ -155,7 +160,7 @@ class MatchModalState extends State<MatchModal> {
                   showSelectedIcon: false,
                   // selectedIcon: const Icon(Icons.check),
                   selected: result,
-                  segments: MatchResult.values
+                  segments: MatchResultOption.values
                       .map(
                         (gameResult) => ButtonSegment(
                           value: gameResult,
@@ -257,7 +262,7 @@ class MatchModalState extends State<MatchModal> {
                             id: widget.match.id,
                             paragon: paragon,
                             opponentParagon: opponentParagon,
-                            playerOne: playerOne,
+                            playerTurn: playerTurn,
                             result: result.first,
                             matchTime: widget.match.matchTime,
                             opponentUsername:

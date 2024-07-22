@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/tracker/match_model.dart';
+import 'package:parallel_stats/model/match/match_result_option.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/util/string.dart';
 
 class QuickAddButton extends StatelessWidget {
   final ParallelType parallel;
 
-  final void Function(ParallelType parallel, MatchResult result) onSelection;
+  final void Function(ParallelType parallel, MatchResultOption result)
+      onSelection;
 
   const QuickAddButton({
     super.key,
@@ -26,7 +27,7 @@ class QuickAddButton extends StatelessWidget {
             color: parallel.backgroundGradient.colors[0],
           ),
         ),
-        SegmentedButton<MatchResult>(
+        SegmentedButton<MatchResultOption>(
           showSelectedIcon: false,
           style: SegmentedButton.styleFrom(
             surfaceTintColor: parallel.backgroundGradient.colors[0],
@@ -36,11 +37,11 @@ class QuickAddButton extends StatelessWidget {
           ),
           segments: const [
             ButtonSegment(
-              value: MatchResult.win,
+              value: MatchResultOption.win,
               label: Text('Won'),
             ),
             ButtonSegment(
-              value: MatchResult.loss,
+              value: MatchResultOption.loss,
               label: Text('Lost'),
             ),
           ],
