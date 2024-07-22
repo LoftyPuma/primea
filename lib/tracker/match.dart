@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:parallel_stats/model/match/match_model.dart';
+import 'package:parallel_stats/snack/basic.dart';
 import 'package:parallel_stats/tracker/paragon_stack.dart';
+import 'package:parallel_stats/util/string.dart';
 
 class Match extends StatelessWidget {
   final MatchModel match;
@@ -34,6 +36,21 @@ class Match extends StatelessWidget {
           onPressed: onDelete == null
               ? null
               : () {
+                  var currentPlayer = match.paragon.title.isEmpty
+                      ? match.paragon.name
+                      : match.paragon.title;
+                  var opponent = match.opponentParagon.title.isEmpty
+                      ? match.opponentParagon.name
+                      : match.opponentParagon.title;
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar(
+                    reason: SnackBarClosedReason.hide,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    BasicSnack(
+                      content: Text(
+                          "Deleting ${currentPlayer.toTitleCase()} ${match.result.name} vs ${opponent.toTitleCase()}"),
+                    ),
+                  );
                   onDelete!(context);
                 },
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:parallel_stats/modal/match.dart';
 import 'package:parallel_stats/model/match/inherited_match_list.dart';
 import 'package:parallel_stats/model/match/inherited_match_results.dart';
@@ -27,6 +28,11 @@ class Account extends StatefulWidget {
 
 class _AccountState extends State<Account> {
   PlayerTurn playerTurn = PlayerTurn.onThePlay;
+
+  // Details panel
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _mmrController = TextEditingController();
+  final TextEditingController _primeController = TextEditingController();
 
   Widget placeholder = const Padding(
     padding: EdgeInsets.all(8),
@@ -94,75 +100,176 @@ class _AccountState extends State<Account> {
               ],
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('On the Play'),
+          Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              border: Border.all(
+                width: 2,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
-              Tooltip(
-                message: playerTurn == PlayerTurn.onThePlay
-                    ? 'You play first'
-                    : 'Opponent plays first',
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Switch(
-                    value: !playerTurn.value,
-                    onChanged: (value) {
-                      setState(() {
-                        playerTurn = !value
-                            ? PlayerTurn.onThePlay
-                            : PlayerTurn.onTheDraw;
-                      });
-                    },
-                    trackColor: WidgetStateColor.resolveWith(
-                      (states) => states.contains(WidgetState.selected)
-                          ? Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest
-                          : Theme.of(context).colorScheme.onPrimaryContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('On the Play'),
                     ),
-                    thumbColor: WidgetStateColor.resolveWith(
-                      (states) => states.contains(WidgetState.selected)
-                          ? Theme.of(context).colorScheme.outline
-                          : Theme.of(context).colorScheme.onPrimary,
+                    Tooltip(
+                      message: playerTurn == PlayerTurn.onThePlay
+                          ? 'You play first'
+                          : 'Opponent plays first',
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Switch(
+                          value: !playerTurn.value,
+                          onChanged: (value) {
+                            setState(() {
+                              playerTurn = !value
+                                  ? PlayerTurn.onThePlay
+                                  : PlayerTurn.onTheDraw;
+                            });
+                          },
+                          trackColor: WidgetStateColor.resolveWith(
+                            (states) => states.contains(WidgetState.selected)
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
+                          ),
+                          thumbColor: WidgetStateColor.resolveWith(
+                            (states) => states.contains(WidgetState.selected)
+                                ? Theme.of(context).colorScheme.outline
+                                : Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('On the Draw'),
+                    ),
+                  ],
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('On the Draw'),
-              ),
-            ],
-          ),
-          Wrap(
-            spacing: 8,
-            alignment: WrapAlignment.spaceAround,
-            children: ParallelType.values
-                .where((parallel) => parallel != ParallelType.universal)
-                .map(
-                  (parallel) => Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: QuickAddButton(
-                      parallel: parallel,
-                      onSelection: (parallel, result) async {
-                        final newMatch = MatchModel(
-                          paragon: widget.chosenParagon,
-                          opponentParagon: Paragon.values.byName(parallel.name),
-                          playerTurn: playerTurn,
-                          result: result,
-                          matchTime: DateTime.now(),
-                        );
-                        matchList.add(newMatch);
-                        matchResults.recordMatch(newMatch);
-                      },
+                Wrap(
+                  spacing: 8,
+                  alignment: WrapAlignment.spaceAround,
+                  children: ParallelType.values
+                      .where((parallel) => parallel != ParallelType.universal)
+                      .map(
+                        (parallel) => Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: QuickAddButton(
+                            parallel: parallel,
+                            onSelection: (parallel, result) async {
+                              final newMatch = MatchModel(
+                                paragon: widget.chosenParagon,
+                                opponentParagon:
+                                    Paragon.values.byName(parallel.name),
+                                playerTurn: playerTurn,
+                                result: result,
+                                matchTime: DateTime.now(),
+                                opponentUsername:
+                                    _usernameController.text.isEmpty
+                                        ? null
+                                        : _usernameController.text,
+                                mmrDelta: _mmrController.text.isEmpty
+                                    ? null
+                                    : int.parse(_mmrController.text),
+                                primeEarned: _primeController.text.isEmpty
+                                    ? null
+                                    : double.parse(_primeController.text),
+                              );
+                              await matchList.add(newMatch);
+                              matchResults.recordMatch(newMatch);
+                              _usernameController.clear();
+                              _mmrController.clear();
+                              _primeController.clear();
+                            },
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+                ExpansionTile(
+                  title: const Text('Details'),
+                  subtitle: const Text("Set Username, MMR, and PRIME"),
+                  initiallyExpanded: false,
+                  childrenPadding: const EdgeInsets.all(8),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
                     ),
                   ),
-                )
-                .toList(),
+                  onExpansionChanged: (value) {
+                    if (!value) {
+                      _usernameController.clear();
+                      _mmrController.clear();
+                      _primeController.clear();
+                    }
+                  },
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 250,
+                          child: TextField(
+                            autocorrect: false,
+                            controller: _usernameController,
+                            decoration: const InputDecoration(
+                              labelText: 'Opponent Username',
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 50,
+                          child: TextField(
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'^(-|)\d*'),
+                              ),
+                            ],
+                            autocorrect: false,
+                            controller: _mmrController,
+                            decoration: const InputDecoration(
+                              labelText: 'MMR',
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 100,
+                          child: TextField(
+                            keyboardType: const TextInputType.numberWithOptions(
+                              signed: false,
+                              decimal: true,
+                            ),
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d*\.?\d*'),
+                              ),
+                            ],
+                            autocorrect: false,
+                            controller: _primeController,
+                            decoration: const InputDecoration(
+                              labelText: 'PRIME',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           ListenableBuilder(
             listenable: matchList,

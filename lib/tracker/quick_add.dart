@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/model/match/match_result_option.dart';
+import 'package:parallel_stats/snack/basic.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/util/string.dart';
 
@@ -38,18 +39,33 @@ class QuickAddButton extends StatelessWidget {
           segments: const [
             ButtonSegment(
               value: MatchResultOption.win,
-              label: Text('Won'),
+              label: Text('Win'),
+            ),
+            ButtonSegment(
+              value: MatchResultOption.draw,
+              label: Text('Draw'),
             ),
             ButtonSegment(
               value: MatchResultOption.loss,
-              label: Text('Lost'),
+              label: Text('Loss'),
             ),
           ],
           selected: const {},
           emptySelectionAllowed: true,
           multiSelectionEnabled: false,
-          onSelectionChanged: (selection) =>
-              onSelection(parallel, selection.first),
+          onSelectionChanged: (selection) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar(
+              reason: SnackBarClosedReason.hide,
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+              BasicSnack(
+                content: Text(
+                  "Saving ${selection.first.name} vs ${parallel.name}",
+                ),
+              ),
+            );
+            onSelection(parallel, selection.first);
+          },
         ),
       ],
     );
