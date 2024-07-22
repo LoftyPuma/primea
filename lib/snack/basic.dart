@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 class BasicSnack extends SnackBar {
-  BasicSnack({super.key, required super.content})
+  const BasicSnack({super.key, required super.content})
       : super(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
           ),
-          // margin: const EdgeInsets.all(16),
           showCloseIcon: true,
           behavior: SnackBarBehavior.fixed,
           dismissDirection: DismissDirection.horizontal,

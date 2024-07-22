@@ -43,7 +43,7 @@ class Match extends StatelessWidget {
                       ? match.opponentParagon.name
                       : match.opponentParagon.title;
                   ScaffoldMessenger.of(context).hideCurrentSnackBar(
-                    reason: SnackBarClosedReason.hide,
+                    reason: SnackBarClosedReason.dismiss,
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     BasicSnack(

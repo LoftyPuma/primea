@@ -299,7 +299,7 @@ class _AccountState extends State<Account> {
                           child: Match(
                             match: match,
                             onEdit: (context) async {
-                              var updatedMatch = await showDialog<MatchModel>(
+                              final updatedMatch = await showDialog<MatchModel>(
                                 context: context,
                                 builder: (context) {
                                   return MatchModal(
@@ -310,6 +310,7 @@ class _AccountState extends State<Account> {
                               if (updatedMatch != null &&
                                   updatedMatch.id != null) {
                                 matchList.update(updatedMatch);
+                                matchResults.updateMatch(match, updatedMatch);
                               }
                             },
                             onDelete: (context) async {

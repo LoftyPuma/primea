@@ -139,7 +139,8 @@ class MatchList extends ChangeNotifier {
     );
     if (_matchList.length < _limit) {
       List<dynamic> olderMatches = await _fetchMatches(
-        oldestMatchTimestamp: _matchList.first.matchTime,
+        oldestMatchTimestamp:
+            _matchList.isNotEmpty ? _matchList.first.matchTime : DateTime.now(),
         limit: _limit - _matchList.length - 1,
       );
       for (var match in olderMatches) {
