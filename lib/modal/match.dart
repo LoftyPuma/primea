@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:parallel_stats/modal/paragon_picker.dart';
 import 'package:parallel_stats/model/match/match_model.dart';
 import 'package:parallel_stats/model/match/match_result_option.dart';
@@ -28,6 +30,7 @@ class MatchModalState extends State<MatchModal> {
   late Paragon opponentParagon;
   late PlayerTurn playerTurn;
   late Set<MatchResultOption> result;
+  late DateTime matchTime;
   TextEditingController opponentUsernameController = TextEditingController();
   TextEditingController mmrDeltaController = TextEditingController();
   TextEditingController primeController = TextEditingController();
@@ -38,6 +41,7 @@ class MatchModalState extends State<MatchModal> {
     opponentParagon = widget.match.opponentParagon;
     playerTurn = widget.match.playerTurn;
     result = {widget.match.result};
+    matchTime = widget.match.matchTime ?? DateTime.now();
     opponentUsernameController.text = widget.match.opponentUsername ?? '';
     mmrDeltaController.text = widget.match.mmrDelta?.toString() ?? '';
     primeController.text = widget.match.primeEarned?.toString() ?? '';
@@ -152,13 +156,65 @@ class MatchModalState extends State<MatchModal> {
                   ),
                 ],
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton.icon(
+                    onPressed: () async {
+                      final newDate = await showDatePicker(
+                        context: context,
+                        firstDate: DateTime(2022),
+                        lastDate: DateTime.now(),
+                        initialDate: matchTime,
+                      );
+                      if (newDate != null) {
+                        setState(() {
+                          matchTime = DateTime(
+                            newDate.year,
+                            newDate.month,
+                            newDate.day,
+                            matchTime.hour,
+                            matchTime.minute,
+                            matchTime.second,
+                            matchTime.millisecond,
+                            matchTime.microsecond,
+                          );
+                        });
+                      }
+                    },
+                    label: Text(DateFormat.MMMMd().format(matchTime)),
+                  ),
+                  TextButton.icon(
+                    onPressed: () async {
+                      final newTime = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.fromDateTime(matchTime),
+                      );
+                      if (newTime != null) {
+                        setState(() {
+                          matchTime = DateTime(
+                            matchTime.year,
+                            matchTime.month,
+                            matchTime.day,
+                            newTime.hour,
+                            newTime.minute,
+                            matchTime.second,
+                            matchTime.millisecond,
+                            matchTime.microsecond,
+                          );
+                        });
+                      }
+                    },
+                    label: Text(DateFormat.jm().format(matchTime)),
+                  ),
+                ],
+              ),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: SegmentedButton(
                   emptySelectionAllowed: false,
                   multiSelectionEnabled: false,
-                  showSelectedIcon: false,
-                  // selectedIcon: const Icon(Icons.check),
                   selected: result,
                   segments: MatchResultOption.values
                       .map(
@@ -202,6 +258,11 @@ class MatchModalState extends State<MatchModal> {
                             signed: true,
                             decimal: false,
                           ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'^(-|)\d*'),
+                            ),
+                          ],
                           decoration: const InputDecoration(
                             labelText: 'MMR',
                           ),
@@ -219,6 +280,11 @@ class MatchModalState extends State<MatchModal> {
                             signed: false,
                             decimal: true,
                           ),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d*'),
+                            ),
+                          ],
                           decoration: const InputDecoration(
                             labelText: 'PRIME',
                           ),
@@ -267,7 +333,7 @@ class MatchModalState extends State<MatchModal> {
                             opponentParagon: opponentParagon,
                             playerTurn: playerTurn,
                             result: result.first,
-                            matchTime: widget.match.matchTime,
+                            matchTime: matchTime,
                             opponentUsername:
                                 opponentUsernameController.text.isEmpty
                                     ? null

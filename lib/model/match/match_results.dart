@@ -125,7 +125,7 @@ class MatchResults extends ChangeNotifier {
     return total;
   }
 
-  recordMatch(MatchModel match) {
+  void recordMatch(MatchModel match) {
     if (!_matchupCounts.containsKey(match.playerTurn)) {
       // The playerTurn is not in the map
       _matchupCounts[match.playerTurn] = {
@@ -152,6 +152,7 @@ class MatchResults extends ChangeNotifier {
   }
 
   void removeMatch(MatchModel match) {
+    // TODO: Handle the case where a match can be removed twice by clicking before the removal animation completes
     _matchupCounts[match.playerTurn]?[match.paragon]?[match.opponentParagon]
         ?.decrementFromModel(match);
     notifyListeners();
