@@ -89,21 +89,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         ),
                       );
                       if (importedMatches != null) {
-                        final importResult = await supabase
-                            .from(MatchModel.gamesTableName)
-                            .insert(
-                              importedMatches
-                                  .map((match) => match.toJson())
-                                  .toList(),
-                            )
-                            .select();
+                        await matchList.addAll(importedMatches);
+                        for (var match in importedMatches) {
+                          matchResults.recordMatch(match);
+                        }
                         if (mounted) {
                           // ignore: use_build_context_synchronously
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               showCloseIcon: true,
                               content: Text(
-                                "Imported ${importResult.length} matches.",
+                                "Imported ${importedMatches.length} matches.",
                               ),
                             ),
                           );

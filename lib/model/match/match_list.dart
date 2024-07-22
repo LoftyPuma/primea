@@ -40,7 +40,7 @@ class MatchList extends ChangeNotifier {
         .lt('game_time', oldestMatchTimestamp.toIso8601String())
         .order(
           "game_time",
-          ascending: false,
+          ascending: true,
         )
         .range(0, limit);
     return matches.map((game) => MatchModel.fromJson(game)).toList();
@@ -75,17 +75,19 @@ class MatchList extends ChangeNotifier {
   }
 
   Future<void> addAll(List<MatchModel> newMatches) async {
-    final List<dynamic> insertedMatches =
-        await supabase.from(MatchModel.gamesTableName).insert(
-      [
-        newMatches.map((match) => match.toJson()),
-      ],
-      defaultToNull: false,
-    ).select();
+    final List<dynamic> insertedMatches = await supabase
+        .from(MatchModel.gamesTableName)
+        .insert(
+          newMatches.map((match) => match.toJson()).toList(),
+          defaultToNull: false,
+        )
+        .select();
 
     for (var newMatchResponse in insertedMatches) {
       final newMatchIndex = _matchList.lastIndexWhere(
-        (match) => match.matchTime!.isBefore(newMatchResponse['matchTime']!),
+        (match) => match.matchTime!.isBefore(
+          DateTime.parse(newMatchResponse['game_time']!),
+        ),
       );
       _matchList.insert(
           newMatchIndex + 1, MatchModel.fromJson(newMatchResponse));

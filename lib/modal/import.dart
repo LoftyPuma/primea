@@ -69,7 +69,7 @@ class _ImportState extends State<Import> {
       Paragon opponentParagon = Paragon.unknown;
       MatchResultOption result = MatchResultOption.draw;
       PlayerTurn turn = PlayerTurn.onThePlay;
-      DateTime matchTime = DateTime.now().toUtc();
+      DateTime matchTime = DateTime.now();
       String? opponentUsername;
       int? mmrDelta;
       double? primeEarned;
