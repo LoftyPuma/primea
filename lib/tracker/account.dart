@@ -206,7 +206,8 @@ class _AccountState extends State<Account> {
                               }
                             },
                             onDelete: (context) async {
-                              matchList.removeAt(index);
+                              final removed = await matchList.removeAt(index);
+                              matchResults.removeMatch(removed);
                             },
                           ),
                         );
