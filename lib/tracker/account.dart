@@ -80,21 +80,30 @@ class _AccountState extends State<Account> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                FittedBox(
-                  child: ProgressCard(
-                    title: "Win Rate",
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: ProgressCard(
+                      title: "Win Rate",
+                    ),
                   ),
                 ),
-                FittedBox(
-                  child: ProgressCard(
-                    playerTurn: PlayerTurn.onThePlay,
-                    title: "On the Play",
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: ProgressCard(
+                      playerTurn: PlayerTurn.onThePlay,
+                      title: "On the Play",
+                    ),
                   ),
                 ),
-                FittedBox(
-                  child: ProgressCard(
-                    playerTurn: PlayerTurn.onTheDraw,
-                    title: "On the Draw",
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: ProgressCard(
+                      playerTurn: PlayerTurn.onTheDraw,
+                      title: "On the Draw",
+                    ),
                   ),
                 ),
               ],
