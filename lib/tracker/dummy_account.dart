@@ -103,14 +103,20 @@ class _DummyAccountState extends State<DummyAccount> {
                     children: [
                       ProgressCard(
                         title: "Win Rate",
+                        height: 150,
+                        spacing: 8,
                       ),
                       ProgressCard(
                         playerTurn: PlayerTurn.onThePlay,
                         title: "On the Play",
+                        height: 150,
+                        spacing: 8,
                       ),
                       ProgressCard(
                         playerTurn: PlayerTurn.onTheDraw,
                         title: "On the Draw",
+                        height: 150,
+                        spacing: 8,
                       ),
                     ],
                   ),

@@ -166,7 +166,7 @@ class MatchModalState extends State<MatchModal> {
                         context: context,
                         firstDate: DateTime(2022),
                         lastDate: DateTime.now(),
-                        initialDate: matchTime,
+                        initialDate: matchTime.toLocal(),
                       );
                       if (newDate != null) {
                         setState(() {
@@ -189,7 +189,8 @@ class MatchModalState extends State<MatchModal> {
                     onPressed: () async {
                       final newTime = await showTimePicker(
                         context: context,
-                        initialTime: TimeOfDay.fromDateTime(matchTime),
+                        initialTime:
+                            TimeOfDay.fromDateTime(matchTime.toLocal()),
                       );
                       if (newTime != null) {
                         setState(() {

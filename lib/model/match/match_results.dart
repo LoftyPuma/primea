@@ -10,6 +10,8 @@ class MatchResults extends ChangeNotifier {
 
   MatchResults() : _matchupCounts = {};
 
+  bool get isEmpty => _matchupCounts.isEmpty;
+
   Future<void> init() async {
     final matchResults = await _fetchMatchResults();
     _matchupCounts = _initializeMatchupCounts(matchResults);
@@ -17,8 +19,10 @@ class MatchResults extends ChangeNotifier {
   }
 
   Future<Set<MatchResult>> _fetchMatchResults() async {
-    var results = await supabase.rpc<List<dynamic>>('get_player_results');
-    return MatchResults._fromJson(results);
+    var response = await supabase.from(MatchModel.gamesTableName).select(
+          "count(), paragon, opponent_paragon, result, player_one",
+        );
+    return MatchResults._fromJson(response);
   }
 
   static Set<MatchResult> _fromJson(List<dynamic> json) {
@@ -152,7 +156,6 @@ class MatchResults extends ChangeNotifier {
   }
 
   void removeMatch(MatchModel match) {
-    // TODO: Handle the case where a match can be removed twice by clicking before the removal animation completes
     _matchupCounts[match.playerTurn]?[match.paragon]?[match.opponentParagon]
         ?.decrementFromModel(match);
     notifyListeners();

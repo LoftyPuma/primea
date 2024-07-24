@@ -77,7 +77,9 @@ class Match extends StatelessWidget {
               ),
               if (match.matchTime != null)
                 Text(
-                  DateFormat.MMMMd().add_jm().format(match.matchTime!),
+                  DateFormat.MMMMd()
+                      .add_jm()
+                      .format(match.matchTime!.toLocal()),
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
               RichText(

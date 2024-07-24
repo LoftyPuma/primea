@@ -8,13 +8,21 @@ class ProgressCard extends StatefulWidget {
   final Paragon? paragon;
   final Paragon? opponentParagon;
   final PlayerTurn? playerTurn;
+  final double aspectRatio;
+  final double height;
+  final double spacing;
+  final int sizeMultiplier;
 
   const ProgressCard({
     super.key,
     required this.title,
+    required this.height,
+    required this.spacing,
     this.paragon,
     this.opponentParagon,
     this.playerTurn,
+    this.aspectRatio = 1.0,
+    this.sizeMultiplier = 1,
   });
 
   @override
@@ -80,42 +88,80 @@ class _ProgressCardState extends State<ProgressCard>
         curve: Curves.bounceOut,
       );
     });
+    if (_controller.value == 0) {
+      _controller.value = matchResults
+          .count(
+            paragon: widget.paragon,
+            opponentParagon: widget.opponentParagon,
+            playerTurn: widget.playerTurn,
+          )
+          .winRate;
+    }
+
+    final bufferSpace = widget.sizeMultiplier == 1
+        ? 0
+        : (widget.sizeMultiplier + 1) * widget.spacing;
 
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      child: SizedBox.square(
-        dimension: 150,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox.expand(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: CircularProgressIndicator(
-                  value: _valueAnimation.value,
-                  strokeWidth: 16,
-                  strokeCap: StrokeCap.round,
-                  color: _colorAnimation.value,
+      child: SizedBox(
+        width: (widget.height * widget.sizeMultiplier.toDouble()) + bufferSpace,
+        child: AspectRatio(
+          aspectRatio: widget.aspectRatio,
+          child: ListenableBuilder(
+            listenable: matchResults,
+            builder: (context, child) {
+              _controller.animateTo(
+                matchResults
+                    .count(
+                      paragon: widget.paragon,
+                      opponentParagon: widget.opponentParagon,
+                      playerTurn: widget.playerTurn,
+                    )
+                    .winRate,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.bounceOut,
+              );
+
+              return child!;
+            },
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox.expand(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: CircularProgressIndicator(
+                      value: _valueAnimation.value,
+                      strokeWidth: 16,
+                      strokeCap: StrokeCap.round,
+                      color: _colorAnimation.value,
+                    ),
+                  ),
                 ),
-              ),
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text:
+                            '${(_valueAnimation.value * 100).toStringAsFixed(0)}%\n',
+                        style: widget.sizeMultiplier == 1
+                            ? Theme.of(context).textTheme.displaySmall
+                            : Theme.of(context).textTheme.displayLarge,
+                      ),
+                      TextSpan(
+                        text: widget.title,
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(children: [
-                TextSpan(
-                  text:
-                      '${(_valueAnimation.value * 100).toStringAsFixed(0)}%\n',
-                  style: Theme.of(context).textTheme.displaySmall,
-                ),
-                TextSpan(
-                  text: widget.title,
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-              ]),
-            )
-          ],
+          ),
         ),
       ),
     );

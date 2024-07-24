@@ -30,7 +30,7 @@ class App extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 222, 241, 65),
+          seedColor: const Color(0xFFDEF141),
           brightness: Brightness.dark,
         ),
         cardTheme: const CardTheme(

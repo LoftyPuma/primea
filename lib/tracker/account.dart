@@ -82,27 +82,30 @@ class _AccountState extends State<Account> {
               children: [
                 Flexible(
                   child: FittedBox(
-                    fit: BoxFit.contain,
                     child: ProgressCard(
                       title: "Win Rate",
+                      height: 150,
+                      spacing: 8,
                     ),
                   ),
                 ),
                 Flexible(
                   child: FittedBox(
-                    fit: BoxFit.contain,
                     child: ProgressCard(
                       playerTurn: PlayerTurn.onThePlay,
                       title: "On the Play",
+                      height: 150,
+                      spacing: 8,
                     ),
                   ),
                 ),
                 Flexible(
                   child: FittedBox(
-                    fit: BoxFit.contain,
                     child: ProgressCard(
                       playerTurn: PlayerTurn.onTheDraw,
                       title: "On the Draw",
+                      height: 150,
+                      spacing: 8,
                     ),
                   ),
                 ),

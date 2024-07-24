@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parallel_stats/dashboard/dashboard.dart';
 import 'package:parallel_stats/inherited_session.dart';
 import 'package:parallel_stats/main.dart';
 import 'package:parallel_stats/modal/import.dart';
@@ -29,7 +30,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  // late final TabController _tabController;
+  late final TabController _tabController;
 
   MatchResults matchResults = MatchResults();
   late MatchList matchList;
@@ -42,25 +43,35 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       session = data.session;
     });
     if (session != null && !session!.isExpired) {
-      await matchResults.init();
-      await matchList.init();
+      if (matchResults.isEmpty) {
+        await matchResults.init();
+      }
+      if (matchList.isEmpty) {
+        await matchList.init();
+      }
     }
   }
 
   @override
   void initState() {
     matchList = MatchList(_listKey);
-    // _tabController = TabController(
-    //   length: 2,
-    //   vsync: this,
-    //   animationDuration: const Duration(milliseconds: 250),
-    // );
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      animationDuration: const Duration(milliseconds: 250),
+    );
 
     chosenParagon = Paragon.values
         .byName(session?.user.userMetadata?["paragon"] ?? "unknown");
 
     supabase.auth.onAuthStateChange.listen(handleAuthStateChange);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -131,56 +142,45 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               ],
             ),
             extendBody: true,
-            // bottomNavigationBar: BottomAppBar(
-            //   clipBehavior: Clip.antiAlias,
-            //   shape: const CircularNotchedRectangle(),
-            //   notchMargin: 0,
-            //   child: TabBar(
-            //     controller: _tabController,
-            //     tabAlignment: TabAlignment.fill,
-            //     tabs: const [
-            //       Tab(
-            //         icon: Icon(Icons.games_outlined),
-            //         text: "Matches",
-            //       ),
-            //       Tab(
-            //         icon: Icon(Icons.dashboard_sharp),
-            //         text: "Dashboard",
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            body: ListView(
+            bottomNavigationBar: BottomAppBar(
+              clipBehavior: Clip.antiAlias,
+              shape: const CircularNotchedRectangle(),
+              notchMargin: 0,
+              child: TabBar(
+                controller: _tabController,
+                tabAlignment: TabAlignment.fill,
+                tabs: const [
+                  Tab(
+                    icon: Icon(Icons.games_outlined),
+                    text: "Matches",
+                  ),
+                  Tab(
+                    icon: Icon(Icons.dashboard_sharp),
+                    text: "Dashboard",
+                  ),
+                ],
+              ),
+            ),
+            body: TabBarView(
+              controller: _tabController,
               children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  child: session == null
-                      ? DummyAccount(chosenParagon: chosenParagon)
-                      : Account(
-                          listKey: _listKey,
-                          chosenParagon: chosenParagon,
-                        ),
+                ListView(
+                  children: [
+                    AnimatedSwitcher(
+                      // key: const PageStorageKey('account'),
+                      duration: const Duration(milliseconds: 250),
+                      child: session == null
+                          ? DummyAccount(chosenParagon: chosenParagon)
+                          : Account(
+                              listKey: _listKey,
+                              chosenParagon: chosenParagon,
+                            ),
+                    ),
+                  ],
                 ),
+                const Dashboard(),
               ],
             ),
-            // body: TabBarView(
-            //   controller: _tabController,
-            //   children: [
-            //     ListView(
-            //       children: [
-            //         AnimatedSwitcher(
-            //           duration: const Duration(milliseconds: 250),
-            //           child: session == null
-            //               ? DummyAccount(chosenParagon: chosenParagon)
-            //               : Account(
-            //                   chosenParagon: chosenParagon,
-            //                 ),
-            //         ),
-            //       ],
-            //     ),
-            //     const Dashboard(),
-            //   ],
-            // ),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.endDocked,
             floatingActionButton: IconButton(

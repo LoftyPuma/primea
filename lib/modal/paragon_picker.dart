@@ -24,11 +24,14 @@ class ParagonPicker extends StatelessWidget {
             .skip(1)
             .where((paragon) => paragon.title != "")
             .map(
-              (paragon) => GestureDetector(
-                onTap: () => onParagonSelected(paragon),
-                child: ParagonAvatar(
-                  paragon: paragon,
-                  tooltip: tooltip,
+              (paragon) => Padding(
+                padding: const EdgeInsets.all(8),
+                child: GestureDetector(
+                  onTap: () => onParagonSelected(paragon),
+                  child: ParagonAvatar(
+                    paragon: paragon,
+                    tooltip: tooltip,
+                  ),
                 ),
               ),
             )
