@@ -21,24 +21,24 @@ final supabase = Supabase.instance.client;
 class App extends StatelessWidget {
   const App({super.key});
 
-  final title = 'Parallel Stats';
+  final title = 'Primea';
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: title,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFDEF141),
-          brightness: Brightness.dark,
+    return SafeArea(
+      child: MaterialApp(
+        title: title,
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFFDEF141),
+            brightness: Brightness.dark,
+          ),
+          cardTheme: const CardTheme(
+            shape: ContinuousRectangleBorder(),
+          ),
         ),
-        cardTheme: const CardTheme(
-          shape: ContinuousRectangleBorder(),
-        ),
-      ),
-      home: SafeArea(
-        child: Home(title: title),
+        home: Home(title: title),
       ),
     );
   }

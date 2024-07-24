@@ -162,12 +162,13 @@ class MatchModalState extends State<MatchModal> {
                 children: [
                   TextButton.icon(
                     onPressed: () async {
-                      final newDate = await showDatePicker(
+                      final newDate = (await showDatePicker(
                         context: context,
                         firstDate: DateTime(2022),
                         lastDate: DateTime.now(),
                         initialDate: matchTime.toLocal(),
-                      );
+                      ))
+                          ?.toUtc();
                       if (newDate != null) {
                         setState(() {
                           matchTime = DateTime(
@@ -186,6 +187,16 @@ class MatchModalState extends State<MatchModal> {
                     label: Text(DateFormat.MMMMd().format(matchTime)),
                   ),
                   TextButton.icon(
+                    style: ButtonStyle(
+                      textStyle: WidgetStateProperty.all(
+                        TextStyle(
+                          fontSize: Theme.of(context)
+                              .textTheme
+                              .displaySmall
+                              ?.fontSize,
+                        ),
+                      ),
+                    ),
                     onPressed: () async {
                       final newTime = await showTimePicker(
                         context: context,
@@ -207,7 +218,9 @@ class MatchModalState extends State<MatchModal> {
                         });
                       }
                     },
-                    label: Text(DateFormat.jm().format(matchTime)),
+                    label: Text(
+                      DateFormat.jm().format(matchTime),
+                    ),
                   ),
                 ],
               ),

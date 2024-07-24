@@ -169,6 +169,59 @@ class _AccountState extends State<Account> {
                     ),
                   ],
                 ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 250,
+                        child: TextField(
+                          autocorrect: false,
+                          controller: _usernameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Opponent Username',
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 100,
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'^(-|)\d*'),
+                            ),
+                          ],
+                          autocorrect: false,
+                          controller: _mmrController,
+                          decoration: const InputDecoration(
+                            labelText: '+/- MMR',
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 100,
+                        child: TextField(
+                          keyboardType: const TextInputType.numberWithOptions(
+                            signed: false,
+                            decimal: true,
+                          ),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d*'),
+                            ),
+                          ],
+                          autocorrect: false,
+                          controller: _primeController,
+                          decoration: const InputDecoration(
+                            labelText: 'PRIME',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 Wrap(
                   spacing: 8,
                   alignment: WrapAlignment.spaceAround,
@@ -208,77 +261,6 @@ class _AccountState extends State<Account> {
                         ),
                       )
                       .toList(),
-                ),
-                ExpansionTile(
-                  title: const Text('Details'),
-                  subtitle: const Text("Set Username, MMR, and PRIME"),
-                  initiallyExpanded: false,
-                  childrenPadding: const EdgeInsets.all(8),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(16),
-                      bottomRight: Radius.circular(16),
-                    ),
-                  ),
-                  onExpansionChanged: (value) {
-                    if (!value) {
-                      _usernameController.clear();
-                      _mmrController.clear();
-                      _primeController.clear();
-                    }
-                  },
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 250,
-                          child: TextField(
-                            autocorrect: false,
-                            controller: _usernameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Opponent Username',
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 50,
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'^(-|)\d*'),
-                              ),
-                            ],
-                            autocorrect: false,
-                            controller: _mmrController,
-                            decoration: const InputDecoration(
-                              labelText: 'MMR',
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 100,
-                          child: TextField(
-                            keyboardType: const TextInputType.numberWithOptions(
-                              signed: false,
-                              decimal: true,
-                            ),
-                            inputFormatters: <TextInputFormatter>[
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d*\.?\d*'),
-                              ),
-                            ],
-                            autocorrect: false,
-                            controller: _primeController,
-                            decoration: const InputDecoration(
-                              labelText: 'PRIME',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
                 ),
               ],
             ),
