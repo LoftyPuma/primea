@@ -21,7 +21,7 @@ final supabase = Supabase.instance.client;
 class App extends StatelessWidget {
   const App({super.key});
 
-  final title = 'Primea';
+  final title = 'Stats | Primea';
 
   @override
   Widget build(BuildContext context) {
