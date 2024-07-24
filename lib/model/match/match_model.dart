@@ -56,7 +56,7 @@ class MatchModel {
       'paragon': paragon.name,
       'player_one': playerTurn.value,
       'result': result.name,
-      'game_time': matchTime?.toIso8601String(),
+      'game_time': matchTime?.toUtc().toIso8601String(),
       'opponent_username': opponentUsername,
       'opponent_paragon': opponentParagon.name,
       'mmr_delta': mmrDelta,
