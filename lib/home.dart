@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:parallel_stats/dashboard/dashboard.dart';
 import 'package:parallel_stats/inherited_session.dart';
 import 'package:parallel_stats/main.dart';
@@ -15,6 +16,7 @@ import 'package:parallel_stats/tracker/dummy_account.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 class Home extends StatefulWidget {
   const Home({
@@ -85,7 +87,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           child: Scaffold(
             appBar: AppBar(
               centerTitle: true,
-              title: Image.asset("assets/favicon.png"),
+              title: const SvgPicture(
+                AssetBytesLoader(
+                  "assets/parallel_logos/vec/parallel_pills.svg.vec",
+                ),
+              ),
               actions: [
                 if (session != null && !session!.isExpired)
                   OutlinedButton.icon(
