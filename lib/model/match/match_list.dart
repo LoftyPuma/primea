@@ -62,11 +62,11 @@ class MatchList extends ChangeNotifier {
     final newMatches = await _fetchMatches(
       oldestMatchTimestamp: oldestMatchTimestamp,
     );
-    if (kDebugMode) {
-      print(
-        "Loaded ${newMatches.length} more matches from $oldestMatchTimestamp",
-      );
-    }
+    // if (kDebugMode) {
+    print(
+      "Loaded ${newMatches.length} more matches from $oldestMatchTimestamp",
+    );
+    // }
     final oldLength = _matchList.length;
     _matchList.addAll(newMatches);
     _listKey.currentState?.insertAllItems(
