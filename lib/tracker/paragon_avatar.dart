@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/util/string.dart';
+import 'package:vector_graphics/vector_graphics.dart';
 
 class ParagonAvatar extends StatelessWidget {
   final Paragon paragon;
   final String? tooltip;
+  final Color backgroundColor;
 
   const ParagonAvatar({
     super.key,
     required this.paragon,
     this.tooltip,
+    this.backgroundColor = Colors.transparent,
   });
 
   @override
@@ -18,7 +22,15 @@ class ParagonAvatar extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: paragon.parallel.backgroundGradient,
+        gradient: LinearGradient(
+          begin: Alignment.bottomRight,
+          end: Alignment.topLeft,
+          stops: const [0.1, 1.0],
+          colors: [
+            paragon.parallel.color,
+            Theme.of(context).scaffoldBackgroundColor,
+          ],
+        ),
       ),
       child: Tooltip(
         textAlign: TextAlign.center,
@@ -33,7 +45,6 @@ class ParagonAvatar extends StatelessWidget {
                   if (paragon.title.isNotEmpty)
                     TextSpan(
                       text: paragon.title,
-                      // style: Theme.of(context).textTheme.labelSmall,
                     ),
                   if (paragon.title.isNotEmpty &&
                       paragon.parallel.name != ParallelType.universal.name)
@@ -41,7 +52,6 @@ class ParagonAvatar extends StatelessWidget {
                   if (paragon.parallel.name != ParallelType.universal.name)
                     TextSpan(
                       text: paragon.parallel.name.toTitleCase(),
-                      // style: Theme.of(context).textTheme.labelSmall,
                     ),
                 ],
               )
@@ -50,23 +60,49 @@ class ParagonAvatar extends StatelessWidget {
         child: CircleAvatar(
           radius: 36,
           backgroundColor: Colors.transparent,
-          child: paragon.image != Paragon.unknown.image
-              ? Image.asset(paragon.image)
-              : Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.white, Colors.transparent],
-                        stops: [0.6, 1.0],
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.dstIn,
-                    child: Image.asset(paragon.image),
+          child: Stack(
+            alignment: Alignment.topLeft,
+            fit: StackFit.expand,
+            children: [
+              if (paragon.image != null && paragon != Paragon.unknown)
+                Positioned(
+                  top: 4,
+                  left: 0,
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: SvgPicture(
+                      width: 48,
+                      height: 48,
+                      AssetBytesLoader(
+                        "assets/parallel_logos/vec/${paragon.parallel.name}.svg.vec",
+                      ),
+                      colorFilter: ColorFilter.mode(
+                        paragon.parallel.color,
+                        BlendMode.srcATop,
+                      ),
+                    ),
                   ),
                 ),
+              if (paragon.image == null)
+                SvgPicture(
+                  width: 64,
+                  height: 64,
+                  AssetBytesLoader(
+                    "assets/parallel_logos/vec/${paragon.parallel.name}.svg.vec",
+                  ),
+                  colorFilter: ColorFilter.mode(
+                    paragon.parallel.color,
+                    BlendMode.srcATop,
+                  ),
+                ),
+              if (paragon.image != null)
+                Image.asset(
+                  paragon.image!,
+                  width: 64,
+                  height: 64,
+                ),
+            ],
+          ),
         ),
       ),
     );

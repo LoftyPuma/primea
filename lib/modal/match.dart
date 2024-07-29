@@ -14,11 +14,7 @@ class MatchModal extends StatefulWidget {
 
   const MatchModal({
     super.key,
-    this.match = const MatchModel(
-      paragon: Paragon.unknown,
-      playerTurn: PlayerTurn.onThePlay,
-      result: MatchResultOption.win,
-    ),
+    required this.match,
   });
 
   @override
@@ -41,7 +37,7 @@ class MatchModalState extends State<MatchModal> {
     opponentParagon = widget.match.opponentParagon;
     playerTurn = widget.match.playerTurn;
     result = {widget.match.result};
-    matchTime = widget.match.matchTime ?? DateTime.now();
+    matchTime = widget.match.matchTime;
     opponentUsernameController.text = widget.match.opponentUsername ?? '';
     mmrDeltaController.text = widget.match.mmrDelta?.toString() ?? '';
     primeController.text = widget.match.primeEarned?.toString() ?? '';
@@ -161,6 +157,16 @@ class MatchModalState extends State<MatchModal> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextButton.icon(
+                    style: ButtonStyle(
+                      textStyle: WidgetStateProperty.all(
+                        TextStyle(
+                          fontSize: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.fontSize,
+                        ),
+                      ),
+                    ),
                     onPressed: () async {
                       final newDate = (await showDatePicker(
                         context: context,
@@ -184,7 +190,7 @@ class MatchModalState extends State<MatchModal> {
                         });
                       }
                     },
-                    label: Text(DateFormat.MMMMd().format(matchTime)),
+                    label: Text(DateFormat.MMMMd().format(matchTime.toLocal())),
                   ),
                   TextButton.icon(
                     style: ButtonStyle(
@@ -192,7 +198,7 @@ class MatchModalState extends State<MatchModal> {
                         TextStyle(
                           fontSize: Theme.of(context)
                               .textTheme
-                              .displaySmall
+                              .headlineSmall
                               ?.fontSize,
                         ),
                       ),
@@ -219,7 +225,7 @@ class MatchModalState extends State<MatchModal> {
                       }
                     },
                     label: Text(
-                      DateFormat.jm().format(matchTime),
+                      DateFormat.jm().format(matchTime.toLocal()),
                     ),
                   ),
                 ],

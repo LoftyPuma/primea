@@ -64,7 +64,6 @@ flutter:
   assets:
     - assets/unknown_origin.png
     - assets/paragons/
-    - assets/parallel_logos/
     - assets/parallel_logos/vec/
     - assets/brands/twitch/
     - assets/brands/discord/

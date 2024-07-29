@@ -75,13 +75,10 @@ class Match extends StatelessWidget {
                 match.opponentUsername ?? 'Unknown Opponent',
                 style: Theme.of(context).textTheme.labelLarge,
               ),
-              if (match.matchTime != null)
-                Text(
-                  DateFormat.MMMMd()
-                      .add_jm()
-                      .format(match.matchTime!.toLocal()),
-                  style: Theme.of(context).textTheme.labelMedium,
-                ),
+              Text(
+                DateFormat.MMMMd().add_jm().format(match.matchTime.toLocal()),
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
               RichText(
                 text: TextSpan(
                   children: [

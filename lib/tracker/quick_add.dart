@@ -25,16 +25,14 @@ class QuickAddButton extends StatelessWidget {
         Text(
           parallel.name.toTitleCase(),
           style: TextStyle(
-            color: parallel.backgroundGradient.colors[0],
+            color: parallel.color,
           ),
         ),
         SegmentedButton<MatchResultOption>(
           showSelectedIcon: false,
           style: SegmentedButton.styleFrom(
-            surfaceTintColor: parallel.backgroundGradient.colors[0],
-            // backgroundColor: parallel.backgroundGradient.colors[0],
-            foregroundColor: parallel.backgroundGradient.colors[0],
-            // shadowColor: parallel.backgroundGradient.colors[0],
+            surfaceTintColor: parallel.color,
+            foregroundColor: parallel.color,
           ),
           segments: const [
             ButtonSegment(

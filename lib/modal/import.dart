@@ -340,10 +340,9 @@ class _ImportState extends State<Import> {
                           ),
                           TableCell(
                             child: Text(row.matchTime
-                                    ?.toUtc()
-                                    .toIso8601String()
-                                    .split(".")[0] ??
-                                ""),
+                                .toUtc()
+                                .toIso8601String()
+                                .split(".")[0]),
                           ),
                         ],
                       ),

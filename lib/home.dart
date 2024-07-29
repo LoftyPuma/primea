@@ -56,7 +56,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    matchList = MatchList(_listKey);
+    matchList = MatchList(_listKey, matchResults);
     _tabController = TabController(
       length: 2,
       vsync: this,

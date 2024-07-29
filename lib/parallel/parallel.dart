@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' show get;
 import 'package:html/parser.dart';
 
@@ -27,9 +28,10 @@ class Parallel {
       element['cardFunction'] = cardFunctions[element['cardFunctionId']];
       final card = CardModel.fromJson(element);
       if (result.containsKey(card.name)) {
-        // print('Duplicate card: ${card.name}');
         if (!result[card.name]!.addClass(card.cardClass.first)) {
-          print('Failed to add class to card: ${card.name}');
+          if (kDebugMode) {
+            print('Failed to add class to card: ${card.name}');
+          }
         }
       } else {
         result[card.name] = card;

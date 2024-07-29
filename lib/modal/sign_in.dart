@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/modal/oauth_button.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignInModal extends StatelessWidget {
   const SignInModal({
@@ -38,10 +39,12 @@ class SignInModal extends StatelessWidget {
                       OAuthButton(
                         label: "Sign in with Twitch",
                         icon: "assets/brands/twitch/glitch_flat_purple.png",
+                        provider: OAuthProvider.twitch,
                       ),
                       OAuthButton(
                         label: "Sign in with Discord",
                         icon: "assets/brands/discord/blue_mark.png",
+                        provider: OAuthProvider.discord,
                       ),
                     ],
                   ),

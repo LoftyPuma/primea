@@ -63,7 +63,7 @@ class _DummyAccountState extends State<DummyAccount> {
         ),
       );
     },
-  )..sort((a, b) => b.matchTime!.compareTo(a.matchTime!));
+  )..sort((a, b) => b.matchTime.compareTo(a.matchTime));
 
   @override
   initState() {

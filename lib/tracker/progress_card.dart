@@ -38,7 +38,7 @@ class _ProgressCardState extends State<ProgressCard>
   @override
   void initState() {
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 250),
       vsync: this,
     );
 
@@ -66,6 +66,20 @@ class _ProgressCardState extends State<ProgressCard>
     super.initState();
   }
 
+  void _handleAnimate() {
+    _controller.animateTo(
+      InheritedMatchResults.of(context)
+          .count(
+            paragon: widget.paragon,
+            opponentParagon: widget.opponentParagon,
+            playerTurn: widget.playerTurn,
+          )
+          .winRate,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.bounceOut,
+    );
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -75,19 +89,6 @@ class _ProgressCardState extends State<ProgressCard>
   @override
   Widget build(BuildContext context) {
     final matchResults = InheritedMatchResults.of(context);
-    matchResults.addListener(() {
-      _controller.animateTo(
-        matchResults
-            .count(
-              paragon: widget.paragon,
-              opponentParagon: widget.opponentParagon,
-              playerTurn: widget.playerTurn,
-            )
-            .winRate,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.bounceOut,
-      );
-    });
     if (_controller.value == 0) {
       _controller.value = matchResults
           .count(
@@ -97,6 +98,8 @@ class _ProgressCardState extends State<ProgressCard>
           )
           .winRate;
     }
+    matchResults.removeListener(_handleAnimate);
+    matchResults.addListener(_handleAnimate);
 
     final bufferSpace = widget.sizeMultiplier == 1
         ? 0
@@ -111,20 +114,8 @@ class _ProgressCardState extends State<ProgressCard>
         child: AspectRatio(
           aspectRatio: widget.aspectRatio,
           child: ListenableBuilder(
-            listenable: matchResults,
+            listenable: _controller,
             builder: (context, child) {
-              _controller.animateTo(
-                matchResults
-                    .count(
-                      paragon: widget.paragon,
-                      opponentParagon: widget.opponentParagon,
-                      playerTurn: widget.playerTurn,
-                    )
-                    .winRate,
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.bounceOut,
-              );
-
               return child!;
             },
             child: Stack(

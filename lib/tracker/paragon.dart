@@ -1,72 +1,35 @@
 import 'package:flutter/material.dart';
 
 enum ParallelType {
-  universal(
-    backgroundGradient: LinearGradient(
-      begin: Alignment.bottomRight,
-      end: Alignment.topLeft,
-      colors: [
-        Colors.black87,
-        Colors.transparent,
-      ],
-    ),
-  ),
-  augencore(
-    backgroundGradient: LinearGradient(
-      begin: Alignment.bottomRight,
-      end: Alignment.topLeft,
-      colors: [
-        Color.fromARGB(225, 255, 116, 50),
-        Colors.transparent,
-      ],
-    ),
-  ),
-  earthen(
-    backgroundGradient: LinearGradient(
-      begin: Alignment.bottomRight,
-      end: Alignment.topLeft,
-      colors: [
-        Color.fromARGB(225, 73, 188, 49),
-        Colors.transparent,
-      ],
-    ),
-  ),
-  kathari(
-    backgroundGradient: LinearGradient(
-      begin: Alignment.bottomRight,
-      end: Alignment.topLeft,
-      colors: [
-        Color.fromARGB(225, 30, 144, 221),
-        Colors.transparent,
-      ],
-    ),
-  ),
-  marcolian(
-    backgroundGradient: LinearGradient(
-      begin: Alignment.bottomRight,
-      end: Alignment.topLeft,
-      colors: [
-        Color.fromARGB(225, 226, 10, 26),
-        Colors.transparent,
-      ],
-    ),
-  ),
-  shroud(
-    backgroundGradient: LinearGradient(
-      begin: Alignment.bottomRight,
-      end: Alignment.topLeft,
-      colors: [
-        Color.fromARGB(225, 100, 56, 198),
-        Colors.transparent,
-      ],
-    ),
-  );
+  universal(color: Colors.black87),
+  augencore(color: Color(0xE0FF7432)),
+  earthen(color: Color(0xE049BC31)),
+  kathari(color: Color(0xE01E90DD)),
+  marcolian(color: Color(0xE0E20A1A)),
+  shroud(color: Color(0xE06438C6));
 
   const ParallelType({
-    required this.backgroundGradient,
+    required this.color,
   });
 
-  final Gradient backgroundGradient;
+  final Color color;
+
+  Paragon get paragon {
+    switch (this) {
+      case ParallelType.augencore:
+        return Paragon.augencore;
+      case ParallelType.earthen:
+        return Paragon.earthen;
+      case ParallelType.kathari:
+        return Paragon.kathari;
+      case ParallelType.marcolian:
+        return Paragon.marcolian;
+      case ParallelType.shroud:
+        return Paragon.shroud;
+      default:
+        return Paragon.unknown;
+    }
+  }
 }
 
 enum Paragon {
@@ -81,7 +44,6 @@ enum Paragon {
   augencore(
     title: "",
     parallel: ParallelType.augencore,
-    image: "assets/unknown_origin.png",
   ),
   jahn(
     title: 'Jahn',
@@ -105,7 +67,6 @@ enum Paragon {
   earthen(
     title: "",
     parallel: ParallelType.earthen,
-    image: "assets/unknown_origin.png",
   ),
   gaffar(
     title: "Gaffar",
@@ -130,7 +91,6 @@ enum Paragon {
   kathari(
     title: "",
     parallel: ParallelType.kathari,
-    image: "assets/unknown_origin.png",
   ),
   aetio(
     title: "Aetio",
@@ -153,7 +113,6 @@ enum Paragon {
   marcolian(
     title: "",
     parallel: ParallelType.marcolian,
-    image: "assets/unknown_origin.png",
   ),
   lemieux(
     title: "Lemieux",
@@ -177,7 +136,6 @@ enum Paragon {
   shroud(
     title: "",
     parallel: ParallelType.shroud,
-    image: "assets/unknown_origin.png",
   ),
   brand(
     title: "Brand",
@@ -199,13 +157,13 @@ enum Paragon {
 
   final String title;
   final ParallelType parallel;
-  final String image;
+  final String? image;
   final String? description;
 
   const Paragon({
     required this.title,
     required this.parallel,
-    required this.image,
+    this.image,
     this.description,
   });
 }

@@ -4,13 +4,15 @@ import 'package:parallel_stats/modal/match.dart';
 import 'package:parallel_stats/model/match/inherited_match_list.dart';
 import 'package:parallel_stats/model/match/inherited_match_results.dart';
 import 'package:parallel_stats/model/match/match_result_option.dart';
+import 'package:parallel_stats/model/match/player_rank.dart';
 import 'package:parallel_stats/model/match/player_turn.dart';
+import 'package:parallel_stats/snack/basic.dart';
 import 'package:parallel_stats/tracker/match.dart';
 import 'package:parallel_stats/model/match/match_model.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_stack.dart';
-import 'package:parallel_stats/tracker/progress_card.dart';
-import 'package:parallel_stats/tracker/quick_add.dart';
+import 'package:parallel_stats/tracker/parallel_avatar.dart';
+import 'package:parallel_stats/util/string.dart';
 
 class Account extends StatefulWidget {
   final Paragon chosenParagon;
@@ -28,14 +30,17 @@ class Account extends StatefulWidget {
 
 class _AccountState extends State<Account> {
   PlayerTurn playerTurn = PlayerTurn.onThePlay;
+  Paragon chosenParagon = Paragon.unknown;
+  bool loadMoreEnabled = true;
+  Rank? rank;
 
   // Details panel
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _mmrController = TextEditingController();
   final TextEditingController _primeController = TextEditingController();
 
-  Widget placeholder = const Padding(
-    padding: EdgeInsets.all(8),
+  Widget placeholder = Padding(
+    padding: const EdgeInsets.all(8),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -44,9 +49,10 @@ class _AccountState extends State<Account> {
             paragon: Paragon.unknown,
             playerTurn: PlayerTurn.onThePlay,
             result: MatchResultOption.draw,
+            matchTime: DateTime.now().toUtc(),
           ),
         ),
-        Expanded(
+        const Expanded(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -56,7 +62,7 @@ class _AccountState extends State<Account> {
             ],
           ),
         ),
-        Tooltip(
+        const Tooltip(
           message: "TBD",
           child: Icon(
             Icons.question_mark_outlined,
@@ -75,43 +81,6 @@ class _AccountState extends State<Account> {
       width: 720,
       child: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Flexible(
-                  child: FittedBox(
-                    child: ProgressCard(
-                      title: "Win Rate",
-                      height: 150,
-                      spacing: 8,
-                    ),
-                  ),
-                ),
-                Flexible(
-                  child: FittedBox(
-                    child: ProgressCard(
-                      playerTurn: PlayerTurn.onThePlay,
-                      title: "On the Play",
-                      height: 150,
-                      spacing: 8,
-                    ),
-                  ),
-                ),
-                Flexible(
-                  child: FittedBox(
-                    child: ProgressCard(
-                      playerTurn: PlayerTurn.onTheDraw,
-                      title: "On the Draw",
-                      height: 150,
-                      spacing: 8,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -184,6 +153,32 @@ class _AccountState extends State<Account> {
                           ),
                         ),
                       ),
+                      DropdownButton<Rank>(
+                        // isExpanded: true,
+                        value: rank,
+                        hint: const Text('Opponent Rank'),
+                        onChanged: (value) {
+                          setState(() {
+                            rank = value;
+                          });
+                        },
+                        items: Rank.values.reversed
+                            .map(
+                              (rank) => DropdownMenuItem<Rank>(
+                                value: rank,
+                                child: Text(rank.name.toTitleCase()),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
                       SizedBox(
                         width: 100,
                         child: TextField(
@@ -222,45 +217,124 @@ class _AccountState extends State<Account> {
                     ],
                   ),
                 ),
-                Wrap(
-                  spacing: 8,
-                  alignment: WrapAlignment.spaceAround,
-                  children: ParallelType.values
-                      .where((parallel) => parallel != ParallelType.universal)
-                      .map(
-                        (parallel) => Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: QuickAddButton(
-                            parallel: parallel,
-                            onSelection: (parallel, result) async {
-                              final newMatch = MatchModel(
+                Text(
+                  "Opponent's Paragon",
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 44, right: 44),
+                  child: Wrap(
+                    spacing: 8,
+                    alignment: WrapAlignment.spaceAround,
+                    children: ParallelType.values
+                        .where((parallel) => parallel != ParallelType.universal)
+                        .map(
+                          (parallel) => Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: SizedBox.square(
+                              dimension: 80,
+                              child: ParallelAvatar(
+                                parallel: parallel,
+                                isSelected: chosenParagon.parallel == parallel,
+                                onSelection: (paragon) {
+                                  setState(() {
+                                    if (chosenParagon == paragon) {
+                                      chosenParagon = Paragon.unknown;
+                                    } else {
+                                      chosenParagon = paragon;
+                                    }
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: SegmentedButton<MatchResultOption>(
+                          showSelectedIcon: false,
+                          segments: [
+                            ButtonSegment(
+                              value: MatchResultOption.win,
+                              label: Text(MatchResultOption.win.tooltip),
+                              enabled: chosenParagon != Paragon.unknown,
+                              icon: Icon(
+                                MatchResultOption.win.icon,
+                                color: MatchResultOption.win.color.withOpacity(
+                                  chosenParagon == Paragon.unknown ? 0.5 : 1,
+                                ),
+                              ),
+                            ),
+                            ButtonSegment(
+                              value: MatchResultOption.draw,
+                              label: Text(MatchResultOption.draw.tooltip),
+                              enabled: chosenParagon != Paragon.unknown,
+                              icon: Icon(
+                                MatchResultOption.draw.icon,
+                                color: MatchResultOption.draw.color.withOpacity(
+                                  chosenParagon == Paragon.unknown ? 0.5 : 1,
+                                ),
+                              ),
+                            ),
+                            ButtonSegment(
+                              value: MatchResultOption.loss,
+                              label: Text(MatchResultOption.loss.tooltip),
+                              enabled: chosenParagon != Paragon.unknown,
+                              icon: Icon(
+                                MatchResultOption.loss.icon,
+                                color: MatchResultOption.loss.color.withOpacity(
+                                  chosenParagon == Paragon.unknown ? 0.5 : 1,
+                                ),
+                              ),
+                            ),
+                          ],
+                          selected: const {},
+                          emptySelectionAllowed: true,
+                          multiSelectionEnabled: false,
+                          onSelectionChanged: (selection) async {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar(
+                              reason: SnackBarClosedReason.hide,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              BasicSnack(
+                                content: Text(
+                                  "Saving ${selection.first.name} vs ${chosenParagon.title.isEmpty ? chosenParagon.name.toTitleCase() : chosenParagon.title}",
+                                ),
+                              ),
+                            );
+                            await matchList.add(
+                              MatchModel(
                                 paragon: widget.chosenParagon,
-                                opponentParagon:
-                                    Paragon.values.byName(parallel.name),
+                                opponentUsername: _usernameController.text,
+                                opponentParagon: chosenParagon,
                                 playerTurn: playerTurn,
-                                result: result,
-                                matchTime: DateTime.now(),
-                                opponentUsername:
-                                    _usernameController.text.isEmpty
-                                        ? null
-                                        : _usernameController.text,
-                                mmrDelta: _mmrController.text.isEmpty
-                                    ? null
-                                    : int.parse(_mmrController.text),
-                                primeEarned: _primeController.text.isEmpty
-                                    ? null
-                                    : double.parse(_primeController.text),
-                              );
-                              await matchList.add(newMatch);
-                              matchResults.recordMatch(newMatch);
+                                matchTime: DateTime.now().toUtc(),
+                                result: selection.first,
+                                mmrDelta:
+                                    int.tryParse(_mmrController.text) ?? 0,
+                                primeEarned:
+                                    double.tryParse(_primeController.text) ?? 0,
+                              ),
+                            );
+                            setState(() {
+                              playerTurn = PlayerTurn.onThePlay;
+                              chosenParagon = Paragon.unknown;
+                              rank = null;
                               _usernameController.clear();
                               _mmrController.clear();
                               _primeController.clear();
-                            },
-                          ),
+                            });
+                          },
                         ),
-                      )
-                      .toList(),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -277,7 +351,7 @@ class _AccountState extends State<Account> {
                   : AnimatedList(
                       key: widget.listKey,
                       shrinkWrap: true,
-                      reverse: true,
+                      reverse: false,
                       physics: const NeverScrollableScrollPhysics(),
                       padding: const EdgeInsets.only(
                         top: 8,
@@ -317,8 +391,24 @@ class _AccountState extends State<Account> {
                     ),
             ),
           ),
+          Tooltip(
+            message: !loadMoreEnabled ? "No older matches" : "",
+            child: OutlinedButton.icon(
+              label: const Text("Load More"),
+              icon: const Icon(Icons.add),
+              onPressed: loadMoreEnabled
+                  ? () async {
+                      if (await matchList.loadMore() < matchList.limit) {
+                        setState(() {
+                          loadMoreEnabled = false;
+                        });
+                      }
+                    }
+                  : null,
+            ),
+          ),
           const SizedBox(
-            height: 80,
+            height: 40,
           ),
         ],
       ),

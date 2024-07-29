@@ -1,9 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/main.dart';
 import 'package:parallel_stats/model/match/match_model.dart';
+import 'package:parallel_stats/model/match/match_results.dart';
 import 'package:parallel_stats/tracker/match.dart';
 
 class MatchList extends ChangeNotifier {
+  final MatchResults matchResults;
   final GlobalKey<AnimatedListState> _listKey;
   final List<MatchModel> _matchList;
 
@@ -11,9 +14,11 @@ class MatchList extends ChangeNotifier {
 
   int _totalMatches = 0;
 
-  MatchList(GlobalKey<AnimatedListState> listKey)
+  MatchList(GlobalKey<AnimatedListState> listKey, this.matchResults)
       : _listKey = listKey,
         _matchList = List.empty(growable: true);
+
+  int get limit => _limit;
 
   bool get isEmpty => _matchList.isEmpty;
 
@@ -25,13 +30,10 @@ class MatchList extends ChangeNotifier {
 
   Future<void> init() async {
     final matches = await _fetchMatches();
-    _matchList.addAll(matches.reversed);
-    for (var _ in matches) {
-      _listKey.currentState?.insertItem(
-        _matchList.length - 1,
-        duration: const Duration(milliseconds: 250),
-      );
-    }
+    _matchList.addAll(matches);
+    _listKey.currentState?.insertAllItems(0, matches.length,
+        duration: const Duration(milliseconds: 250));
+
     notifyListeners();
   }
 
@@ -43,29 +45,37 @@ class MatchList extends ChangeNotifier {
     var matches = await supabase
         .from(MatchModel.gamesTableName)
         .select()
-        .lt('game_time', oldestMatchTimestamp.toIso8601String())
+        .lt('game_time', oldestMatchTimestamp)
         .order(
           "game_time",
         )
-        .range(0, limit)
+        .limit(limit)
         .count();
     _totalMatches = matches.count;
     return matches.data.map((game) => MatchModel.fromJson(game)).toList();
   }
 
-  loadMore() async {
-    final oldestMatchTimestamp = _matchList.last.matchTime;
+  Future<int> loadMore() async {
+    final oldestMatchTimestamp = _matchList.isNotEmpty
+        ? _matchList.last.matchTime
+        : DateTime.now().toUtc();
     final newMatches = await _fetchMatches(
       oldestMatchTimestamp: oldestMatchTimestamp,
     );
-    _matchList.addAll(newMatches);
-    for (var _ in newMatches) {
-      _listKey.currentState?.insertItem(
-        _matchList.length - 1,
-        duration: const Duration(milliseconds: 250),
+    if (kDebugMode) {
+      print(
+        "Loaded ${newMatches.length} more matches from $oldestMatchTimestamp",
       );
     }
+    final oldLength = _matchList.length;
+    _matchList.addAll(newMatches);
+    _listKey.currentState?.insertAllItems(
+      oldLength,
+      newMatches.length,
+      duration: const Duration(milliseconds: 250),
+    );
     notifyListeners();
+    return newMatches.length;
   }
 
   Future<void> add(MatchModel newMatch) async {
@@ -80,15 +90,12 @@ class MatchList extends ChangeNotifier {
         .select()
         .limit(1)
         .single();
-    final newMatchIndex = _matchList.lastIndexWhere(
-      (match) => match.matchTime!.isBefore(
-        DateTime.parse(newMatchResponse['game_time']!),
-      ),
-    );
-    _matchList.insert(newMatchIndex + 1, MatchModel.fromJson(newMatchResponse));
+    final newMatchModel = MatchModel.fromJson(newMatchResponse);
+    _matchList.insert(0, newMatchModel);
+    matchResults.recordMatch(newMatchModel);
     _totalMatches++;
     _listKey.currentState?.insertItem(
-      newMatchIndex + 1,
+      0,
       duration: const Duration(milliseconds: 250),
     );
     notifyListeners();
@@ -103,21 +110,15 @@ class MatchList extends ChangeNotifier {
         )
         .select();
 
-    for (var newMatchResponse in insertedMatches) {
-      final newMatchIndex = _matchList.lastIndexWhere(
-        (match) => match.matchTime!.isBefore(
-          DateTime.parse(newMatchResponse['game_time']!),
-        ),
-      );
-      _matchList.insert(
-        newMatchIndex + 1,
-        MatchModel.fromJson(newMatchResponse),
-      );
-      _listKey.currentState?.insertItem(
-        newMatchIndex + 1,
-        duration: const Duration(milliseconds: 250),
-      );
-    }
+    final currentLength = _matchList.length;
+    _matchList.addAll(insertedMatches.map(
+      (match) => MatchModel.fromJson(match),
+    ));
+    _listKey.currentState?.insertAllItems(
+      currentLength,
+      insertedMatches.length,
+      duration: const Duration(milliseconds: 250),
+    );
     _totalMatches += insertedMatches.length;
     notifyListeners();
   }
@@ -129,7 +130,37 @@ class MatchList extends ChangeNotifier {
           .from(MatchModel.gamesTableName)
           .update(match.toJson())
           .eq("id", match.id!);
-      _matchList[index] = match;
+
+      matchResults.updateMatch(_matchList[index], match);
+
+      // if the match time has changed, we need to remove and reinsert the match
+      if (_matchList[index].matchTime != match.matchTime) {
+        final removed = _matchList.removeAt(index);
+        _listKey.currentState?.removeItem(
+          index,
+          (context, animation) => SizeTransition(
+            sizeFactor: animation,
+            child: Match(
+              match: removed,
+              onEdit: null,
+              onDelete: null,
+            ),
+          ),
+          duration: const Duration(milliseconds: 250),
+        );
+
+        final closestIndex = _matchList.indexWhere(
+          (element) => element.matchTime.isBefore(match.matchTime),
+        );
+        _matchList.insert(closestIndex, removed);
+        _listKey.currentState?.insertItem(
+          closestIndex,
+          duration: const Duration(milliseconds: 250),
+        );
+      } else {
+        _matchList[index] = match;
+      }
+
       notifyListeners();
     }
   }

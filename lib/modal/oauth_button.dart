@@ -6,11 +6,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class OAuthButton extends StatelessWidget {
   final String label;
   final String icon;
+  final OAuthProvider provider;
 
   const OAuthButton({
     super.key,
     required this.label,
     required this.icon,
+    required this.provider,
   });
 
   @override
@@ -18,7 +20,7 @@ class OAuthButton extends StatelessWidget {
     return OutlinedButton.icon(
       onPressed: () async {
         supabase.auth.signInWithOAuth(
-          OAuthProvider.twitch,
+          provider,
           authScreenLaunchMode: LaunchMode.inAppWebView,
           redirectTo: kIsWeb ? null : "io.github.loftypuma://auth/callback",
         );
