@@ -45,7 +45,8 @@ class MatchList extends ChangeNotifier {
     var matches = await supabase
         .from(MatchModel.gamesTableName)
         .select()
-        .lt('game_time', oldestMatchTimestamp)
+        .lt('game_time',
+            oldestMatchTimestamp.subtract(const Duration(milliseconds: 10)))
         .order(
           "game_time",
         )
@@ -62,11 +63,11 @@ class MatchList extends ChangeNotifier {
     final newMatches = await _fetchMatches(
       oldestMatchTimestamp: oldestMatchTimestamp,
     );
-    // if (kDebugMode) {
-    print(
-      "Loaded ${newMatches.length} more matches from $oldestMatchTimestamp",
-    );
-    // }
+    if (kDebugMode) {
+      print(
+        "Loaded ${newMatches.length} more matches from $oldestMatchTimestamp",
+      );
+    }
     final oldLength = _matchList.length;
     _matchList.addAll(newMatches);
     _listKey.currentState?.insertAllItems(
