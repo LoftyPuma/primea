@@ -12,6 +12,7 @@ class RadialOverlay extends StatefulWidget {
   final Function(Paragon paragon) onTap;
   final List<ParagonAvatar> overlayChildren;
   final AnimationController controller;
+  final Alignment alignment;
 
   const RadialOverlay({
     super.key,
@@ -21,6 +22,7 @@ class RadialOverlay extends StatefulWidget {
     required this.onTap,
     required this.overlayChildren,
     required this.child,
+    required this.alignment,
   });
 
   @override
@@ -86,6 +88,13 @@ class _RadialOverlayState extends State<RadialOverlay> {
     });
 
     super.initState();
+  }
+
+  @override
+  dispose() {
+    _hoverTimer?.cancel();
+    _removeOverlay();
+    super.dispose();
   }
 
   void _animationListener(status) {
@@ -214,6 +223,7 @@ class _RadialOverlayState extends State<RadialOverlay> {
       },
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 250),
+        // TODO: fix bug where deselecting a paragon doesn't change the base selection paragon
         child: main,
       ),
     );
@@ -231,8 +241,9 @@ class _RadialOverlayState extends State<RadialOverlay> {
               final fadeAnimation = _fadeAnimations.elementAt(index);
               final scaleAnimation = _scaleAnimations.elementAt(index);
               final Offset offset = Offset.fromDirection(
-                _degreesToRadians(
-                    (180 / (widget.overlayChildren.length + 1)) * (index + 1)),
+                _degreesToRadians((180 / (widget.overlayChildren.length + 1)) *
+                        (index + 1)) *
+                    -widget.alignment.y,
                 parentSize.width * 1.5,
               );
               return Positioned(
@@ -265,7 +276,11 @@ class _RadialOverlayState extends State<RadialOverlay> {
                             onHover: isHovering ? _handleOnHover : null,
                             child: AnimatedSwitcher(
                               duration: const Duration(milliseconds: 1000),
-                              child: child,
+                              child: SizedBox(
+                                width: parentSize.width,
+                                height: parentSize.height,
+                                child: child,
+                              ),
                             ),
                           ),
                         ),

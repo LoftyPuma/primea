@@ -35,7 +35,7 @@
           <string>loftypuma</string>
           <key>CFBundleURLSchemes</key>
           <array>
-              <string>io.github.loftypuma</string>
+              <string>world.primea</string>
           </array>
       </dict>
   </array>

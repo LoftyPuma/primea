@@ -39,6 +39,14 @@ class _AccountState extends State<Account> {
   final TextEditingController _mmrController = TextEditingController();
   final TextEditingController _primeController = TextEditingController();
 
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _mmrController.dispose();
+    _primeController.dispose();
+    super.dispose();
+  }
+
   Widget placeholder = Padding(
     padding: const EdgeInsets.all(8),
     child: Row(
@@ -108,6 +116,16 @@ class _AccountState extends State<Account> {
                         padding: const EdgeInsets.all(16),
                         child: Switch(
                           value: !playerTurn.value,
+                          thumbIcon: WidgetStateProperty.resolveWith((states) {
+                            return Icon(
+                              playerTurn == PlayerTurn.onThePlay
+                                  ? Icons.swipe_up
+                                  : Icons.sim_card_download,
+                              color: playerTurn == PlayerTurn.onThePlay
+                                  ? Colors.yellow[600]
+                                  : Colors.cyan,
+                            );
+                          }),
                           onChanged: (value) {
                             setState(() {
                               playerTurn = !value
@@ -126,7 +144,9 @@ class _AccountState extends State<Account> {
                           ),
                           thumbColor: WidgetStateColor.resolveWith(
                             (states) => states.contains(WidgetState.selected)
-                                ? Theme.of(context).colorScheme.outline
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerLowest
                                 : Theme.of(context).colorScheme.onPrimary,
                           ),
                         ),

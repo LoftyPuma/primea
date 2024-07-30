@@ -71,14 +71,26 @@ class MatchResults extends ChangeNotifier {
     Map<Paragon, MatchResultsCount> opponentParagons, {
     Paragon? selectedParagon,
   }) {
-    if (selectedParagon != null) {
+    if (selectedParagon == null) {
+      // sum the matches for all opponent paragons
+      MatchResultsCount total = MatchResultsCount();
+      for (final opponentParagonEntry in opponentParagons.entries) {
+        total.addCounts(opponentParagonEntry.value);
+      }
+      return total;
+    } else if (selectedParagon.title.isEmpty) {
+      // sum the matches for all opponent paragons in teh selected Parallel
+      MatchResultsCount total = MatchResultsCount();
+      for (final opponentParagonEntry in opponentParagons.entries.where(
+        (entry) => entry.key.parallel == selectedParagon.parallel,
+      )) {
+        total.addCounts(opponentParagonEntry.value);
+      }
+      return total;
+    } else {
+      // sum the matches for the selected opponent paragon
       return opponentParagons[selectedParagon] ?? MatchResultsCount();
     }
-    MatchResultsCount total = MatchResultsCount();
-    for (final opponentParagonEntry in opponentParagons.entries) {
-      total.addCounts(opponentParagonEntry.value);
-    }
-    return total;
   }
 
   MatchResultsCount _sumParagonMap(
@@ -86,22 +98,39 @@ class MatchResults extends ChangeNotifier {
     Paragon? selectedParagon,
     Paragon? selectedOpponentParagon,
   }) {
-    if (selectedParagon != null) {
+    if (selectedParagon == null) {
+      // sum the matches for all paragons the player has used
+      MatchResultsCount total = MatchResultsCount();
+      for (final paragonEntry in paragons.entries) {
+        total.addCounts(
+          _sumOpponentParagonMap(
+            paragonEntry.value,
+            selectedParagon: selectedOpponentParagon,
+          ),
+        );
+      }
+      return total;
+    } else if (selectedParagon.title.isEmpty) {
+      // sum the matches for all paragons in the selected Parallel
+      MatchResultsCount total = MatchResultsCount();
+      for (final paragonEntry in paragons.entries.where(
+        (entry) => entry.key.parallel == selectedParagon.parallel,
+      )) {
+        total.addCounts(
+          _sumOpponentParagonMap(
+            paragonEntry.value,
+            selectedParagon: selectedOpponentParagon,
+          ),
+        );
+      }
+      return total;
+    } else {
+      // sum the matches for the selected player paragon
       return _sumOpponentParagonMap(
         paragons[selectedParagon] ?? {},
         selectedParagon: selectedOpponentParagon,
       );
     }
-    MatchResultsCount total = MatchResultsCount();
-    for (final paragonEntry in paragons.entries) {
-      total.addCounts(
-        _sumOpponentParagonMap(
-          paragonEntry.value,
-          selectedParagon: selectedOpponentParagon,
-        ),
-      );
-    }
-    return total;
   }
 
   MatchResultsCount count({

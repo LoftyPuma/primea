@@ -21,7 +21,7 @@ final supabase = Supabase.instance.client;
 class App extends StatelessWidget {
   const App({super.key});
 
-  final title = 'Stats | Primea';
+  final title = 'Primea';
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +37,7 @@ class App extends StatelessWidget {
           cardTheme: const CardTheme(
             shape: ContinuousRectangleBorder(),
           ),
+          fontFamily: 'Krypton',
         ),
         home: Home(title: title),
       ),

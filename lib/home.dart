@@ -87,11 +87,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           child: Scaffold(
             appBar: AppBar(
               centerTitle: true,
-              title: const SvgPicture(
-                AssetBytesLoader(
-                  "assets/parallel_logos/vec/parallel_pills.svg.vec",
+              leading: const Padding(
+                padding: EdgeInsets.all(8),
+                child: SvgPicture(
+                  AssetBytesLoader(
+                    "assets/parallel_logos/vec/parallel_pills.svg.vec",
+                  ),
                 ),
               ),
+              title: Text(widget.title),
               actions: [
                 if (session != null && !session!.isExpired)
                   OutlinedButton.icon(

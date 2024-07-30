@@ -34,7 +34,7 @@ class BaseCard extends StatelessWidget {
       child: Badge(
         isLabelVisible: switchable,
         label: Icon(
-          Icons.arrow_outward,
+          Icons.swap_horiz_rounded,
           size: 20,
           color: Theme.of(context).colorScheme.onError,
         ),

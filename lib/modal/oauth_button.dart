@@ -22,7 +22,7 @@ class OAuthButton extends StatelessWidget {
         supabase.auth.signInWithOAuth(
           provider,
           authScreenLaunchMode: LaunchMode.inAppWebView,
-          redirectTo: kIsWeb ? null : "io.github.loftypuma://auth/callback",
+          redirectTo: kIsWeb ? null : "world.primea://auth/callback",
         );
         Navigator.of(context).pop();
       },

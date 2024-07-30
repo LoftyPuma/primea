@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/overlay/overlay_widget.dart';
+import 'package:parallel_stats/overlay/radial_overlay.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
 
 class ParallelAvatar extends StatefulWidget {
   final ParallelType parallel;
   final bool isSelected;
+  final Alignment alignment;
   final void Function(Paragon paragon) onSelection;
 
   const ParallelAvatar({
@@ -13,6 +14,7 @@ class ParallelAvatar extends StatefulWidget {
     required this.parallel,
     required this.isSelected,
     required this.onSelection,
+    this.alignment = Alignment.topCenter,
   });
 
   @override
@@ -30,7 +32,7 @@ class _ParallelAvatarState extends State<ParallelAvatar>
   void initState() {
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 250),
       reverseDuration: const Duration(milliseconds: 250),
     );
 
@@ -57,6 +59,7 @@ class _ParallelAvatarState extends State<ParallelAvatar>
           controller: _controller,
           parallel: widget.parallel,
           isSelected: widget.isSelected,
+          alignment: widget.alignment,
           overlayChildren: [
             ParagonAvatar(
               key: ValueKey(_paragonOptions.elementAt(1)),
