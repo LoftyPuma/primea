@@ -101,65 +101,82 @@ class _AccountState extends State<Account> {
             child: Column(
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        'On the Play',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ),
-                    Tooltip(
-                      message: playerTurn == PlayerTurn.onThePlay
-                          ? 'You play first'
-                          : 'Opponent plays first',
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Switch(
-                          value: !playerTurn.value,
-                          thumbIcon: WidgetStateProperty.resolveWith((states) {
-                            return Icon(
-                              playerTurn == PlayerTurn.onThePlay
-                                  ? Icons.swipe_up
-                                  : Icons.sim_card_download,
-                              color: playerTurn == PlayerTurn.onThePlay
-                                  ? Colors.yellow[600]
-                                  : Colors.cyan,
-                            );
-                          }),
-                          onChanged: (value) {
-                            setState(() {
-                              playerTurn = !value
-                                  ? PlayerTurn.onThePlay
-                                  : PlayerTurn.onTheDraw;
-                            });
-                          },
-                          trackColor: WidgetStateColor.resolveWith(
-                            (states) => states.contains(WidgetState.selected)
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .onPrimaryContainer,
-                          ),
-                          thumbColor: WidgetStateColor.resolveWith(
-                            (states) => states.contains(WidgetState.selected)
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerLowest
-                                : Theme.of(context).colorScheme.onPrimary,
+                    Flexible(
+                      flex: 2,
+                      child: FittedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            'On the Play',
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        'On the Draw',
-                        style: Theme.of(context).textTheme.bodyLarge,
+                    Flexible(
+                      child: Tooltip(
+                        message: playerTurn == PlayerTurn.onThePlay
+                            ? 'You play first'
+                            : 'Opponent plays first',
+                        child: FittedBox(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Switch(
+                              value: !playerTurn.value,
+                              thumbIcon:
+                                  WidgetStateProperty.resolveWith((states) {
+                                return Icon(
+                                  playerTurn == PlayerTurn.onThePlay
+                                      ? Icons.swipe_up
+                                      : Icons.sim_card_download,
+                                  color: playerTurn == PlayerTurn.onThePlay
+                                      ? Colors.yellow[600]
+                                      : Colors.cyan,
+                                );
+                              }),
+                              onChanged: (value) {
+                                setState(() {
+                                  playerTurn = !value
+                                      ? PlayerTurn.onThePlay
+                                      : PlayerTurn.onTheDraw;
+                                });
+                              },
+                              trackColor: WidgetStateColor.resolveWith(
+                                (states) =>
+                                    states.contains(WidgetState.selected)
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .surfaceContainerHighest
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onPrimaryContainer,
+                              ),
+                              thumbColor: WidgetStateColor.resolveWith(
+                                (states) => states
+                                        .contains(WidgetState.selected)
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerLowest
+                                    : Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Flexible(
+                      flex: 2,
+                      child: FittedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            'On the Draw',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -243,9 +260,11 @@ class _AccountState extends State<Account> {
                     ],
                   ),
                 ),
-                Text(
-                  "Opponent's Paragon",
-                  style: Theme.of(context).textTheme.headlineSmall,
+                FittedBox(
+                  child: Text(
+                    "Opponent's Paragon",
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 44, right: 44),
@@ -342,6 +361,7 @@ class _AccountState extends State<Account> {
                                 playerTurn: playerTurn,
                                 matchTime: DateTime.now().toUtc(),
                                 result: selection.first,
+                                opponentRank: rank,
                                 mmrDelta:
                                     int.tryParse(_mmrController.text) ?? 0,
                                 primeEarned:
