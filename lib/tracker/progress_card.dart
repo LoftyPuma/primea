@@ -100,14 +100,19 @@ class _ProgressCardState extends State<ProgressCard>
   Widget build(BuildContext context) {
     final matchResults = InheritedMatchResults.of(context);
     if (_controller.value == 0) {
-      _controller.value = matchResults
-          .count(
-            paragon: widget.paragon,
-            opponentParagon: widget.opponentParagon,
-            playerTurn: widget.playerTurn,
-          )
-          .winRate;
+      _controller.animateTo(
+        InheritedMatchResults.of(context)
+            .count(
+              paragon: widget.paragon,
+              opponentParagon: widget.opponentParagon,
+              playerTurn: widget.playerTurn,
+            )
+            .winRate,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.bounceOut,
+      );
     }
+
     matchResults.removeListener(_handleAnimate);
     matchResults.addListener(_handleAnimate);
 
