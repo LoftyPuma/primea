@@ -87,6 +87,16 @@ class _ProgressCardState extends State<ProgressCard>
   }
 
   @override
+  void didUpdateWidget(covariant ProgressCard oldWidget) {
+    if (oldWidget.paragon != widget.paragon ||
+        oldWidget.opponentParagon != widget.opponentParagon ||
+        oldWidget.playerTurn != widget.playerTurn) {
+      _handleAnimate();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final matchResults = InheritedMatchResults.of(context);
     if (_controller.value == 0) {

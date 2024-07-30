@@ -525,7 +525,7 @@ class _DashboardState extends State<Dashboard>
                     ),
                     height: _DashboardState.squareSize * 2 +
                         _DashboardState.spacing * 3,
-                    child: const Wrap(
+                    child: Wrap(
                       direction: Axis.vertical,
                       spacing: spacing,
                       runSpacing: spacing,
@@ -536,6 +536,9 @@ class _DashboardState extends State<Dashboard>
                             sizeMultiplier: 2,
                             height: _DashboardState.squareSize,
                             spacing: _DashboardState.spacing,
+                            paragon: selectedParagon,
+                            opponentParagon: opponentParagon,
+                            playerTurn: playerTurn,
                           ),
                         ),
                         FittedBox(
@@ -544,6 +547,8 @@ class _DashboardState extends State<Dashboard>
                             title: "On the Play",
                             height: _DashboardState.squareSize,
                             spacing: _DashboardState.spacing,
+                            paragon: selectedParagon,
+                            opponentParagon: opponentParagon,
                           ),
                         ),
                         FittedBox(
@@ -552,6 +557,8 @@ class _DashboardState extends State<Dashboard>
                             title: "On the Draw",
                             height: _DashboardState.squareSize,
                             spacing: _DashboardState.spacing,
+                            paragon: selectedParagon,
+                            opponentParagon: opponentParagon,
                           ),
                         ),
                       ],
