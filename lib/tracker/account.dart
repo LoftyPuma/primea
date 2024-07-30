@@ -104,9 +104,12 @@ class _AccountState extends State<Account> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text('On the Play'),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'On the Play',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
                     ),
                     Tooltip(
                       message: playerTurn == PlayerTurn.onThePlay
@@ -152,9 +155,12 @@ class _AccountState extends State<Account> {
                         ),
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text('On the Draw'),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'On the Draw',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
                     ),
                   ],
                 ),

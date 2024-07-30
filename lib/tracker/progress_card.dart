@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/model/match/inherited_match_results.dart';
+import 'package:parallel_stats/model/match/match_results.dart';
 import 'package:parallel_stats/model/match/player_turn.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 
@@ -35,6 +36,8 @@ class _ProgressCardState extends State<ProgressCard>
   late final Animation<double> _valueAnimation;
   late final Animation<Color?> _colorAnimation;
 
+  MatchResults? _matchResults;
+
   @override
   void initState() {
     _controller = AnimationController(
@@ -67,21 +70,25 @@ class _ProgressCardState extends State<ProgressCard>
   }
 
   void _handleAnimate() {
-    _controller.animateTo(
-      InheritedMatchResults.of(context)
-          .count(
-            paragon: widget.paragon,
-            opponentParagon: widget.opponentParagon,
-            playerTurn: widget.playerTurn,
-          )
-          .winRate,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.bounceOut,
-    );
+    if (mounted) {
+      _controller.animateTo(
+        _matchResults
+                ?.count(
+                  paragon: widget.paragon,
+                  opponentParagon: widget.opponentParagon,
+                  playerTurn: widget.playerTurn,
+                )
+                .winRate ??
+            0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.bounceOut,
+      );
+    }
   }
 
   @override
   void dispose() {
+    _matchResults?.removeListener(_handleAnimate);
     _controller.dispose();
     super.dispose();
   }
@@ -98,23 +105,25 @@ class _ProgressCardState extends State<ProgressCard>
 
   @override
   Widget build(BuildContext context) {
-    final matchResults = InheritedMatchResults.of(context);
+    _matchResults ??= InheritedMatchResults.of(context);
+
     if (_controller.value == 0) {
       _controller.animateTo(
-        InheritedMatchResults.of(context)
-            .count(
-              paragon: widget.paragon,
-              opponentParagon: widget.opponentParagon,
-              playerTurn: widget.playerTurn,
-            )
-            .winRate,
+        _matchResults
+                ?.count(
+                  paragon: widget.paragon,
+                  opponentParagon: widget.opponentParagon,
+                  playerTurn: widget.playerTurn,
+                )
+                .winRate ??
+            0,
         duration: const Duration(milliseconds: 500),
         curve: Curves.bounceOut,
       );
     }
 
-    matchResults.removeListener(_handleAnimate);
-    matchResults.addListener(_handleAnimate);
+    _matchResults?.removeListener(_handleAnimate);
+    _matchResults?.addListener(_handleAnimate);
 
     final bufferSpace = widget.sizeMultiplier == 1
         ? 0
