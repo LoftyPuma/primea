@@ -87,16 +87,16 @@ flutter:
         - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceArgonVarVF[wght,wdth,slnt].ttf
     - family: Krypton
       fonts:
-        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceArgonVarVF[wght,wdth,slnt].ttf
+        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceKryptonVarVF[wght,wdth,slnt].ttf
     - family: Neon
       fonts:
-        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceArgonVarVF[wght,wdth,slnt].ttf
+        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceNeonVarVF[wght,wdth,slnt].ttf
     - family: Radon
       fonts:
-        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceArgonVarVF[wght,wdth,slnt].ttf
+        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceRadonVarVF[wght,wdth,slnt].ttf
     - family: Xenon
       fonts:
-        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceArgonVarVF[wght,wdth,slnt].ttf
+        - asset: assets/fonts/monaspace-v1.101/fonts/variable/MonaspaceXenonVarVF[wght,wdth,slnt].ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
