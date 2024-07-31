@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:parallel_stats/modal/match.dart';
 import 'package:parallel_stats/model/match/match_model.dart';
 import 'package:parallel_stats/model/match/match_result_option.dart';
+import 'package:parallel_stats/model/match/player_rank.dart';
 import 'package:parallel_stats/model/match/player_turn.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/match.dart';
@@ -17,6 +18,7 @@ enum CsvColumn {
   result,
   playerOne,
   opponentUsername,
+  opponentRank,
   mmrDelta,
   primeEstimate,
   timestamp,
@@ -71,6 +73,7 @@ class _ImportState extends State<Import> {
       PlayerTurn turn = PlayerTurn.onThePlay;
       DateTime matchTime = DateTime.now();
       String? opponentUsername;
+      Rank? opponentRank;
       int? mmrDelta;
       double? primeEarned;
 
@@ -94,6 +97,9 @@ class _ImportState extends State<Import> {
               break;
             case CsvColumn.opponentUsername:
               opponentUsername = values[i];
+              break;
+            case CsvColumn.opponentRank:
+              opponentRank = Rank.values.byName(values[i]);
               break;
             case CsvColumn.mmrDelta:
               mmrDelta = int.parse(values[i]);
@@ -121,6 +127,7 @@ class _ImportState extends State<Import> {
         matchTime: matchTime,
         opponentUsername: opponentUsername,
         opponentParagon: opponentParagon,
+        opponentRank: opponentRank,
         mmrDelta: mmrDelta,
         primeEarned: primeEarned,
       ));
@@ -181,7 +188,9 @@ class _ImportState extends State<Import> {
           opponentParagon:
               Paragon.values[Random().nextInt(Paragon.values.length)],
           mmrDelta: mmrDelta,
-          primeEarned: Random().nextDouble(),
+          opponentRank: Rank.values[Random().nextInt(Rank.values.length)],
+          primeEarned:
+              result == MatchResultOption.win ? Random().nextDouble() : 0,
           matchTime: DateTime.now().subtract(
             Duration(
               days: Random().nextInt(720),
@@ -214,8 +223,8 @@ class _ImportState extends State<Import> {
                     child: SelectableText(
                       "[${CsvColumn.values.map((column) => column.name).join(', ')}]",
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Krypton",
+                        fontFamily: "Argon",
+                        fontVariations: [FontVariation('wght', 700)],
                       ),
                     ),
                   ),
@@ -229,10 +238,10 @@ class _ImportState extends State<Import> {
                   WidgetSpan(
                     child: SelectableText(
                       "[${Paragon.values.map((paragon) => paragon.name).join(', ')}]",
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontFamily: "Krypton"),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontFamily: "Argon",
+                        fontVariations: [const FontVariation('wght', 700)],
+                      ),
                     ),
                   ),
                   const TextSpan(
@@ -246,25 +255,41 @@ class _ImportState extends State<Import> {
                     child: SelectableText(
                       "[${MatchResultOption.values.map((result) => result.name).join(', ')}]",
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontFamily: "Krypton",
-                            textBaseline: TextBaseline.alphabetic,
-                          ),
+                        fontFamily: "Argon",
+                        fontVariations: [const FontVariation('wght', 700)],
+                      ),
                     ),
                   ),
                   const TextSpan(
                     text: "\n\n",
                   ),
+                  TextSpan(
+                    text: "Valid Rank values: ",
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  WidgetSpan(
+                    child: SelectableText(
+                      "[${Rank.values.reversed.map((rank) => rank.name).join(', ')}]",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontVariations: [const FontVariation('wght', 700)],
+                      ),
+                    ),
+                  ),
                   const TextSpan(
+                    text: "\n\n",
+                  ),
+                  TextSpan(
                     text:
                         "Here is an example table.\nThe only columns required are ",
+                    style: Theme.of(context).textTheme.labelLarge,
                   ),
                   TextSpan(
                     text:
                         "${CsvColumn.paragon.name}, ${CsvColumn.opponentParagon.name}, ${CsvColumn.result.name}, ${CsvColumn.playerOne.name}",
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Krypton",
-                        ),
+                      fontFamily: "Argon",
+                      fontVariations: [const FontVariation('wght', 700)],
+                    ),
                   ),
                 ],
               ),
@@ -299,6 +324,15 @@ class _ImportState extends State<Import> {
                                 child: Text(
                                   column.name,
                                   textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelLarge
+                                      ?.copyWith(
+                                    fontFamily: "Argon",
+                                    fontVariations: [
+                                      const FontVariation('wght', 700)
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -330,6 +364,9 @@ class _ImportState extends State<Import> {
                           ),
                           TableCell(
                             child: Text(row.opponentUsername ?? ""),
+                          ),
+                          TableCell(
+                            child: Text(row.opponentRank?.name ?? ""),
                           ),
                           TableCell(
                             child: Text(row.mmrDelta?.toString() ?? ""),
