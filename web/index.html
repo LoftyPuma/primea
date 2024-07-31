@@ -1,41 +1,129 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <base href="$FLUTTER_BASE_HREF" />
 
-<head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+    <meta charset="UTF-8" />
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+    <meta name="description" content="Track your Parallel games." />
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
+    <!-- iOS meta tags & icons -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Primea" />
+    <link rel="apple-touch-icon" href="icons/Icon-192.png" />
 
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.ico" />
 
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
+    <title>Primea</title>
+    <link rel="manifest" href="manifest.json" />
+  </head>
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <body style="background-color: #14140a">
+    <script async>
+      // prettier-ignore
+      {{flutter_js}}
+      // prettier-ignore
+      {{flutter_build_config}}
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
 
-  <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="parallel_stats">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+      function fadeIn(element, duration = 250) {
+        element.style.opacity = 0;
+        element.style.display = "flex";
+        element.style.transition = `opacity ${duration}ms`;
+        setTimeout(() => (element.style.opacity = 1), 10);
+        return sleep(duration);
+      }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.ico" />
+      function fadeOut(element, duration = 250) {
+        element.style.opacity = 1;
+        element.style.transition = `opacity ${duration}ms`;
+        element.style.opacity = 0;
+        setTimeout(() => (element.style.display = "none"), duration);
+        return sleep(duration);
+      }
 
-  <title>parallel_stats</title>
-  <link rel="manifest" href="manifest.json">
-</head>
+      const loading = document.createElement("div");
+      loading.style.display = "none";
+      loading.style.justifyContent = "center";
+      loading.style.alignItems = "center";
+      loading.style.height = "100vh";
+      document.body.appendChild(loading);
 
-<body>
-  <script src="flutter_bootstrap.js" async></script>
-</body>
+      // create augencore SVG
+      const augencore = document.createElement("div");
+      augencore.style.width = "min(25vw, 90vh)";
+      augencore.style.color = "#FF7432";
+      // augencore.style.display = "none";
+      augencore.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-augencore-orange"><path d="M12 3.982 9.018 1 6.035 3.982l4.912 4.913h2.106l4.912-4.913L14.983 1 12 3.982ZM12 18.018l-2.982-2.983-2.983 2.983 4.912 4.912h2.106l4.912-4.912-2.982-2.983L12 18.018ZM4.982 11 2 13.982l2.982 2.983 4.913-4.912V9.947L4.982 5.035 2 8.018 4.982 11ZM19.018 11 22 13.982l-2.982 2.983-4.913-4.912V9.947l4.913-4.912L22 8.018 19.018 11Z" fill="currentColor"></path></svg>';
+      // create earthen SVG
+      const earthen = document.createElement("div");
+      earthen.style.width = "min(25vw, 90vh)";
+      earthen.style.color = "#49BC31";
+      // earthen.style.display = "none";
+      earthen.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-earthen-green"><path d="M7.999 15.042 5.38 12.424H4.254a.14.14 0 0 1-.14-.14v-.564a.141.141 0 0 1 .14-.141h1.127l2.618-2.618a.282.282 0 0 0 0-.399l-1.07-1.07a.705.705 0 0 0-.997 0l-3.52 3.513a1.409 1.409 0 0 0 0 1.993l3.517 3.516a.705.705 0 0 0 .996 0l1.07-1.07A.283.283 0 0 0 8 15.042ZM8.562 7.999a.282.282 0 0 0 .4 0l2.617-2.618V4.254a.14.14 0 0 1 .14-.14h.564a.14.14 0 0 1 .141.14v1.127l2.618 2.618a.282.282 0 0 0 .399 0l1.07-1.07a.705.705 0 0 0 0-.997l-3.513-3.52a1.409 1.409 0 0 0-1.993 0L7.49 5.93a.705.705 0 0 0 0 .996L8.562 8ZM21.59 11.005l-3.516-3.517a.705.705 0 0 0-.997 0l-1.07 1.071a.28.28 0 0 0 0 .399l2.615 2.62h1.127a.14.14 0 0 1 .14.141v.564a.141.141 0 0 1-.14.14h-1.127l-2.618 2.618a.28.28 0 0 0-.061.308.281.281 0 0 0 .061.091l1.07 1.07a.705.705 0 0 0 .997 0l3.516-3.516a1.408 1.408 0 0 0 .003-1.989ZM15.44 16.005a.282.282 0 0 0-.398 0l-2.618 2.617v1.127a.14.14 0 0 1-.14.141h-.564a.14.14 0 0 1-.141-.14v-1.128l-2.618-2.617a.282.282 0 0 0-.399 0l-1.07 1.07a.705.705 0 0 0 0 .996l3.516 3.517a1.408 1.408 0 0 0 1.993 0l3.516-3.517a.705.705 0 0 0 0-.996l-1.076-1.07Z" fill="currentColor"></path><path d="M9.184 10.114a1.972 1.972 0 1 0 0 3.78c.259-.077.499-.208.704-.383l1.55-1.51-1.55-1.509a1.956 1.956 0 0 0-.704-.378ZM12.001 11.438l1.51-1.55a1.971 1.971 0 1 0-3.019 0l1.51 1.55ZM12.002 17.354a1.972 1.972 0 0 0 1.509-3.24l-1.51-1.55-1.509 1.55a1.973 1.973 0 0 0 1.512 3.24h-.002ZM14.819 13.89a1.972 1.972 0 1 0-.705-3.398l-1.55 1.51 1.55 1.51c.206.172.446.301.705.377Z" fill="currentColor"></path></svg>';
+      // create kathari SVG
+      const kathari = document.createElement("div");
+      kathari.style.width = "min(25vw, 90vh)";
+      kathari.style.color = "#1E90DD";
+      // kathari.style.display = "none";
+      kathari.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue"><path d="m16.073 3.324-3.723-2.23a.674.674 0 0 0-.69 0L7.91 3.325a.685.685 0 0 0-.333.593v4.48a.693.693 0 0 0 .333.592l3.736 2.227a.674.674 0 0 0 .689 0l3.723-2.227a.68.68 0 0 0 .335-.592v-4.48a.693.693 0 0 0-.32-.593ZM16.073 15.002l-3.723-2.226a.674.674 0 0 0-.69 0L7.91 15.002a.685.685 0 0 0-.333.593v4.491a.699.699 0 0 0 .333.593l3.736 2.226a.674.674 0 0 0 .689 0l3.723-2.227a.686.686 0 0 0 .335-.592v-4.483a.694.694 0 0 0-.32-.6ZM20.476 7.282l-3.055 1.823a.685.685 0 0 0-.335.592v4.605a.697.697 0 0 0 .335.592l3.055 1.82a.672.672 0 0 0 .933-.246.693.693 0 0 0 .091-.346V7.875a.696.696 0 0 0-.343-.596.674.674 0 0 0-.68.003ZM6.58 9.105 3.523 7.282a.674.674 0 0 0-.931.248.696.696 0 0 0-.093.345v8.247a.693.693 0 0 0 .342.598.671.671 0 0 0 .682-.006l3.055-1.82a.683.683 0 0 0 .333-.592V9.697a.693.693 0 0 0-.333-.592Z" fill="currentColor"></path></svg>';
+      // create marcolian SVG
+      const marcolian = document.createElement("div");
+      marcolian.style.width = "min(25vw, 90vh)";
+      marcolian.style.color = "#E20A1A";
+      // marcolian.style.display = "none";
+      marcolian.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-marcolian-red"><path d="m8.475 12 2.935-.59L12 7.59l.59 3.822 2.936.589-2.936.589-.59 3.808-.59-3.808-2.935-.59ZM12 5.534a6.481 6.481 0 0 0-5.982 3.991 6.457 6.457 0 0 0 1.404 7.046A6.478 6.478 0 0 0 18.475 12a6.46 6.46 0 0 0-1.897-4.572A6.48 6.48 0 0 0 12 5.534Z" fill="currentColor"></path><path d="M2 11.41a10.007 10.007 0 0 1 2.915-6.49A10.034 10.034 0 0 1 11.41 2v2.356a7.673 7.673 0 0 0-4.832 2.225 7.652 7.652 0 0 0-2.219 4.83H2ZM4.36 12.588c.141 1.82.93 3.53 2.222 4.822a7.673 7.673 0 0 0 4.828 2.22v2.355a10.034 10.034 0 0 1-6.495-2.92A10.007 10.007 0 0 1 2 12.575l2.36.014ZM12.59 19.63a7.673 7.673 0 0 0 4.836-2.215 7.652 7.652 0 0 0 2.228-4.825H22a10.007 10.007 0 0 1-2.915 6.49A10.034 10.034 0 0 1 12.59 22v-2.37ZM19.654 11.41a7.666 7.666 0 0 0-2.227-4.83 7.687 7.687 0 0 0-4.837-2.224V2a10.034 10.034 0 0 1 6.495 2.92A10.007 10.007 0 0 1 22 11.41h-2.346Z" fill="currentColor"></path></svg>';
+      // create shroud SVG
+      const shroud = document.createElement("div");
+      shroud.style.width = "min(25vw, 90vh)";
+      shroud.style.color = "#6438C6";
+      // shroud.style.display = "none";
+      shroud.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-shroud-purple"><path d="M11.792 7.122 3.476 20.625l1.582-.424c.257-.536.53-1.064.802-1.596.569-1.085 1.16-2.16 1.77-3.225a83.4 83.4 0 0 1 1.892-3.157c.325-.521 1.367-2.061 1.556-2.305.097-.125.192-.25.301-.375.056-.064.112-.128.18-.194.039-.037.08-.072.123-.105.015 0 .021-.016.04-.027l.061-.035a.303.303 0 0 1 .083-.035.412.412 0 0 1 .272 0c.03.008.057.02.083.035l.06.035.04.027c.052.04.087.072.124.105.068.066.124.13.18.194.107.126.206.25.3.375.19.252 1.238 1.784 1.557 2.306a92.472 92.472 0 0 1 1.891 3.156c.604 1.066 1.2 2.14 1.771 3.225.272.532.545 1.06.802 1.596l1.582.424-8.316-13.503a.247.247 0 0 0-.42 0Z" fill="currentColor"></path><path d="M12.196 10.186a.246.246 0 0 0-.388 0l-.15.192c-.173.22-6.035 9.293-6.308 9.744l1.413-.377.124-.25c.428-.845.885-1.676 1.37-2.492.481-.825.999-1.61 1.543-2.394.272-.392.56-.771.87-1.146.157-.186.318-.37.497-.549.095-.094.196-.183.301-.266 0 0 .159-.107.196-.126a.712.712 0 0 1 .338-.097.726.726 0 0 1 .338.097c.037.019.206.126.206.126.106.083.206.172.301.266.18.18.34.363.497.549.31.375.598.754.87 1.146a38.723 38.723 0 0 1 1.543 2.394c.48.816.942 1.65 1.37 2.492l.125.25 1.41.377c-.28-.451-6.136-9.523-6.316-9.752l-.15-.184Z" fill="currentColor"></path><path d="M13.64 15.025c-.281-.37-1.157-1.428-1.314-1.581a6.437 6.437 0 0 0-.229-.206l-.054-.037-.039-.023-.039.023-.054.037c-.08.064-.156.133-.228.206-.157.153-1.031 1.21-1.314 1.581-.565.743-1.09 1.52-1.62 2.291-.53.771-1.025 1.53-1.512 2.301l1.237-.332c.134-.233.275-.464.413-.69a12.97 12.97 0 0 1 1.237-1.633c.234-.263.489-.507.76-.73.072-.06.146-.114.223-.165.04-.025.077-.054.118-.079l.128-.072c.196-.113.417-.178.643-.19.226.013.446.078.643.19l.128.072c.041.025.079.054.118.079.077.05.151.106.222.165a6.7 6.7 0 0 1 .76.73 12.984 12.984 0 0 1 1.649 2.323l1.237.332a84.916 84.916 0 0 0-1.508-2.3c-.51-.762-1.04-1.55-1.606-2.292Z" fill="currentColor"></path><path d="M13.363 17.448a6.458 6.458 0 0 0-.7-.635c-.061-.043-.119-.093-.18-.13l-.091-.06-.083-.045a.783.783 0 0 0-.3-.1.783.783 0 0 0-.302.1l-.09.05c-.03.018-.058.04-.09.06-.03.018-.12.086-.18.129a6.47 6.47 0 0 0-.7.635c-.45.47-.874.967-1.268 1.487l-.107.14 2.101-.561a2.428 2.428 0 0 1 1.27 0l2.101.56-.109-.14c-.395-.52-.82-1.018-1.272-1.49Z" fill="currentColor"></path><path d="M12.214 4.122a.245.245 0 0 0-.424 0C10.402 6.444 2.654 19.413 2 20.46a.619.619 0 0 0 .73.364l.447-.121s8.433-14.685 8.444-14.7a.456.456 0 0 1 .588-.159c.075.038.14.096.185.168l8.433 14.69.445.12A.618.618 0 0 0 22 20.46c-.65-1.046-8.4-14.015-9.786-16.337Z" fill="currentColor"></path></svg>';
 
+      loading.appendChild(augencore);
+      loading.appendChild(earthen);
+      loading.appendChild(kathari);
+      loading.appendChild(marcolian);
+      loading.appendChild(shroud);
+
+      _flutter.loader.load({
+        onEntrypointLoaded: async function (engineInitializer) {
+          var appRunnerInitialized = false;
+          var appRunner = engineInitializer
+            .initializeEngine()
+            .then((runner) => {
+              appRunner = runner;
+              appRunnerInitialized = true;
+            });
+          for (; !appRunnerInitialized; ) {
+            await fadeIn(loading, 1000);
+            await fadeOut(loading, 1000);
+          }
+
+          // loading.textContent = "Initializing engine...";
+          // const parallels = [augencore, earthen, kathari, marcolian, shroud];
+          // for (; true; ) {
+          //   for (const parallel in parallels) {
+          //     if (Object.hasOwnProperty.call(parallels, parallel)) {
+          //       const element = parallels[parallel];
+          //       await fadeIn(element, 500);
+          //       await fadeOut(element, 500);
+          //     }
+          //   }
+          // }
+
+          await appRunner.runApp();
+        },
+      });
+    </script>
+  </body>
 </html>

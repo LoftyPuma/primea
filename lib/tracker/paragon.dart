@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 enum ParallelType {
   universal(color: Colors.black87),
-  augencore(color: Color(0xE0FF7432)),
-  earthen(color: Color(0xE049BC31)),
-  kathari(color: Color(0xE01E90DD)),
-  marcolian(color: Color(0xE0E20A1A)),
-  shroud(color: Color(0xE06438C6));
+  augencore(color: Color(0xFFFF7432)),
+  earthen(color: Color(0xFF49BC31)),
+  kathari(color: Color(0xFF1E90DD)),
+  marcolian(color: Color(0xFFE20A1A)),
+  shroud(color: Color(0xFF6438C6));
 
   const ParallelType({
     required this.color,

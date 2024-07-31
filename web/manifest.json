@@ -1,11 +1,11 @@
 {
-    "name": "parallel_stats",
-    "short_name": "parallel_stats",
+    "name": "Primea World",
+    "short_name": "Primea",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#14140A",
+    "theme_color": "#DEF141",
+    "description": "Track your Parallel game stats.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
