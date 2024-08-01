@@ -19,12 +19,15 @@ class OAuthButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: () async {
-        supabase.auth.signInWithOAuth(
+        await supabase.auth.signInWithOAuth(
           provider,
           authScreenLaunchMode: LaunchMode.inAppWebView,
-          redirectTo: kIsWeb ? null : "world.primea://auth/callback",
+          redirectTo:
+              kIsWeb ? "/auth/callback" : "world.primea://auth/callback",
         );
-        Navigator.of(context).pop();
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
       },
       icon: Padding(
         padding: const EdgeInsets.only(
