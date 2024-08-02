@@ -13,7 +13,7 @@ class MatchList extends ChangeNotifier {
   final List<MatchModel> _matchList;
 
   static const int _limit = 100;
-  static const Duration _sessionTolerance = Duration(hours: 1);
+  static const Duration _sessionTolerance = Duration(hours: 3);
 
   int _totalMatches = 0;
 
