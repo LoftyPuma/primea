@@ -252,7 +252,8 @@ class MatchList extends ChangeNotifier {
     }
   }
 
-  Future<MatchModel> removeAt(int index) async {
+  Future<MatchModel> remove(MatchModel toRemove) async {
+    final index = _matchList.indexWhere((element) => element.id == toRemove.id);
     final removed = _matchList.removeAt(index);
     await supabase
         .from(MatchModel.gamesTableName)
