@@ -46,7 +46,8 @@ class _SessionSummaryState extends State<SessionSummary> {
                 end: Alignment.bottomRight,
                 colors: session
                     .map(
-                      (match) => match.opponentParagon.parallel.color,
+                      (match) =>
+                          match.opponentParagon.parallel.color.withAlpha(100),
                     )
                     .toList()
                   ..insert(
