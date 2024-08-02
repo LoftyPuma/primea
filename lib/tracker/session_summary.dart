@@ -71,27 +71,33 @@ class _SessionSummaryState extends State<SessionSummary> {
                     Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.only(
+                            top: 4,
+                            bottom: 4,
+                            right: 8,
+                            left: 8,
+                          ),
                           child: Text(
                             DateFormat.MMMd().format(session.first.matchTime),
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ),
                         Text(
-                            "${session.fold(0, (acc, match) => acc += match.mmrDelta ?? 0).toString()} MMR")
+                          "${session.fold(0, (acc, match) => acc += match.mmrDelta ?? 0).toString()} MMR",
+                        ),
+                        Text(
+                          "${_matchResults.count().win}-${_matchResults.count().loss}",
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 47),
                       ],
                     ),
                     Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.max,
                         children: [
-                          Text(
-                            "${session.length} Match${session.length > 1 ? "es" : ""}",
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
                           ShaderMask(
                             shaderCallback: (Rect bounds) {
                               return const LinearGradient(
@@ -122,6 +128,12 @@ class _SessionSummaryState extends State<SessionSummary> {
                                 ).toList(),
                               ),
                             ),
+                          ),
+                          const SizedBox(height: 30),
+                          Text(
+                            "${session.length} Match${session.length > 1 ? "es" : ""}",
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ],
                       ),
