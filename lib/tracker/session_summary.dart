@@ -79,15 +79,15 @@ class _SessionSummaryState extends State<SessionSummary> {
                           ),
                           child: Text(
                             DateFormat.MMMd().format(session.first.matchTime),
-                            style: Theme.of(context).textTheme.headlineSmall,
+                            style: Theme.of(context).textTheme.headlineMedium,
                           ),
                         ),
                         Text(
-                          "${session.fold(0, (acc, match) => acc += match.mmrDelta ?? 0).toString()} MMR",
+                          "${_matchResults.count().win}-${_matchResults.count().loss}",
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         Text(
-                          "${_matchResults.count().win}-${_matchResults.count().loss}",
-                          style: Theme.of(context).textTheme.titleLarge,
+                          "${session.fold(0, (acc, match) => acc += match.mmrDelta ?? 0).toString()} MMR",
                         ),
                         const SizedBox(height: 47),
                       ],
