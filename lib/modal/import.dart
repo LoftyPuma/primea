@@ -70,7 +70,7 @@ class _ImportState extends State<Import> {
       Paragon paragon = Paragon.unknown;
       Paragon opponentParagon = Paragon.unknown;
       MatchResultOption result = MatchResultOption.draw;
-      PlayerTurn turn = PlayerTurn.onThePlay;
+      PlayerTurn turn = PlayerTurn.going1st;
       DateTime matchTime = DateTime.now();
       String? opponentUsername;
       Rank? opponentRank;
@@ -92,8 +92,8 @@ class _ImportState extends State<Import> {
               break;
             case CsvColumn.playerOne:
               turn = bool.parse(values[i], caseSensitive: false)
-                  ? PlayerTurn.onThePlay
-                  : PlayerTurn.onTheDraw;
+                  ? PlayerTurn.going1st
+                  : PlayerTurn.going2nd;
               break;
             case CsvColumn.opponentUsername:
               opponentUsername = values[i];
@@ -182,7 +182,7 @@ class _ImportState extends State<Import> {
         return MatchModel(
           paragon: Paragon.values[Random().nextInt(Paragon.values.length)],
           playerTurn:
-              Random().nextBool() ? PlayerTurn.onThePlay : PlayerTurn.onTheDraw,
+              Random().nextBool() ? PlayerTurn.going1st : PlayerTurn.going2nd,
           result: result,
           opponentUsername: 'Opponent #$index',
           opponentParagon:

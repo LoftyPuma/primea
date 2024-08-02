@@ -52,7 +52,7 @@ class MatchModel {
             ? Rank.values.byName(json['opponent_rank'])
             : null,
         playerTurn =
-            json['player_one'] ? PlayerTurn.onThePlay : PlayerTurn.onTheDraw,
+            json['player_one'] ? PlayerTurn.going1st : PlayerTurn.going2nd,
         result = MatchResultOption.values.byName(json['result']);
   // keysActivated = List<KeyModel>.from(json['keysActivated']);
 

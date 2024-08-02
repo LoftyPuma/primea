@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/dashboard/card.dart';
 import 'package:parallel_stats/dashboard/number_card.dart';
-import 'package:parallel_stats/main.dart';
+import 'package:parallel_stats/model/match/inherited_match_list.dart';
 import 'package:parallel_stats/model/match/inherited_match_results.dart';
-import 'package:parallel_stats/model/match/match_model.dart';
 import 'package:parallel_stats/model/match/player_turn.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
@@ -25,7 +23,7 @@ class _DashboardState extends State<Dashboard>
   Paragon? opponentParagon;
   PlayerTurn? playerTurn;
 
-  bool showOnThePlay = true;
+  bool showGoing1st = true;
   bool showMatchesWon = true;
 
   late Future<int> mmrDelta;
@@ -38,33 +36,6 @@ class _DashboardState extends State<Dashboard>
   static const double spacing = 8;
   static const double squareSize = 150;
 
-  Future<int> _fetchMMRChange([
-    Duration timeSpan = const Duration(days: 1),
-  ]) async {
-    final response = await supabase
-        .from(MatchModel.gamesTableName)
-        .select("mmr_delta.sum()")
-        .gt('game_time', DateTime.now().toUtc().subtract(timeSpan));
-    return response[0]["sum"];
-  }
-
-  Future<int> _fetchWinStreak() async {
-    final int winStreak = await supabase.rpc("get_win_streak");
-    return winStreak;
-  }
-
-  Future<double> _fetchPrimeEstimate() async {
-    final now = DateTime.now().toUtc();
-    final response = await supabase
-        .from(MatchModel.gamesTableName)
-        .select("id, prime_estimate.sum()")
-        .gte("game_time::date", DateTime(now.year, now.month, now.day))
-        .lte("game_time::date", DateTime(now.year, now.month, now.day + 1))
-        .gt("prime_estimate", 0)
-        .limit(5);
-    return response[0]["sum"];
-  }
-
   double _calculateDimension(int tileCount) {
     final bufferSpace =
         tileCount == 1 ? 0 : (tileCount) * _DashboardState.spacing;
@@ -72,16 +43,9 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  initState() {
-    mmrDelta = _fetchMMRChange();
-    winStreak = _fetchWinStreak();
-    primeEstimate = _fetchPrimeEstimate();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     super.build(context);
+    final matchList = InheritedMatchList.of(context);
     final matchResults = InheritedMatchResults.of(context);
 
     return ListView(
@@ -115,20 +79,20 @@ class _DashboardState extends State<Dashboard>
                             emptySelectionAllowed: true,
                             segments: [
                               ButtonSegment(
-                                value: PlayerTurn.onThePlay,
+                                value: PlayerTurn.going1st,
                                 icon: Icon(
                                   Icons.swipe_up,
                                   color: Colors.yellow[600],
                                 ),
-                                label: const Text("On The Play"),
+                                label: const Text("Going 1st"),
                               ),
                               const ButtonSegment(
-                                value: PlayerTurn.onTheDraw,
+                                value: PlayerTurn.going2nd,
                                 icon: Icon(
                                   Icons.sim_card_download,
                                   color: Colors.cyan,
                                 ),
-                                label: Text("On The Draw"),
+                                label: Text("Going 2nd"),
                               ),
                             ],
                             selected: {playerTurn},
@@ -278,9 +242,9 @@ class _DashboardState extends State<Dashboard>
                               ? Colors.yellow[600]
                               : Colors.cyan,
                         ),
-                        label: Text(playerTurn == PlayerTurn.onThePlay
-                            ? 'On the Play'
-                            : 'On the Draw'),
+                        label: Text(playerTurn == PlayerTurn.going1st
+                            ? 'Going 1st'
+                            : 'Going 2nd'),
                         onDeleted: () {
                           setState(() {
                             playerTurn = null;
@@ -339,82 +303,11 @@ class _DashboardState extends State<Dashboard>
                 runSpacing: spacing,
                 alignment: WrapAlignment.center,
                 children: [
-                  FutureBuilder(
-                    future: winStreak,
-                    builder: (context, snapshot) {
-                      Widget child;
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        child = const BaseCard(
-                          height: squareSize,
-                          width: squareSize,
-                          child: CircularProgressIndicator(),
-                        );
-                      } else {
-                        child = NumberCard(
-                          title: 'Win streak',
-                          height: squareSize,
-                          width: squareSize,
-                          value: (snapshot.data?.toDouble() ?? 0.0)
-                              .toStringAsFixed(0),
-                        );
-                      }
-
-                      return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: child,
-                      );
-                    },
-                  ),
-                  FutureBuilder(
-                    future: primeEstimate,
-                    builder: (context, snapshot) {
-                      Widget child;
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        child = const BaseCard(
-                          height: squareSize,
-                          width: squareSize,
-                          child: CircularProgressIndicator(),
-                        );
-                      } else {
-                        child = NumberCard(
-                          title: '1 day Prime',
-                          height: squareSize,
-                          width: squareSize,
-                          value: (snapshot.data ?? 0.0).toStringAsFixed(3),
-                        );
-                      }
-
-                      return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: child,
-                      );
-                    },
-                  ),
-                  FutureBuilder(
-                    future: mmrDelta,
-                    builder: (context, snapshot) {
-                      Widget child;
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        child = const BaseCard(
-                          height: squareSize,
-                          width: squareSize,
-                          child: CircularProgressIndicator(),
-                        );
-                      } else {
-                        child = NumberCard(
-                          title: '1 day MMR',
-                          height: squareSize,
-                          width: squareSize,
-                          value: (snapshot.data?.toDouble() ?? 0.0)
-                              .toStringAsFixed(0),
-                        );
-                      }
-
-                      return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: child,
-                      );
-                    },
+                  NumberCard(
+                    title: 'Win streak',
+                    height: squareSize,
+                    width: _calculateDimension(2),
+                    value: matchList.winStreak.toString(),
                   ),
                   NumberCard(
                     title: 'Matches Played',
@@ -434,15 +327,15 @@ class _DashboardState extends State<Dashboard>
                     borderRadius: BorderRadius.circular(16),
                     onTap: () {
                       setState(() {
-                        showOnThePlay = !showOnThePlay;
+                        showGoing1st = !showGoing1st;
                       });
                     },
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
-                      child: showOnThePlay
+                      child: showGoing1st
                           ? NumberCard(
-                              key: const ValueKey('onThePlay'),
-                              title: 'On the Play',
+                              key: const ValueKey('going1st'),
+                              title: 'Going 1st',
                               height: squareSize,
                               width: squareSize,
                               switchable: true,
@@ -450,15 +343,15 @@ class _DashboardState extends State<Dashboard>
                                   .count(
                                     paragon: selectedParagon,
                                     opponentParagon: opponentParagon,
-                                    playerTurn: PlayerTurn.onThePlay,
+                                    playerTurn: PlayerTurn.going1st,
                                   )
                                   .total
                                   .toDouble()
                                   .toStringAsFixed(0),
                             )
                           : NumberCard(
-                              key: const ValueKey('onTheDraw'),
-                              title: 'On the Draw',
+                              key: const ValueKey('going2nd'),
+                              title: 'Going 2nd',
                               height: squareSize,
                               width: squareSize,
                               switchable: true,
@@ -466,7 +359,7 @@ class _DashboardState extends State<Dashboard>
                                   .count(
                                     paragon: selectedParagon,
                                     opponentParagon: opponentParagon,
-                                    playerTurn: PlayerTurn.onTheDraw,
+                                    playerTurn: PlayerTurn.going2nd,
                                   )
                                   .total
                                   .toDouble()
@@ -543,8 +436,8 @@ class _DashboardState extends State<Dashboard>
                         ),
                         FittedBox(
                           child: ProgressCard(
-                            playerTurn: PlayerTurn.onThePlay,
-                            title: "On the Play",
+                            playerTurn: PlayerTurn.going1st,
+                            title: "Going 1st",
                             height: _DashboardState.squareSize,
                             spacing: _DashboardState.spacing,
                             paragon: selectedParagon,
@@ -553,8 +446,8 @@ class _DashboardState extends State<Dashboard>
                         ),
                         FittedBox(
                           child: ProgressCard(
-                            playerTurn: PlayerTurn.onTheDraw,
-                            title: "On the Draw",
+                            playerTurn: PlayerTurn.going2nd,
+                            title: "Going 2nd",
                             height: _DashboardState.squareSize,
                             spacing: _DashboardState.spacing,
                             paragon: selectedParagon,

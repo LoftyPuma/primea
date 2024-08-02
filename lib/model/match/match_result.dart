@@ -22,7 +22,7 @@ class MatchResult {
       : paragon = Paragon.values.byName(json['paragon']),
         opponentParagon = Paragon.values.byName(json['opponent_paragon']),
         playerTurn =
-            json['player_one'] ? PlayerTurn.onThePlay : PlayerTurn.onTheDraw,
+            json['player_one'] ? PlayerTurn.going1st : PlayerTurn.going2nd,
         result = MatchResultOption.values.byName(json['result']),
         count = json['count'];
 }

@@ -114,7 +114,7 @@ class MatchModalState extends State<MatchModal> {
                 children: [
                   const Padding(
                     padding: EdgeInsets.all(16),
-                    child: Text('On the Play'),
+                    child: Text('Going 1st'),
                   ),
                   Tooltip(
                     message: playerTurn.value
@@ -124,11 +124,23 @@ class MatchModalState extends State<MatchModal> {
                       padding: const EdgeInsets.all(16),
                       child: Switch(
                         value: !playerTurn.value,
-                        onChanged: (value) => setState(() {
-                          playerTurn = value
-                              ? PlayerTurn.onTheDraw
-                              : PlayerTurn.onThePlay;
+                        thumbIcon: WidgetStateProperty.resolveWith((states) {
+                          return Icon(
+                            playerTurn == PlayerTurn.going1st
+                                ? Icons.looks_one_rounded
+                                : Icons.looks_two_rounded,
+                            color: playerTurn == PlayerTurn.going1st
+                                ? Colors.yellow[600]
+                                : Colors.cyan,
+                          );
                         }),
+                        onChanged: (value) {
+                          setState(() {
+                            playerTurn = !value
+                                ? PlayerTurn.going1st
+                                : PlayerTurn.going2nd;
+                          });
+                        },
                         trackColor: WidgetStateColor.resolveWith(
                           (states) => states.contains(WidgetState.selected)
                               ? Theme.of(context)
@@ -140,7 +152,9 @@ class MatchModalState extends State<MatchModal> {
                         ),
                         thumbColor: WidgetStateColor.resolveWith(
                           (states) => states.contains(WidgetState.selected)
-                              ? Theme.of(context).colorScheme.outline
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerLowest
                               : Theme.of(context).colorScheme.onPrimary,
                         ),
                       ),
@@ -148,7 +162,7 @@ class MatchModalState extends State<MatchModal> {
                   ),
                   const Padding(
                     padding: EdgeInsets.all(16),
-                    child: Text('On the Draw'),
+                    child: Text('Going 2nd'),
                   ),
                 ],
               ),
@@ -160,6 +174,10 @@ class MatchModalState extends State<MatchModal> {
                     style: ButtonStyle(
                       textStyle: WidgetStateProperty.all(
                         TextStyle(
+                          fontFamily: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.fontFamily,
                           fontSize: Theme.of(context)
                               .textTheme
                               .headlineSmall
@@ -196,6 +214,10 @@ class MatchModalState extends State<MatchModal> {
                     style: ButtonStyle(
                       textStyle: WidgetStateProperty.all(
                         TextStyle(
+                          fontFamily: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.fontFamily,
                           fontSize: Theme.of(context)
                               .textTheme
                               .headlineSmall

@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:parallel_stats/main.dart';
 import 'package:parallel_stats/model/match/match_model.dart';
+import 'package:parallel_stats/model/match/match_result_option.dart';
 import 'package:parallel_stats/model/match/match_results.dart';
 import 'package:parallel_stats/tracker/match.dart';
 
@@ -10,7 +12,8 @@ class MatchList extends ChangeNotifier {
   final GlobalKey<AnimatedListState> _listKey;
   final List<MatchModel> _matchList;
 
-  static const int _limit = 10;
+  static const int _limit = 100;
+  static const Duration _sessionTolerance = Duration(hours: 1);
 
   int _totalMatches = 0;
 
@@ -18,13 +21,96 @@ class MatchList extends ChangeNotifier {
       : _listKey = listKey,
         _matchList = List.empty(growable: true);
 
+  GlobalKey<AnimatedListState> get listKey => _listKey;
+
   int get limit => _limit;
 
   bool get isEmpty => _matchList.isEmpty;
 
+  MatchModel get first => _matchList.first;
+
+  MatchModel get last => _matchList.last;
+
   int get length => _matchList.length;
 
   int get total => _totalMatches;
+
+  int get winStreak => _matchList.indexWhere(
+        (element) => element.result != MatchResultOption.win,
+      );
+
+  int get sessionCount {
+    if (_matchList.isEmpty) {
+      return 0;
+    }
+    DateTime lastMatchTime = _matchList.first.matchTime;
+    return _matchList.fold(1, (acc, match) {
+      if (match.matchTime.isBefore(
+        lastMatchTime.subtract(_sessionTolerance),
+      )) {
+        acc++;
+      }
+      lastMatchTime = match.matchTime;
+      return acc;
+    });
+  }
+
+  Iterable<MatchModel>? nextSession(int index) {
+    if (_matchList.isEmpty) {
+      return [];
+    }
+
+    DateTime lastMatchTime = _matchList.first.matchTime;
+    int sessionStartIndex = 0;
+    // Find the end of the most recent session
+    int sessionEndIndex = _matchList.indexWhere(
+      (match) {
+        if (match.matchTime.isAfter(
+          lastMatchTime.subtract(_sessionTolerance),
+        )) {
+          lastMatchTime = match.matchTime;
+          return false;
+        } else {
+          return true;
+        }
+      },
+    );
+
+    // loop through the list to find the indexed session
+    for (var i = 0; i < index; i++) {
+      if (sessionEndIndex == _matchList.length) {
+        // if we've reached the end of the list, there are no more sessions
+        return null;
+      }
+      // Find the start of the next session
+      sessionStartIndex = sessionEndIndex;
+      lastMatchTime = _matchList[sessionStartIndex].matchTime;
+      // Find the end of the next session
+      sessionEndIndex = _matchList.indexWhere(
+        (match) {
+          if (match.matchTime.isAfter(
+            lastMatchTime.subtract(_sessionTolerance),
+          )) {
+            // if the match is inside the session tolerance, we've found the end of the session
+            lastMatchTime = match.matchTime;
+            return false;
+          } else {
+            // if the match is outside the session tolerance, we've found the start of the next session
+            lastMatchTime = match.matchTime;
+            return true;
+          }
+        },
+        sessionStartIndex,
+      );
+      if (sessionEndIndex == -1) {
+        // if we've reached the end of the list, there are no more sessions
+        sessionEndIndex = _matchList.length;
+        break;
+      }
+    }
+    // return the indexed session
+    return _matchList.getRange(sessionStartIndex, sessionEndIndex);
+  }
 
   operator [](int index) => _matchList[index];
 

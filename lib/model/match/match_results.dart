@@ -10,6 +10,13 @@ class MatchResults extends ChangeNotifier {
 
   MatchResults() : _matchupCounts = {};
 
+  void fromMatchList(List<MatchModel> matches) {
+    _matchupCounts = {};
+    for (final match in matches) {
+      recordMatch(match);
+    }
+  }
+
   bool get isEmpty => _matchupCounts.isEmpty;
 
   Future<void> init() async {

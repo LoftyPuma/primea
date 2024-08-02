@@ -1,6 +1,6 @@
 enum PlayerTurn {
-  onThePlay(value: true),
-  onTheDraw(value: false);
+  going1st(value: true),
+  going2nd(value: false);
 
   final bool value;
 

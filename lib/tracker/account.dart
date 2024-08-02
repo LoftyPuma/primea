@@ -12,6 +12,7 @@ import 'package:parallel_stats/model/match/match_model.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_stack.dart';
 import 'package:parallel_stats/tracker/parallel_avatar.dart';
+import 'package:parallel_stats/tracker/session_summary.dart';
 import 'package:parallel_stats/util/string.dart';
 
 class Account extends StatefulWidget {
@@ -29,10 +30,12 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
-  PlayerTurn playerTurn = PlayerTurn.onThePlay;
+  PlayerTurn playerTurn = PlayerTurn.going1st;
   Paragon chosenParagon = Paragon.unknown;
   bool loadMoreEnabled = true;
   Rank? rank;
+
+  List<bool> expandedPanels = List.empty(growable: true);
 
   // Details panel
   final TextEditingController _usernameController = TextEditingController();
@@ -55,7 +58,7 @@ class _AccountState extends State<Account> {
         ParagonStack(
           game: MatchModel(
             paragon: Paragon.unknown,
-            playerTurn: PlayerTurn.onThePlay,
+            playerTurn: PlayerTurn.going1st,
             result: MatchResultOption.draw,
             matchTime: DateTime.now().toUtc(),
           ),
@@ -85,6 +88,20 @@ class _AccountState extends State<Account> {
     final matchResults = InheritedMatchResults.of(context);
     final matchList = InheritedMatchList.of(context);
 
+    final numberOfSessions = matchList.sessionCount;
+    if (expandedPanels.length < numberOfSessions) {
+      setState(() {
+        expandedPanels.insertAll(
+          0,
+          List.filled(numberOfSessions - expandedPanels.length, false),
+        );
+      });
+    } else if (expandedPanels.length > numberOfSessions) {
+      setState(() {
+        expandedPanels.removeRange(numberOfSessions, expandedPanels.length);
+      });
+    }
+
     return SizedBox(
       width: 720,
       child: Column(
@@ -110,7 +127,7 @@ class _AccountState extends State<Account> {
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Text(
-                            'On the Play',
+                            'Going 1st',
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ),
@@ -118,7 +135,7 @@ class _AccountState extends State<Account> {
                     ),
                     Flexible(
                       child: Tooltip(
-                        message: playerTurn == PlayerTurn.onThePlay
+                        message: playerTurn == PlayerTurn.going1st
                             ? 'You play first'
                             : 'Opponent plays first',
                         child: FittedBox(
@@ -129,10 +146,10 @@ class _AccountState extends State<Account> {
                               thumbIcon:
                                   WidgetStateProperty.resolveWith((states) {
                                 return Icon(
-                                  playerTurn == PlayerTurn.onThePlay
-                                      ? Icons.swipe_up
-                                      : Icons.sim_card_download,
-                                  color: playerTurn == PlayerTurn.onThePlay
+                                  playerTurn == PlayerTurn.going1st
+                                      ? Icons.looks_one_rounded
+                                      : Icons.looks_two_rounded,
+                                  color: playerTurn == PlayerTurn.going1st
                                       ? Colors.yellow[600]
                                       : Colors.cyan,
                                 );
@@ -140,8 +157,8 @@ class _AccountState extends State<Account> {
                               onChanged: (value) {
                                 setState(() {
                                   playerTurn = !value
-                                      ? PlayerTurn.onThePlay
-                                      : PlayerTurn.onTheDraw;
+                                      ? PlayerTurn.going1st
+                                      : PlayerTurn.going2nd;
                                 });
                               },
                               trackColor: WidgetStateColor.resolveWith(
@@ -173,7 +190,7 @@ class _AccountState extends State<Account> {
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Text(
-                            'On the Draw',
+                            'Going 2nd',
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ),
@@ -369,7 +386,7 @@ class _AccountState extends State<Account> {
                               ),
                             );
                             setState(() {
-                              playerTurn = PlayerTurn.onThePlay;
+                              playerTurn = PlayerTurn.going1st;
                               chosenParagon = Paragon.unknown;
                               rank = null;
                               _usernameController.clear();
@@ -390,51 +407,62 @@ class _AccountState extends State<Account> {
             builder: (context, child) {
               return child!;
             },
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              child: matchList.isEmpty
-                  ? placeholder
-                  : AnimatedList(
-                      key: widget.listKey,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                top: 8,
+              ),
+              child: ExpansionPanelList(
+                dividerColor: Colors.transparent,
+                materialGapSize: 16,
+                expansionCallback: (panelIndex, isExpanded) {
+                  setState(() {
+                    expandedPanels[panelIndex] = isExpanded;
+                  });
+                },
+                children: List.generate(numberOfSessions, (index) => index)
+                    .map((index) {
+                  final session = matchList.nextSession(index);
+                  return ExpansionPanel(
+                    isExpanded: expandedPanels[index],
+                    headerBuilder: (BuildContext context, bool isExpanded) {
+                      return SessionSummary(
+                        sessionIndex: index,
+                        isExpanded: isExpanded,
+                      );
+                    },
+                    body: ListView.builder(
                       shrinkWrap: true,
-                      reverse: false,
                       physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.only(
-                        top: 8,
-                        left: 8,
-                        right: 8,
-                        bottom: 8,
-                      ),
-                      initialItemCount: matchList.length,
-                      itemBuilder: (context, index, animation) {
-                        final match = matchList[index];
-                        return SizeTransition(
-                          sizeFactor: animation,
-                          child: Match(
-                            match: match,
-                            onEdit: (context) async {
-                              final updatedMatch = await showDialog<MatchModel>(
-                                context: context,
-                                builder: (context) {
-                                  return MatchModal(
-                                    match: match,
-                                  );
-                                },
-                              );
-                              if (updatedMatch != null &&
-                                  updatedMatch.id != null) {
-                                matchList.update(updatedMatch);
-                                matchResults.updateMatch(match, updatedMatch);
-                              }
-                            },
-                            onDelete: (context) async {
-                              final removed = await matchList.removeAt(index);
-                              matchResults.removeMatch(removed);
-                            },
-                          ),
+                      itemCount: session?.length ?? 0,
+                      itemBuilder: (context, index) {
+                        final match = session!.elementAt(index);
+                        return Match(
+                          match: match,
+                          onEdit: (context) async {
+                            final updatedMatch = await showDialog<MatchModel>(
+                              context: context,
+                              builder: (context) {
+                                return MatchModal(
+                                  match: match,
+                                );
+                              },
+                            );
+                            if (updatedMatch != null &&
+                                updatedMatch.id != null) {
+                              matchList.update(updatedMatch);
+                              matchResults.updateMatch(match, updatedMatch);
+                            }
+                          },
+                          onDelete: (context) async {
+                            final removed = await matchList.removeAt(index);
+                            matchResults.removeMatch(removed);
+                          },
                         );
                       },
                     ),
+                  );
+                }).toList(),
+              ),
             ),
           ),
           Tooltip(

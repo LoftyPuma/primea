@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:parallel_stats/model/match/match_model.dart';
+import 'package:parallel_stats/model/match/match_result_option.dart';
 import 'package:parallel_stats/snack/basic.dart';
 import 'package:parallel_stats/tracker/paragon_stack.dart';
 import 'package:parallel_stats/util/string.dart';
@@ -56,12 +57,83 @@ class Match extends StatelessWidget {
         ),
         ParagonStack(game: match),
         Padding(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(4),
           child: Tooltip(
-            message: match.playerTurn.value ? 'On the Play' : 'On the Draw',
+            message: match.playerTurn.value ? 'Going 1st' : 'Going 2nd',
             child: Icon(
-              match.playerTurn.value ? Icons.swipe_up : Icons.sim_card_download,
+              match.playerTurn.value
+                  ? Icons.looks_one_rounded
+                  : Icons.looks_two_rounded,
               color: match.playerTurn.value ? Colors.yellow[600] : Colors.cyan,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(4),
+          child: Tooltip(
+            message: match.result.tooltip,
+            child: [MatchResultOption.draw, MatchResultOption.disconnect]
+                    .contains(match.result)
+                ? Icon(
+                    match.result.icon,
+                    color: match.result.color,
+                  )
+                : match.result == MatchResultOption.win
+                    ? CircleAvatar(
+                        backgroundColor: Colors.green,
+                        radius: 12,
+                        child: Baseline(
+                          baseline: 18,
+                          baselineType: TextBaseline.alphabetic,
+                          child: Text(
+                            "W",
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              shadows: [
+                                const Shadow(
+                                  color: Colors.black,
+                                  offset: Offset(1, 1),
+                                  blurRadius: 2,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    : CircleAvatar(
+                        backgroundColor: Colors.red,
+                        radius: 12,
+                        child: Baseline(
+                          baseline: 18,
+                          baselineType: TextBaseline.alphabetic,
+                          child: Text(
+                            "L",
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              shadows: [
+                                const Shadow(
+                                  color: Colors.black,
+                                  offset: Offset(1, 1),
+                                  blurRadius: 2,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+          ),
+        ),
+        const Expanded(
+          child: Tooltip(
+            message: "COMING SOON",
+            child: Text(
+              "DECK NAME",
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.fade,
+              style: TextStyle(
+                color: Colors.grey,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ),
         ),
@@ -69,7 +141,7 @@ class Match extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 match.opponentUsername ?? 'Unknown Opponent',
@@ -102,13 +174,6 @@ class Match extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-        Tooltip(
-          message: match.result.tooltip,
-          child: Icon(
-            match.result.icon,
-            color: match.result.color,
           ),
         ),
       ],

@@ -31,7 +31,7 @@ int gameResultCount = MatchResultOption.values.length;
 class _DummyAccountState extends State<DummyAccount> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
-  PlayerTurn playerTurn = PlayerTurn.onThePlay;
+  PlayerTurn playerTurn = PlayerTurn.going1st;
   MatchResults matchResults = MatchResults();
   List<MatchModel> matchList = List.generate(
     8,
@@ -47,7 +47,7 @@ class _DummyAccountState extends State<DummyAccount> {
       return MatchModel(
         paragon: Paragon.values[Random().nextInt(paragonsCount)],
         playerTurn:
-            Random().nextBool() ? PlayerTurn.onThePlay : PlayerTurn.onTheDraw,
+            Random().nextBool() ? PlayerTurn.going1st : PlayerTurn.going2nd,
         result: result,
         opponentUsername: 'Sample Opponent #$index',
         opponentParagon: Paragon.values[Random().nextInt(paragonsCount)],
@@ -107,13 +107,13 @@ class _DummyAccountState extends State<DummyAccount> {
                         spacing: 8,
                       ),
                       ProgressCard(
-                        playerTurn: PlayerTurn.onThePlay,
+                        playerTurn: PlayerTurn.going1st,
                         title: "On the Play",
                         height: 150,
                         spacing: 8,
                       ),
                       ProgressCard(
-                        playerTurn: PlayerTurn.onTheDraw,
+                        playerTurn: PlayerTurn.going2nd,
                         title: "On the Draw",
                         height: 150,
                         spacing: 8,
@@ -139,8 +139,8 @@ class _DummyAccountState extends State<DummyAccount> {
                           value: !playerTurn.value,
                           onChanged: (value) => setState(() {
                             playerTurn = value
-                                ? PlayerTurn.onTheDraw
-                                : PlayerTurn.onThePlay;
+                                ? PlayerTurn.going2nd
+                                : PlayerTurn.going1st;
                           }),
                           trackColor: WidgetStateColor.resolveWith(
                             (states) => states.contains(WidgetState.selected)

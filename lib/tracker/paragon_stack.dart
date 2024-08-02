@@ -13,7 +13,7 @@ class ParagonStack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 172,
+      width: 155,
       child: Stack(
         alignment: Alignment.centerLeft,
         children: [
