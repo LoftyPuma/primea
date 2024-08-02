@@ -108,6 +108,9 @@ class MatchList extends ChangeNotifier {
         break;
       }
     }
+    if (sessionEndIndex == -1) {
+      sessionEndIndex = _matchList.length;
+    }
     // return the indexed session
     return _matchList.getRange(sessionStartIndex, sessionEndIndex);
   }
