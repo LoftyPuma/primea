@@ -184,7 +184,7 @@ class Match extends StatelessWidget {
           ),
         if (match.opponentRank == null || match.opponentRank == Rank.unranked)
           const SizedBox(
-            width: 52,
+            width: 60,
           ),
       ],
     );
