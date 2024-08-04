@@ -36,7 +36,7 @@ class _AccountState extends State<Account> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ParagonStack(
-          game: MatchModel(
+          match: MatchModel(
             paragon: Paragon.unknown,
             playerTurn: PlayerTurn.going1st,
             result: MatchResultOption.draw,
