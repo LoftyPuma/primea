@@ -49,6 +49,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
   vector_graphics_compiler: ^1.1.11+1
+  test: ^1.25.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -64,6 +65,7 @@ flutter:
   assets:
     - assets/unknown_origin.png
     - assets/paragons/
+    - assets/ranks/
     - assets/parallel_logos/vec/
     - assets/brands/twitch/
     - assets/brands/discord/

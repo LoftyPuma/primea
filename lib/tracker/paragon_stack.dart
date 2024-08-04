@@ -3,11 +3,11 @@ import 'package:parallel_stats/model/match/match_model.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
 
 class ParagonStack extends StatelessWidget {
-  final MatchModel game;
+  final MatchModel match;
 
   const ParagonStack({
     super.key,
-    required this.game,
+    required this.match,
   });
 
   @override
@@ -19,9 +19,11 @@ class ParagonStack extends StatelessWidget {
         children: [
           Positioned(
             left: 64,
-            child: ParagonAvatar(paragon: game.opponentParagon),
+            child: ParagonAvatar(
+              paragon: match.opponentParagon,
+            ),
           ),
-          ParagonAvatar(paragon: game.paragon),
+          ParagonAvatar(paragon: match.paragon),
         ],
       ),
     );

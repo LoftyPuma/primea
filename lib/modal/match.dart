@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:parallel_stats/modal/paragon_picker.dart';
 import 'package:parallel_stats/model/match/match_model.dart';
 import 'package:parallel_stats/model/match/match_result_option.dart';
+import 'package:parallel_stats/model/match/player_rank.dart';
 import 'package:parallel_stats/model/match/player_turn.dart';
 import 'package:parallel_stats/tracker/paragon.dart';
 import 'package:parallel_stats/tracker/paragon_avatar.dart';
@@ -27,6 +28,8 @@ class MatchModalState extends State<MatchModal> {
   late PlayerTurn playerTurn;
   late Set<MatchResultOption> result;
   late DateTime matchTime;
+  Rank? rank;
+
   TextEditingController opponentUsernameController = TextEditingController();
   TextEditingController mmrDeltaController = TextEditingController();
   TextEditingController primeController = TextEditingController();
@@ -41,6 +44,7 @@ class MatchModalState extends State<MatchModal> {
     opponentUsernameController.text = widget.match.opponentUsername ?? '';
     mmrDeltaController.text = widget.match.mmrDelta?.toString() ?? '';
     primeController.text = widget.match.primeEarned?.toString() ?? '';
+    rank = widget.match.opponentRank;
     super.initState();
   }
 
@@ -273,9 +277,8 @@ class MatchModalState extends State<MatchModal> {
               ),
               SizedBox(
                 width: 500,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                child: Wrap(
+                  alignment: WrapAlignment.spaceEvenly,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
@@ -287,6 +290,26 @@ class MatchModalState extends State<MatchModal> {
                             labelText: 'Opponent Username',
                           ),
                         ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: DropdownButton<Rank>(
+                        value: rank,
+                        hint: const Text('Opponent Rank'),
+                        onChanged: (value) {
+                          setState(() {
+                            rank = value;
+                          });
+                        },
+                        items: Rank.values.reversed
+                            .map(
+                              (rank) => DropdownMenuItem<Rank>(
+                                value: rank,
+                                child: Text(rank.name.toTitleCase()),
+                              ),
+                            )
+                            .toList(),
                       ),
                     ),
                     Padding(
@@ -376,6 +399,7 @@ class MatchModalState extends State<MatchModal> {
                             playerTurn: playerTurn,
                             result: result.first,
                             matchTime: matchTime,
+                            opponentRank: rank,
                             opponentUsername:
                                 opponentUsernameController.text.isEmpty
                                     ? null

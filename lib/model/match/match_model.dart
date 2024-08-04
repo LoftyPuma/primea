@@ -74,4 +74,37 @@ class MatchModel {
     }
     return json;
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is MatchModel &&
+        paragon == other.paragon &&
+        opponentParagon == other.opponentParagon &&
+        playerTurn == other.playerTurn &&
+        result == other.result &&
+        matchTime == other.matchTime &&
+        id == other.id &&
+        createdAt == other.createdAt &&
+        opponentUsername == other.opponentUsername &&
+        opponentRank == other.opponentRank &&
+        mmrDelta == other.mmrDelta &&
+        primeEarned == other.primeEarned &&
+        keysActivated == other.keysActivated;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        paragon,
+        opponentParagon,
+        playerTurn,
+        result,
+        matchTime,
+        id,
+        createdAt,
+        opponentUsername,
+        opponentRank,
+        mmrDelta,
+        primeEarned,
+        keysActivated,
+      );
 }

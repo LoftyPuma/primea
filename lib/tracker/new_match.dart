@@ -136,6 +136,7 @@ class _NewMatchState extends State<NewMatch> {
             padding: const EdgeInsets.all(16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
                   width: 250,
@@ -147,22 +148,25 @@ class _NewMatchState extends State<NewMatch> {
                     ),
                   ),
                 ),
-                DropdownButton<Rank>(
-                  value: rank,
-                  hint: const Text('Opponent Rank'),
-                  onChanged: (value) {
-                    setState(() {
-                      rank = value;
-                    });
-                  },
-                  items: Rank.values.reversed
-                      .map(
-                        (rank) => DropdownMenuItem<Rank>(
-                          value: rank,
-                          child: Text(rank.name.toTitleCase()),
-                        ),
-                      )
-                      .toList(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: DropdownButton<Rank>(
+                    value: rank,
+                    hint: const Text('Opponent Rank'),
+                    onChanged: (value) {
+                      setState(() {
+                        rank = value;
+                      });
+                    },
+                    items: Rank.values.reversed
+                        .map(
+                          (rank) => DropdownMenuItem<Rank>(
+                            value: rank,
+                            child: Text(rank.name.toTitleCase()),
+                          ),
+                        )
+                        .toList(),
+                  ),
                 ),
               ],
             ),

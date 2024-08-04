@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:parallel_stats/model/match/match_model.dart';
 import 'package:parallel_stats/model/match/match_result_option.dart';
+import 'package:parallel_stats/model/match/player_rank.dart';
 import 'package:parallel_stats/snack/basic.dart';
-import 'package:parallel_stats/tracker/paragon_stack.dart';
+import 'package:parallel_stats/tracker/paragon_avatar.dart';
 import 'package:parallel_stats/util/string.dart';
 
 class Match extends StatelessWidget {
@@ -55,7 +56,7 @@ class Match extends StatelessWidget {
                   onDelete!(context);
                 },
         ),
-        ParagonStack(game: match),
+        const Spacer(),
         Padding(
           padding: const EdgeInsets.all(4),
           child: Tooltip(
@@ -68,6 +69,7 @@ class Match extends StatelessWidget {
             ),
           ),
         ),
+        ParagonAvatar(paragon: match.paragon),
         Padding(
           padding: const EdgeInsets.all(4),
           child: Tooltip(
@@ -123,33 +125,18 @@ class Match extends StatelessWidget {
                       ),
           ),
         ),
-        const Expanded(
-          child: Tooltip(
-            message: "COMING SOON",
-            child: Text(
-              "DECK NAME",
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.fade,
-              style: TextStyle(
-                color: Colors.grey,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
-        ),
+        ParagonAvatar(paragon: match.opponentParagon),
+        const Spacer(),
         Expanded(
+          flex: 3,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                match.opponentUsername ?? 'Unknown Opponent',
+                match.opponentUsername ?? "",
                 style: Theme.of(context).textTheme.labelLarge,
-              ),
-              Text(
-                DateFormat.MMMMd().add_jm().format(match.matchTime.toLocal()),
-                style: Theme.of(context).textTheme.labelMedium,
               ),
               RichText(
                 text: TextSpan(
@@ -157,25 +144,48 @@ class Match extends StatelessWidget {
                     if (match.mmrDelta != null)
                       TextSpan(
                         text: "${match.mmrDelta} MMR",
-                        style: Theme.of(context).textTheme.labelSmall,
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                     if (match.mmrDelta != null && match.primeEarned != null)
                       TextSpan(
                         text: " • ",
-                        style: Theme.of(context).textTheme.labelSmall,
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                     if (match.primeEarned != null)
                       TextSpan(
                         text:
-                            "${match.primeEarned?.toStringAsPrecision(3)} PRIME",
-                        style: Theme.of(context).textTheme.labelSmall,
+                            "${match.primeEarned?.toStringAsPrecision(2)} PRIME",
+                        style: Theme.of(context).textTheme.labelMedium,
                       ),
                   ],
                 ),
               ),
+              Text(
+                DateFormat.MMMMd().add_jm().format(match.matchTime.toLocal()),
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
             ],
           ),
         ),
+        if (match.opponentRank != null && match.opponentRank != Rank.unranked)
+          Container(
+            width: 60,
+            padding: EdgeInsets.only(
+              left: match.opponentRank!.index <= Rank.platinum.index ? 14 : 8,
+              right: match.opponentRank!.index <= Rank.platinum.index ? 6 : 0,
+            ),
+            child: Tooltip(
+              message: match.opponentRank?.name.toTitleCase(),
+              child: Image.asset(
+                "assets/ranks/${match.opponentRank?.name}.png",
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        if (match.opponentRank == null || match.opponentRank == Rank.unranked)
+          const SizedBox(
+            width: 52,
+          ),
       ],
     );
   }

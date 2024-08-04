@@ -2,12 +2,12 @@ name: Flutter Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
-  FLUTTER_VERSION: 3.22.2
+  FLUTTER_VERSION: 3.22.3
 
 jobs:
   build:
@@ -36,13 +36,13 @@ jobs:
           flutter config --no-analytics
           flutter config --no-cli-animations
           flutter doctor
-      
+
       - name: Add Flutter to Path
         run: echo "${GITHUB_WORKSPACE}/flutter/bin" >> $GITHUB_PATH
-      
+
       - name: Install dependencies
         run: flutter pub get
-      
+
       - name: Build Web
         run: flutter build web --release
 
@@ -51,7 +51,7 @@ jobs:
         with:
           name: github-pages
           path: build/web/
-  
+
   deploy:
     permissions:
       contents: read
@@ -66,4 +66,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-  
