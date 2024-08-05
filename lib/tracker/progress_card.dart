@@ -41,7 +41,7 @@ class _ProgressCardState extends State<ProgressCard>
   @override
   void initState() {
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 
@@ -80,7 +80,7 @@ class _ProgressCardState extends State<ProgressCard>
                 )
                 .winRate ??
             0,
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 1000),
         curve: Curves.bounceOut,
       );
     }
@@ -117,7 +117,7 @@ class _ProgressCardState extends State<ProgressCard>
                 )
                 .winRate ??
             0,
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 1000),
         curve: Curves.bounceOut,
       );
     }
