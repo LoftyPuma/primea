@@ -55,13 +55,16 @@ class BaseCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  primaryColor?.withAlpha(150) ?? Colors.transparent,
-                  secondaryColor?.withAlpha(150) ?? Colors.transparent,
-                ],
-              ),
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    primaryColor?.withAlpha(150) ?? Colors.transparent,
+                    secondaryColor?.withAlpha(150) ?? Colors.transparent,
+                  ],
+                  stops: const [
+                    0.15,
+                    0.85,
+                  ]),
             ),
             child: Center(
               child: FittedBox(
