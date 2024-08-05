@@ -69,7 +69,12 @@ class Match extends StatelessWidget {
             ),
           ),
         ),
-        ParagonAvatar(paragon: match.paragon),
+        Flexible(
+          flex: 2,
+          child: FittedBox(
+            child: ParagonAvatar(paragon: match.paragon),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.all(4),
           child: Tooltip(
@@ -125,7 +130,12 @@ class Match extends StatelessWidget {
                       ),
           ),
         ),
-        ParagonAvatar(paragon: match.opponentParagon),
+        Flexible(
+          flex: 2,
+          child: FittedBox(
+            child: ParagonAvatar(paragon: match.opponentParagon),
+          ),
+        ),
         const Spacer(),
         Expanded(
           flex: 3,
@@ -134,35 +144,41 @@ class Match extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                match.opponentUsername ?? "",
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    if (match.mmrDelta != null)
-                      TextSpan(
-                        text: "${match.mmrDelta} MMR",
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                    if (match.mmrDelta != null && match.primeEarned != null)
-                      TextSpan(
-                        text: " • ",
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                    if (match.primeEarned != null)
-                      TextSpan(
-                        text:
-                            "${match.primeEarned?.toStringAsPrecision(2)} PRIME",
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                  ],
+              FittedBox(
+                child: Text(
+                  match.opponentUsername ?? "",
+                  style: Theme.of(context).textTheme.labelLarge,
                 ),
               ),
-              Text(
-                DateFormat.MMMMd().add_jm().format(match.matchTime.toLocal()),
-                style: Theme.of(context).textTheme.labelSmall,
+              FittedBox(
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      if (match.mmrDelta != null)
+                        TextSpan(
+                          text: "${match.mmrDelta} MMR",
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      if (match.mmrDelta != null && match.primeEarned != null)
+                        TextSpan(
+                          text: " • ",
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      if (match.primeEarned != null)
+                        TextSpan(
+                          text:
+                              "${match.primeEarned?.toStringAsPrecision(2)} PRIME",
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              FittedBox(
+                child: Text(
+                  DateFormat.MMMMd().add_jm().format(match.matchTime.toLocal()),
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
               ),
             ],
           ),

@@ -150,20 +150,23 @@ class _AccountState extends State<Account> {
               ),
             ),
           ),
-          Tooltip(
-            message: !loadMoreEnabled ? "No older matches" : "",
-            child: OutlinedButton.icon(
-              label: const Text("Load More"),
-              icon: const Icon(Icons.add),
-              onPressed: loadMoreEnabled
-                  ? () async {
-                      if (await matchList.loadMore() < matchList.limit) {
-                        setState(() {
-                          loadMoreEnabled = false;
-                        });
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Tooltip(
+              message: !loadMoreEnabled ? "No older matches" : "",
+              child: OutlinedButton.icon(
+                label: const Text("Load More"),
+                icon: const Icon(Icons.add),
+                onPressed: loadMoreEnabled
+                    ? () async {
+                        if (await matchList.loadMore() < matchList.limit) {
+                          setState(() {
+                            loadMoreEnabled = false;
+                          });
+                        }
                       }
-                    }
-                  : null,
+                    : null,
+              ),
             ),
           ),
           const SizedBox(

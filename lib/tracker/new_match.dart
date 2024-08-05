@@ -222,28 +222,29 @@ class _NewMatchState extends State<NewMatch> {
           ),
           Padding(
             padding: const EdgeInsets.only(left: 44, right: 44),
-            child: Wrap(
-              spacing: 8,
-              alignment: WrapAlignment.spaceAround,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: ParallelType.values
                   .where((parallel) => parallel != ParallelType.universal)
                   .map(
-                    (parallel) => Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: SizedBox.square(
-                        dimension: 80,
-                        child: ParallelAvatar(
-                          parallel: parallel,
-                          isSelected: chosenParagon.parallel == parallel,
-                          onSelection: (paragon) {
-                            setState(() {
-                              if (chosenParagon == paragon) {
-                                chosenParagon = Paragon.unknown;
-                              } else {
-                                chosenParagon = paragon;
-                              }
-                            });
-                          },
+                    (parallel) => Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: SizedBox.square(
+                          dimension: 80,
+                          child: ParallelAvatar(
+                            parallel: parallel,
+                            isSelected: chosenParagon.parallel == parallel,
+                            onSelection: (paragon) {
+                              setState(() {
+                                if (chosenParagon == paragon) {
+                                  chosenParagon = Paragon.unknown;
+                                } else {
+                                  chosenParagon = paragon;
+                                }
+                              });
+                            },
+                          ),
                         ),
                       ),
                     ),
