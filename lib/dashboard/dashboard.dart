@@ -411,50 +411,53 @@ class _DashboardState extends State<Dashboard>
                             ),
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                    ),
-                    height: _DashboardState.squareSize * 2 +
-                        _DashboardState.spacing * 3,
-                    child: Wrap(
-                      direction: Axis.vertical,
-                      spacing: spacing,
-                      runSpacing: spacing,
-                      children: [
-                        FittedBox(
-                          child: ProgressCard(
-                            title: "Win Rate",
-                            sizeMultiplier: 2,
-                            height: _DashboardState.squareSize,
-                            spacing: _DashboardState.spacing,
-                            paragon: selectedParagon,
-                            opponentParagon: opponentParagon,
-                            playerTurn: playerTurn,
+                  FittedBox(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color:
+                            Theme.of(context).colorScheme.surfaceContainerHigh,
+                      ),
+                      height: _DashboardState.squareSize * 2 +
+                          _DashboardState.spacing * 3,
+                      child: Wrap(
+                        direction: Axis.vertical,
+                        spacing: spacing,
+                        runSpacing: spacing,
+                        children: [
+                          FittedBox(
+                            child: ProgressCard(
+                              title: "Win Rate",
+                              sizeMultiplier: 2,
+                              height: _DashboardState.squareSize,
+                              spacing: _DashboardState.spacing,
+                              paragon: selectedParagon,
+                              opponentParagon: opponentParagon,
+                              playerTurn: playerTurn,
+                            ),
                           ),
-                        ),
-                        FittedBox(
-                          child: ProgressCard(
-                            playerTurn: PlayerTurn.going1st,
-                            title: "Going 1st",
-                            height: _DashboardState.squareSize,
-                            spacing: _DashboardState.spacing,
-                            paragon: selectedParagon,
-                            opponentParagon: opponentParagon,
+                          FittedBox(
+                            child: ProgressCard(
+                              playerTurn: PlayerTurn.going1st,
+                              title: "Going 1st",
+                              height: _DashboardState.squareSize,
+                              spacing: _DashboardState.spacing,
+                              paragon: selectedParagon,
+                              opponentParagon: opponentParagon,
+                            ),
                           ),
-                        ),
-                        FittedBox(
-                          child: ProgressCard(
-                            playerTurn: PlayerTurn.going2nd,
-                            title: "Going 2nd",
-                            height: _DashboardState.squareSize,
-                            spacing: _DashboardState.spacing,
-                            paragon: selectedParagon,
-                            opponentParagon: opponentParagon,
+                          FittedBox(
+                            child: ProgressCard(
+                              playerTurn: PlayerTurn.going2nd,
+                              title: "Going 2nd",
+                              height: _DashboardState.squareSize,
+                              spacing: _DashboardState.spacing,
+                              paragon: selectedParagon,
+                              opponentParagon: opponentParagon,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
