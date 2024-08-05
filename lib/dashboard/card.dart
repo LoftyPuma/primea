@@ -5,6 +5,8 @@ class BaseCard extends StatelessWidget {
   final double height;
   final double width;
   final bool switchable;
+  final Color? primaryColor;
+  final Color? secondaryColor;
 
   const BaseCard({
     super.key,
@@ -12,6 +14,8 @@ class BaseCard extends StatelessWidget {
     required this.height,
     required this.width,
     this.switchable = false,
+    this.primaryColor,
+    this.secondaryColor,
   });
 
   @override
@@ -45,9 +49,20 @@ class BaseCard extends StatelessWidget {
           elevation: 5,
           shadowColor:
               switchable ? Theme.of(context).colorScheme.onSurface : null,
-          child: SizedBox(
+          child: Container(
             height: height,
             width: width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  primaryColor?.withAlpha(150) ?? Colors.transparent,
+                  secondaryColor?.withAlpha(150) ?? Colors.transparent,
+                ],
+              ),
+            ),
             child: Center(
               child: FittedBox(
                 child: Padding(

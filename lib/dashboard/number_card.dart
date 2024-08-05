@@ -7,7 +7,8 @@ class NumberCard extends StatelessWidget {
   final double height;
   final double width;
   final bool switchable;
-  final Color? textColor;
+  final Color? primaryColor;
+  final Color? secondaryColor;
 
   const NumberCard({
     super.key,
@@ -16,7 +17,8 @@ class NumberCard extends StatelessWidget {
     required this.title,
     required this.value,
     this.switchable = false,
-    this.textColor,
+    this.primaryColor,
+    this.secondaryColor,
   });
 
   @override
@@ -25,23 +27,19 @@ class NumberCard extends StatelessWidget {
       height: height,
       width: width,
       switchable: switchable,
+      primaryColor: primaryColor,
+      secondaryColor: secondaryColor,
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
           children: [
             TextSpan(
               text: '$value\n',
-              style: Theme.of(context)
-                  .textTheme
-                  .displayLarge
-                  ?.copyWith(color: textColor),
+              style: Theme.of(context).textTheme.displayLarge,
             ),
             TextSpan(
               text: title,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(color: textColor),
+              style: Theme.of(context).textTheme.labelLarge,
             ),
           ],
         ),

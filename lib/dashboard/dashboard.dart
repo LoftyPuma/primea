@@ -313,6 +313,8 @@ class _DashboardState extends State<Dashboard>
                     title: 'Matches Played',
                     height: squareSize,
                     width: _calculateDimension(2),
+                    primaryColor: selectedParagon?.parallel.color,
+                    secondaryColor: opponentParagon?.parallel.color,
                     value: matchResults
                         .count(
                           paragon: selectedParagon,
@@ -339,6 +341,8 @@ class _DashboardState extends State<Dashboard>
                               height: squareSize,
                               width: squareSize,
                               switchable: true,
+                              primaryColor: selectedParagon?.parallel.color,
+                              secondaryColor: opponentParagon?.parallel.color,
                               value: matchResults
                                   .count(
                                     paragon: selectedParagon,
@@ -355,6 +359,8 @@ class _DashboardState extends State<Dashboard>
                               height: squareSize,
                               width: squareSize,
                               switchable: true,
+                              primaryColor: selectedParagon?.parallel.color,
+                              secondaryColor: opponentParagon?.parallel.color,
                               value: matchResults
                                   .count(
                                     paragon: selectedParagon,
@@ -383,6 +389,8 @@ class _DashboardState extends State<Dashboard>
                               height: squareSize,
                               width: _calculateDimension(2),
                               switchable: true,
+                              primaryColor: selectedParagon?.parallel.color,
+                              secondaryColor: opponentParagon?.parallel.color,
                               value: matchResults
                                   .count(
                                     paragon: selectedParagon,
@@ -399,6 +407,8 @@ class _DashboardState extends State<Dashboard>
                               height: squareSize,
                               width: _calculateDimension(2),
                               switchable: true,
+                              primaryColor: selectedParagon?.parallel.color,
+                              secondaryColor: opponentParagon?.parallel.color,
                               value: matchResults
                                   .count(
                                     paragon: selectedParagon,
@@ -416,11 +426,16 @@ class _DashboardState extends State<Dashboard>
                       duration: const Duration(milliseconds: 250),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        color: opponentParagon != null
-                            ? opponentParagon?.parallel.color.withAlpha(100)
-                            : Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHigh,
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            selectedParagon?.parallel.color.withAlpha(150) ??
+                                Colors.transparent,
+                            opponentParagon?.parallel.color.withAlpha(150) ??
+                                Colors.transparent,
+                          ],
+                        ),
                       ),
                       height: _DashboardState.squareSize * 2 +
                           _DashboardState.spacing * 3,
@@ -464,23 +479,6 @@ class _DashboardState extends State<Dashboard>
                       ),
                     ),
                   ),
-                  ...ParallelType.values
-                      .where((parallel) => parallel != ParallelType.universal)
-                      .map(
-                        (parallel) => NumberCard(
-                          title: parallel.name.toTitleCase(),
-                          textColor: parallel.color,
-                          height: squareSize,
-                          width: squareSize,
-                          value: matchResults
-                              .count(
-                                opponentParagon: parallel.paragon,
-                              )
-                              .total
-                              .toDouble()
-                              .toStringAsFixed(0),
-                        ),
-                      ),
                 ],
               ),
             ),
