@@ -430,9 +430,9 @@ class _DashboardState extends State<Dashboard>
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            selectedParagon?.parallel.color.withAlpha(150) ??
+                            selectedParagon?.parallel.color.withAlpha(200) ??
                                 Colors.transparent,
-                            opponentParagon?.parallel.color.withAlpha(150) ??
+                            opponentParagon?.parallel.color.withAlpha(200) ??
                                 Colors.transparent,
                           ],
                         ),

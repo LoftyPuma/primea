@@ -59,10 +59,12 @@ class BaseCard extends StatelessWidget {
                   end: Alignment.bottomRight,
                   colors: [
                     primaryColor?.withAlpha(150) ?? Colors.transparent,
+                    Colors.transparent,
                     secondaryColor?.withAlpha(150) ?? Colors.transparent,
                   ],
                   stops: const [
                     0.15,
+                    0.5,
                     0.85,
                   ]),
             ),
