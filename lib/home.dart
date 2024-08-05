@@ -177,7 +177,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 ListView(
                   children: [
                     AnimatedSwitcher(
-                      // key: const PageStorageKey('account'),
                       duration: const Duration(milliseconds: 250),
                       child: session == null
                           ? DummyAccount(chosenParagon: chosenParagon)

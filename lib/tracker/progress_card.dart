@@ -117,7 +117,7 @@ class _ProgressCardState extends State<ProgressCard>
                 )
                 .winRate ??
             0,
-        duration: const Duration(milliseconds: 1000),
+        duration: const Duration(milliseconds: 0),
         curve: Curves.bounceOut,
       );
     }
