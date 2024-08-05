@@ -144,12 +144,14 @@ class Match extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              FittedBox(
-                child: Text(
-                  match.opponentUsername ?? "",
-                  style: Theme.of(context).textTheme.labelLarge,
+              if (match.opponentUsername != null &&
+                  match.opponentUsername!.isNotEmpty)
+                FittedBox(
+                  child: Text(
+                    match.opponentUsername!,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
                 ),
-              ),
               FittedBox(
                 child: RichText(
                   text: TextSpan(

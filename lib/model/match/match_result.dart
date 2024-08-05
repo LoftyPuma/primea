@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:parallel_stats/model/match/match_model.dart';
 import 'package:parallel_stats/model/match/match_result_option.dart';
 import 'package:parallel_stats/model/match/player_turn.dart';
@@ -104,20 +106,16 @@ class MatchResultsCount {
   void decrementFromModel(MatchModel match) {
     switch (match.result) {
       case MatchResultOption.win:
-        win -= 1;
-        win = win < 0 ? 0 : win;
+        win = max(--win, 0);
         break;
       case MatchResultOption.loss:
-        loss -= 1;
-        loss = loss < 0 ? 0 : loss;
+        loss = max(--loss, 0);
         break;
       case MatchResultOption.draw:
-        draw -= 1;
-        draw = draw < 0 ? 0 : draw;
+        draw = max(--draw, 0);
         break;
       case MatchResultOption.disconnect:
-        disconnect -= 1;
-        disconnect = disconnect < 0 ? 0 : disconnect;
+        disconnect = max(--disconnect, 0);
         break;
     }
   }

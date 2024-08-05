@@ -412,11 +412,15 @@ class _DashboardState extends State<Dashboard>
                     ),
                   ),
                   FittedBox(
-                    child: Container(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        color:
-                            Theme.of(context).colorScheme.surfaceContainerHigh,
+                        color: opponentParagon != null
+                            ? opponentParagon?.parallel.color.withAlpha(100)
+                            : Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHigh,
                       ),
                       height: _DashboardState.squareSize * 2 +
                           _DashboardState.spacing * 3,
@@ -460,6 +464,23 @@ class _DashboardState extends State<Dashboard>
                       ),
                     ),
                   ),
+                  ...ParallelType.values
+                      .where((parallel) => parallel != ParallelType.universal)
+                      .map(
+                        (parallel) => NumberCard(
+                          title: parallel.name.toTitleCase(),
+                          textColor: parallel.color,
+                          height: squareSize,
+                          width: squareSize,
+                          value: matchResults
+                              .count(
+                                opponentParagon: parallel.paragon,
+                              )
+                              .total
+                              .toDouble()
+                              .toStringAsFixed(0),
+                        ),
+                      ),
                 ],
               ),
             ),

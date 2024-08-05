@@ -19,7 +19,6 @@ class BaseCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        // color: switchable ? Theme.of(context).colorScheme.onSurface : null,
         gradient: switchable
             ? const LinearGradient(
                 begin: Alignment.bottomCenter,
