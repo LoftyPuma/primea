@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/home.dart';
+import 'package:parallel_stats/inherited_session.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -90,7 +91,9 @@ class App extends StatelessWidget {
       child: MaterialApp(
         title: title,
         theme: theme,
-        home: Home(title: title),
+        home: InheritedSessionWidget(
+          child: Home(title: title),
+        ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:parallel_stats/inherited_session.dart';
 import 'package:parallel_stats/main.dart';
 import 'package:parallel_stats/modal/import.dart';
 import 'package:parallel_stats/modal/paragon_picker.dart';
+import 'package:parallel_stats/modal/profile.dart';
 import 'package:parallel_stats/modal/sign_in.dart';
 import 'package:parallel_stats/model/match/inherited_match_list.dart';
 import 'package:parallel_stats/model/match/inherited_match_results.dart';
@@ -128,14 +129,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       }
                     },
                   ),
-                if (session != null && !session!.isExpired)
-                  TextButton.icon(
-                    icon: const Icon(Icons.logout),
-                    label: const Text('Sign Out'),
-                    onPressed: () async {
-                      await supabase.auth.signOut();
-                    },
-                  ),
                 if (session == null || session!.isExpired)
                   TextButton.icon(
                     icon: const Icon(Icons.login),
@@ -149,6 +142,53 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       );
                     },
                   ),
+                if (session != null && !session!.isExpired)
+                  Builder(builder: (builderContext) {
+                    return TextButton.icon(
+                      label: Text(
+                        session?.user.userMetadata?["nickname"] ??
+                            session?.user.email,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      icon: Icon(
+                        Icons.account_circle_rounded,
+                        color: chosenParagon.parallel.color,
+                      ),
+                      onPressed: () async {
+                        await showModalBottomSheet(
+                          context: builderContext,
+                          isScrollControlled: true,
+                          builder: (context) {
+                            return Profile(
+                              session: session!,
+                            );
+                          },
+                        );
+                      },
+                    );
+                  })
+                // TextButton.icon(
+                //   label: Text(
+                //     session?.user.userMetadata?["nickname"] ??
+                //         session?.user.email,
+                //     overflow: TextOverflow.ellipsis,
+                //   ),
+                //   icon: Icon(
+                //     Icons.account_circle_rounded,
+                //     color: chosenParagon.parallel.color,
+                //   ),
+                //   onPressed: () async {
+                //     await showDialog(
+                //       context: context,
+                //       // isScrollControlled: true,
+                //       builder: (builderContext) {
+                //         return Profile(
+                //           session: session!,
+                //         );
+                //       },
+                //     );
+                //   },
+                // ),
               ],
             ),
             extendBody: true,

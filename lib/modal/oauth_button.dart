@@ -3,10 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:parallel_stats/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+class OAuthProviderData {
+  final String label;
+  final String icon;
+
+  const OAuthProviderData({
+    required this.label,
+    required this.icon,
+  });
+}
+
 class OAuthButton extends StatelessWidget {
   final String label;
   final String icon;
   final OAuthProvider provider;
+
+  static const Map<OAuthProvider, OAuthProviderData> providers = {
+    OAuthProvider.discord: OAuthProviderData(
+      label: "Discord",
+      icon: "assets/brands/discord/blue_mark.png",
+    ),
+    OAuthProvider.twitch: OAuthProviderData(
+      label: "Twitch",
+      icon: "assets/brands/twitch/glitch_flat_purple.png",
+    ),
+  };
 
   const OAuthButton({
     super.key,
@@ -21,7 +42,6 @@ class OAuthButton extends StatelessWidget {
       onPressed: () async {
         await supabase.auth.signInWithOAuth(
           provider,
-          authScreenLaunchMode: LaunchMode.inAppWebView,
           redirectTo:
               kIsWeb ? "/auth/callback" : "world.primea://auth/callback",
         );

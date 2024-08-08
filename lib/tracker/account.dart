@@ -29,6 +29,7 @@ class _AccountState extends State<Account> {
   bool loadMoreEnabled = true;
 
   List<bool> expandedPanels = List.empty(growable: true);
+  List<GlobalKey> repaintKeys = List.empty(growable: true);
 
   Widget placeholder = Padding(
     padding: const EdgeInsets.all(8),
@@ -75,10 +76,18 @@ class _AccountState extends State<Account> {
           0,
           List.filled(numberOfSessions - expandedPanels.length, false),
         );
+        repaintKeys.insertAll(
+          0,
+          List.generate(
+            numberOfSessions - repaintKeys.length,
+            (index) => GlobalKey(),
+          ),
+        );
       });
     } else if (expandedPanels.length > numberOfSessions) {
       setState(() {
         expandedPanels.removeRange(numberOfSessions, expandedPanels.length);
+        repaintKeys.removeRange(numberOfSessions, repaintKeys.length);
       });
     }
 
@@ -110,9 +119,46 @@ class _AccountState extends State<Account> {
                   return ExpansionPanel(
                     isExpanded: expandedPanels[index],
                     headerBuilder: (BuildContext context, bool isExpanded) {
-                      return SessionSummary(
-                        sessionIndex: index,
-                        isExpanded: isExpanded,
+                      return Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          RepaintBoundary(
+                            key: repaintKeys[index],
+                            child: SessionSummary(
+                              sessionIndex: index,
+                              isExpanded: isExpanded,
+                            ),
+                          ),
+                          // TODO: Add share button
+                          // Positioned(
+                          //   top: 8,
+                          //   right: 8,
+                          //   child: IconButton(
+                          //     icon: const Icon(Icons.ios_share),
+                          //     onPressed: () async {
+                          //       RenderRepaintBoundary? boundary =
+                          //           repaintKeys[index]
+                          //                   .currentContext
+                          //                   ?.findRenderObject()
+                          //               as RenderRepaintBoundary;
+                          //       final image = await boundary.toImage();
+                          //       final ByteData? byteData = await image
+                          //           .toByteData(format: ImageByteFormat.png);
+                          //       final Uint8List pngBytes =
+                          //           byteData!.buffer.asUint8List();
+                          //       print("${pngBytes.length / 1000} kb");
+                          //       if (context.mounted) {
+                          //         showDialog(
+                          //           context: context,
+                          //           builder: (context) {
+                          //             return Image.memory(pngBytes);
+                          //           },
+                          //         );
+                          //       }
+                          //     },
+                          //   ),
+                          // ),
+                        ],
                       );
                     },
                     body: ListView.builder(
@@ -135,7 +181,6 @@ class _AccountState extends State<Account> {
                             if (updatedMatch != null &&
                                 updatedMatch.id != null) {
                               matchList.update(updatedMatch);
-                              matchResults.updateMatch(match, updatedMatch);
                             }
                           },
                           onDelete: (context) async {
