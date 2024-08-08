@@ -150,27 +150,33 @@ class _AccountState extends State<Account> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Tooltip(
-              message: !loadMoreEnabled ? "No older matches" : "",
-              child: OutlinedButton.icon(
-                label: const Text("Load More"),
-                icon: const Icon(Icons.add),
-                onPressed: loadMoreEnabled
-                    ? () async {
-                        if (await matchList.loadMore() < matchList.limit) {
-                          setState(() {
-                            loadMoreEnabled = false;
-                          });
+          if (!matchList.initialized || !matchResults.initialized)
+            const Padding(
+              padding: EdgeInsets.all(8),
+              child: CircularProgressIndicator(),
+            ),
+          if (matchList.initialized && matchResults.initialized)
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Tooltip(
+                message: !loadMoreEnabled ? "No older matches" : "",
+                child: OutlinedButton.icon(
+                  label: const Text("Load More"),
+                  icon: const Icon(Icons.add),
+                  onPressed: loadMoreEnabled
+                      ? () async {
+                          if (await matchList.loadMore() < matchList.limit) {
+                            setState(() {
+                              loadMoreEnabled = false;
+                            });
+                          }
                         }
-                      }
-                    : null,
+                      : null,
+                ),
               ),
             ),
-          ),
           const SizedBox(
-            height: 40,
+            height: 80,
           ),
         ],
       ),
