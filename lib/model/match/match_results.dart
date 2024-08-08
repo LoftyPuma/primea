@@ -1,3 +1,4 @@
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:parallel_stats/main.dart';
 import 'package:parallel_stats/model/match/match_model.dart';
@@ -22,10 +23,18 @@ class MatchResults extends ChangeNotifier {
   bool initialized = false;
 
   Future<void> init() async {
-    final matchResults = await _fetchMatchResults();
-    _matchupCounts = _initializeMatchupCounts(matchResults);
-    initialized = true;
-    notifyListeners();
+    try {
+      final matchResults = await _fetchMatchResults();
+      _matchupCounts = _initializeMatchupCounts(matchResults);
+      initialized = true;
+      notifyListeners();
+    } on Error catch (e) {
+      Aptabase.instance.trackEvent("initError", {
+        "error": e.toString(),
+        "class": "matchResults",
+        "stackTrace": e.stackTrace.toString(),
+      });
+    }
   }
 
   Future<Set<MatchResult>> _fetchMatchResults() async {

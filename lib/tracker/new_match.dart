@@ -1,3 +1,4 @@
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:parallel_stats/model/match/inherited_match_list.dart';
@@ -298,6 +299,7 @@ class _NewMatchState extends State<NewMatch> {
                     emptySelectionAllowed: true,
                     multiSelectionEnabled: false,
                     onSelectionChanged: (selection) async {
+                      final start = DateTime.now();
                       ScaffoldMessenger.of(context).hideCurrentSnackBar(
                         reason: SnackBarClosedReason.hide,
                       );
@@ -329,6 +331,10 @@ class _NewMatchState extends State<NewMatch> {
                         _usernameController.clear();
                         _mmrController.clear();
                         _primeController.clear();
+                      });
+                      Aptabase.instance.trackEvent("createMatch", {
+                        "duration":
+                            DateTime.now().difference(start).inMilliseconds,
                       });
                     },
                   ),

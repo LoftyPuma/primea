@@ -1,3 +1,4 @@
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/dashboard/number_card.dart';
 import 'package:parallel_stats/model/match/inherited_match_list.dart';
@@ -45,6 +46,8 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    Aptabase.instance.trackEvent("load", {"page": "dashboard"});
+
     final matchList = InheritedMatchList.of(context);
     final matchResults = InheritedMatchResults.of(context);
 

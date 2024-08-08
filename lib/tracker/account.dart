@@ -1,3 +1,4 @@
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/modal/match.dart';
 import 'package:parallel_stats/model/match/inherited_match_list.dart';
@@ -66,6 +67,7 @@ class _AccountState extends State<Account> {
 
   @override
   Widget build(BuildContext context) {
+    Aptabase.instance.trackEvent("load", {"page": "account"});
     final matchResults = InheritedMatchResults.of(context);
     final matchList = InheritedMatchList.of(context);
 
@@ -178,14 +180,26 @@ class _AccountState extends State<Account> {
                                 );
                               },
                             );
+                            final start = DateTime.now();
                             if (updatedMatch != null &&
                                 updatedMatch.id != null) {
-                              matchList.update(updatedMatch);
+                              await matchList.update(updatedMatch);
                             }
+                            Aptabase.instance.trackEvent("updateMatch", {
+                              "duration": DateTime.now()
+                                  .difference(start)
+                                  .inMilliseconds,
+                            });
                           },
                           onDelete: (context) async {
+                            final start = DateTime.now();
                             final removed = await matchList.remove(match);
                             matchResults.removeMatch(removed);
+                            Aptabase.instance.trackEvent("deleteMatch", {
+                              "duration": DateTime.now()
+                                  .difference(start)
+                                  .inMilliseconds,
+                            });
                           },
                         );
                       },
