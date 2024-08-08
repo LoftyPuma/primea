@@ -1,3 +1,4 @@
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/main.dart';
@@ -245,7 +246,9 @@ class SignInModalState extends State<SignInModal> {
                           password: _passwordController.text,
                           email: _emailController.text,
                         );
-                        print('Signed in');
+                        Aptabase.instance.trackEvent("signIn", {
+                          "provider": "email",
+                        });
                         if (context.mounted) {
                           Navigator.of(context).pop();
                         }

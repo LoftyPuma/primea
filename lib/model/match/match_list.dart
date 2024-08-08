@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -124,12 +125,20 @@ class MatchList extends ChangeNotifier {
   operator [](int index) => _matchList[index];
 
   Future<void> init() async {
-    final matches = await _fetchMatches();
-    _matchList.addAll(matches);
-    _listKey.currentState?.insertAllItems(0, matches.length,
-        duration: const Duration(milliseconds: 250));
-    initialized = true;
-    notifyListeners();
+    try {
+      final matches = await _fetchMatches();
+      _matchList.addAll(matches);
+      _listKey.currentState?.insertAllItems(0, matches.length,
+          duration: const Duration(milliseconds: 250));
+      initialized = true;
+      notifyListeners();
+    } on Error catch (e) {
+      Aptabase.instance.trackEvent("initError", {
+        "error": e.toString(),
+        "class": "matchList",
+        "stackTrace": e.stackTrace.toString(),
+      });
+    }
   }
 
   Future<List<MatchModel>> _fetchMatches({

@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/home.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Aptabase.init("A-US-4436493161");
 
   await Supabase.initialize(
     url: 'https://fdrysfgctvdtvrxpldxb.supabase.co',
@@ -28,6 +30,8 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Aptabase.instance.trackEvent("load", {"page": "main"});
+
     final theme = ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(

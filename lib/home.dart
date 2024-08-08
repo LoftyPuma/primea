@@ -1,3 +1,4 @@
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:parallel_stats/dashboard/dashboard.dart';
@@ -41,15 +42,38 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Paragon chosenParagon = Paragon.unknown;
 
   handleAuthStateChange(AuthState data) async {
+    Aptabase.instance.trackEvent(
+      "authStateChanged",
+      {"event": data.event.name},
+    );
+
     setState(() {
       session = data.session;
     });
     if (session != null && !session!.isExpired) {
-      if (matchResults.isEmpty) {
-        matchResults.init();
-      }
-      if (matchList.isEmpty) {
-        matchList.init();
+      try {
+        if (matchResults.isEmpty) {
+          Future(() async {
+            final start = DateTime.now();
+            await matchResults.init();
+            Aptabase.instance.trackEvent("initializeMatchResults", {
+              "duration": DateTime.now().difference(start).inMilliseconds,
+            });
+          });
+        }
+        if (matchList.isEmpty) {
+          Future(() async {
+            final start = DateTime.now();
+            await matchList.init();
+            Aptabase.instance.trackEvent("initializeMatchList", {
+              "duration": DateTime.now().difference(start).inMilliseconds,
+            });
+          });
+        }
+      } catch (e) {
+        Aptabase.instance.trackEvent("homeInitError", {
+          "error": e.toString(),
+        });
       }
     }
   }
@@ -78,6 +102,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    Aptabase.instance.trackEvent("load", {"page": "home"});
+
     return InheritedSession(
       session: session,
       child: InheritedMatchList(

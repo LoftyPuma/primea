@@ -1,3 +1,4 @@
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:parallel_stats/main.dart';
@@ -25,6 +26,10 @@ class OAuthButton extends StatelessWidget {
           redirectTo:
               kIsWeb ? "/auth/callback" : "world.primea://auth/callback",
         );
+        Aptabase.instance.trackEvent("signIn", {
+          "provider": provider.toString(),
+        });
+
         if (context.mounted) {
           Navigator.of(context).pop();
         }
