@@ -47,10 +47,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     });
     if (session != null && !session!.isExpired) {
       if (matchResults.isEmpty) {
-        await matchResults.init();
+        matchResults.init();
       }
       if (matchList.isEmpty) {
-        await matchList.init();
+        matchList.init();
       }
     }
   }
@@ -214,18 +214,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             body: TabBarView(
               controller: _tabController,
               children: [
-                ListView(
-                  children: [
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: session == null
-                          ? DummyAccount(chosenParagon: chosenParagon)
-                          : Account(
-                              listKey: _listKey,
-                              chosenParagon: chosenParagon,
-                            ),
-                    ),
-                  ],
+                SingleChildScrollView(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: session == null
+                        ? DummyAccount(chosenParagon: chosenParagon)
+                        : Account(
+                            listKey: _listKey,
+                            chosenParagon: chosenParagon,
+                          ),
+                  ),
                 ),
                 const Dashboard(),
               ],

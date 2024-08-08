@@ -19,9 +19,12 @@ class MatchResults extends ChangeNotifier {
 
   bool get isEmpty => _matchupCounts.isEmpty;
 
+  bool initialized = false;
+
   Future<void> init() async {
     final matchResults = await _fetchMatchResults();
     _matchupCounts = _initializeMatchupCounts(matchResults);
+    initialized = true;
     notifyListeners();
   }
 

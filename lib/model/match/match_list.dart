@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -16,6 +18,7 @@ class MatchList extends ChangeNotifier {
   static const Duration _sessionTolerance = Duration(hours: 3);
 
   int _totalMatches = 0;
+  bool initialized = false;
 
   MatchList(GlobalKey<AnimatedListState> listKey, this.matchResults)
       : _listKey = listKey,
@@ -35,8 +38,11 @@ class MatchList extends ChangeNotifier {
 
   int get total => _totalMatches;
 
-  int get winStreak => _matchList.indexWhere(
-        (element) => element.result != MatchResultOption.win,
+  int get winStreak => max(
+        _matchList.indexWhere(
+          (element) => element.result != MatchResultOption.win,
+        ),
+        0,
       );
 
   int get sessionCount {
@@ -122,7 +128,7 @@ class MatchList extends ChangeNotifier {
     _matchList.addAll(matches);
     _listKey.currentState?.insertAllItems(0, matches.length,
         duration: const Duration(milliseconds: 250));
-
+    initialized = true;
     notifyListeners();
   }
 
