@@ -1,22 +1,25 @@
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:parallel_stats/model/match/inherited_match_list.dart';
-import 'package:parallel_stats/model/match/match_model.dart';
-import 'package:parallel_stats/model/match/match_result_option.dart';
-import 'package:parallel_stats/model/match/player_rank.dart';
-import 'package:parallel_stats/model/match/player_turn.dart';
-import 'package:parallel_stats/snack/basic.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
-import 'package:parallel_stats/tracker/parallel_avatar.dart';
-import 'package:parallel_stats/util/string.dart';
+import 'package:primea/model/deck/deck.dart';
+import 'package:primea/model/match/inherited_match_list.dart';
+import 'package:primea/model/match/match_model.dart';
+import 'package:primea/model/match/match_result_option.dart';
+import 'package:primea/model/match/player_rank.dart';
+import 'package:primea/model/match/player_turn.dart';
+import 'package:primea/snack/basic.dart';
+import 'package:primea/tracker/paragon.dart';
+import 'package:primea/tracker/parallel_avatar.dart';
+import 'package:primea/util/string.dart';
 
 class NewMatch extends StatefulWidget {
   final Paragon chosenParagon;
+  final Deck? chosenDeck;
 
   const NewMatch({
-    required this.chosenParagon,
     super.key,
+    required this.chosenParagon,
+    this.chosenDeck,
   });
 
   @override
@@ -31,12 +34,14 @@ class _NewMatchState extends State<NewMatch> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _mmrController = TextEditingController();
   final TextEditingController _primeController = TextEditingController();
+  final TextEditingController _notesController = TextEditingController();
 
   @override
   void dispose() {
     _usernameController.dispose();
     _mmrController.dispose();
     _primeController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -139,34 +144,43 @@ class _NewMatchState extends State<NewMatch> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(
-                  width: 250,
-                  child: TextField(
-                    autocorrect: false,
-                    controller: _usernameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Opponent Username',
+                Flexible(
+                  flex: 2,
+                  child: FittedBox(
+                    child: SizedBox(
+                      width: 250,
+                      child: TextField(
+                        autocorrect: false,
+                        controller: _usernameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Opponent Username',
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: DropdownButton<Rank>(
-                    value: rank,
-                    hint: const Text('Opponent Rank'),
-                    onChanged: (value) {
-                      setState(() {
-                        rank = value;
-                      });
-                    },
-                    items: Rank.values.reversed
-                        .map(
-                          (rank) => DropdownMenuItem<Rank>(
-                            value: rank,
-                            child: Text(rank.name.toTitleCase()),
-                          ),
-                        )
-                        .toList(),
+                Flexible(
+                  child: FittedBox(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: DropdownButton<Rank>(
+                        value: rank,
+                        hint: const Text('Opponent Rank'),
+                        onChanged: (value) {
+                          setState(() {
+                            rank = value;
+                          });
+                        },
+                        items: Rank.values.reversed
+                            .map(
+                              (rank) => DropdownMenuItem<Rank>(
+                                value: rank,
+                                child: Text(rank.name.toTitleCase()),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -177,38 +191,82 @@ class _NewMatchState extends State<NewMatch> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(
-                  width: 100,
-                  child: TextField(
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'^(-|)\d*'),
+                Flexible(
+                  child: FittedBox(
+                    child: SizedBox(
+                      width: 100,
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^(-|)\d*'),
+                          ),
+                        ],
+                        autocorrect: false,
+                        controller: _mmrController,
+                        decoration: const InputDecoration(
+                          labelText: '+/- MMR',
+                        ),
                       ),
-                    ],
-                    autocorrect: false,
-                    controller: _mmrController,
-                    decoration: const InputDecoration(
-                      labelText: '+/- MMR',
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: 100,
-                  child: TextField(
-                    keyboardType: const TextInputType.numberWithOptions(
-                      signed: false,
-                      decimal: true,
-                    ),
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d*\.?\d*'),
+                Flexible(
+                  child: FittedBox(
+                    child: SizedBox(
+                      width: 120,
+                      child: TextButton.icon(
+                        label: const Text("Notes"),
+                        icon: const Icon(Icons.notes),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Match Notes"),
+                                content: TextFormField(
+                                  maxLines: 4,
+                                  controller: _notesController,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter any notes here',
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text("Close"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
                       ),
-                    ],
-                    autocorrect: false,
-                    controller: _primeController,
-                    decoration: const InputDecoration(
-                      labelText: 'PRIME',
+                    ),
+                  ),
+                ),
+                Flexible(
+                  child: FittedBox(
+                    child: SizedBox(
+                      width: 100,
+                      child: TextField(
+                        keyboardType: const TextInputType.numberWithOptions(
+                          signed: false,
+                          decimal: true,
+                        ),
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d*'),
+                          ),
+                        ],
+                        autocorrect: false,
+                        controller: _primeController,
+                        decoration: const InputDecoration(
+                          labelText: 'PRIME',
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -313,15 +371,20 @@ class _NewMatchState extends State<NewMatch> {
                       await matchList.add(
                         MatchModel(
                           paragon: widget.chosenParagon,
-                          opponentUsername: _usernameController.text,
+                          opponentUsername: _usernameController.text.isEmpty
+                              ? null
+                              : _usernameController.text,
                           opponentParagon: chosenParagon,
                           playerTurn: playerTurn,
                           matchTime: DateTime.now().toUtc(),
                           result: selection.first,
                           opponentRank: rank,
-                          mmrDelta: int.tryParse(_mmrController.text) ?? 0,
-                          primeEarned:
-                              double.tryParse(_primeController.text) ?? 0,
+                          mmrDelta: int.tryParse(_mmrController.text),
+                          primeEarned: double.tryParse(_primeController.text),
+                          deckName: widget.chosenDeck?.name,
+                          notes: _notesController.text.isEmpty
+                              ? null
+                              : _notesController.text,
                         ),
                       );
                       setState(() {

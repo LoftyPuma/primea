@@ -4,11 +4,11 @@ import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:parallel_stats/main.dart';
-import 'package:parallel_stats/model/match/match_model.dart';
-import 'package:parallel_stats/model/match/match_result_option.dart';
-import 'package:parallel_stats/model/match/match_results.dart';
-import 'package:parallel_stats/tracker/match.dart';
+import 'package:primea/main.dart';
+import 'package:primea/model/match/match_model.dart';
+import 'package:primea/model/match/match_result_option.dart';
+import 'package:primea/model/match/match_results.dart';
+import 'package:primea/tracker/match.dart';
 
 class MatchList extends ChangeNotifier {
   final MatchResults matchResults;
@@ -224,6 +224,9 @@ class MatchList extends ChangeNotifier {
       insertedMatches.length,
       duration: const Duration(milliseconds: 250),
     );
+    for (var match in insertedMatches) {
+      matchResults.recordMatch(match);
+    }
     _totalMatches += insertedMatches.length;
     notifyListeners();
   }
@@ -293,5 +296,23 @@ class MatchList extends ChangeNotifier {
     );
     notifyListeners();
     return removed;
+  }
+
+  void clear() {
+    _matchList.clear();
+    _listKey.currentState?.removeAllItems(
+      (context, animation) => SizeTransition(
+        sizeFactor: animation,
+        child: Match(
+          match: _matchList[0],
+          onEdit: null,
+          onDelete: null,
+        ),
+      ),
+      duration: const Duration(),
+    );
+    _totalMatches = 0;
+    initialized = false;
+    notifyListeners();
   }
 }

@@ -1,13 +1,13 @@
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/dashboard/number_card.dart';
-import 'package:parallel_stats/model/match/inherited_match_list.dart';
-import 'package:parallel_stats/model/match/inherited_match_results.dart';
-import 'package:parallel_stats/model/match/player_turn.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
-import 'package:parallel_stats/tracker/paragon_avatar.dart';
-import 'package:parallel_stats/tracker/progress_card.dart';
-import 'package:parallel_stats/util/string.dart';
+import 'package:primea/dashboard/number_card.dart';
+import 'package:primea/model/match/inherited_match_list.dart';
+import 'package:primea/model/match/inherited_match_results.dart';
+import 'package:primea/model/match/player_turn.dart';
+import 'package:primea/tracker/paragon.dart';
+import 'package:primea/tracker/paragon_avatar.dart';
+import 'package:primea/tracker/progress_card.dart';
+import 'package:primea/util/string.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({
@@ -328,53 +328,37 @@ class _DashboardState extends State<Dashboard>
                         .toDouble()
                         .toStringAsFixed(0),
                   ),
-                  InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () {
-                      setState(() {
-                        showGoing1st = !showGoing1st;
-                      });
-                    },
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      child: showGoing1st
-                          ? NumberCard(
-                              key: const ValueKey('going1st'),
-                              title: 'Going 1st',
-                              height: squareSize,
-                              width: squareSize,
-                              switchable: true,
-                              primaryColor: selectedParagon?.parallel.color,
-                              secondaryColor: opponentParagon?.parallel.color,
-                              value: matchResults
-                                  .count(
-                                    paragon: selectedParagon,
-                                    opponentParagon: opponentParagon,
-                                    playerTurn: PlayerTurn.going1st,
-                                  )
-                                  .total
-                                  .toDouble()
-                                  .toStringAsFixed(0),
-                            )
-                          : NumberCard(
-                              key: const ValueKey('going2nd'),
-                              title: 'Going 2nd',
-                              height: squareSize,
-                              width: squareSize,
-                              switchable: true,
-                              primaryColor: selectedParagon?.parallel.color,
-                              secondaryColor: opponentParagon?.parallel.color,
-                              value: matchResults
-                                  .count(
-                                    paragon: selectedParagon,
-                                    opponentParagon: opponentParagon,
-                                    playerTurn: PlayerTurn.going2nd,
-                                  )
-                                  .total
-                                  .toDouble()
-                                  .toStringAsFixed(0),
-                            ),
-                    ),
+                  NumberCard(
+                    title: 'Going 1st',
+                    height: squareSize,
+                    width: squareSize,
+                    primaryColor: selectedParagon?.parallel.color,
+                    secondaryColor: opponentParagon?.parallel.color,
+                    value: matchResults
+                        .count(
+                          paragon: selectedParagon,
+                          opponentParagon: opponentParagon,
+                          playerTurn: PlayerTurn.going1st,
+                        )
+                        .total
+                        .toDouble()
+                        .toStringAsFixed(0),
+                  ),
+                  NumberCard(
+                    title: 'Going 2nd',
+                    height: squareSize,
+                    width: squareSize,
+                    primaryColor: selectedParagon?.parallel.color,
+                    secondaryColor: opponentParagon?.parallel.color,
+                    value: matchResults
+                        .count(
+                          paragon: selectedParagon,
+                          opponentParagon: opponentParagon,
+                          playerTurn: PlayerTurn.going2nd,
+                        )
+                        .total
+                        .toDouble()
+                        .toStringAsFixed(0),
                   ),
                   InkWell(
                     borderRadius: BorderRadius.circular(16),

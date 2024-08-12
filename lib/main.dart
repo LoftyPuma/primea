@@ -1,24 +1,66 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:aptabase_flutter/aptabase_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/home.dart';
+import 'package:primea/home.dart';
+import 'package:primea/inherited_session.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+const errorTable = 'errors';
+
+Future<void> reportError(FlutterErrorDetails details) async {
+  await supabase.from(errorTable).insert({
+    'error': details.exceptionAsString(),
+    'library': details.library,
+    'stack': details.stack.toString(),
+    'context': details.context.toString(),
+  });
+}
+
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Aptabase.init("A-US-4436493161");
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-  await Supabase.initialize(
-    url: 'https://fdrysfgctvdtvrxpldxb.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcnlzZmdjdHZkdHZyeHBsZHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjEyNDMyMjgsImV4cCI6MjAzNjgxOTIyOH0.7wcpER7Kch2A9zm5MiTKowd7IQ3Q2jSVkDytGzdTZHU',
-    authOptions: const FlutterAuthClientOptions(
-      detectSessionInUri: true,
-    ),
+      // Initialize Aptabase
+      await Aptabase.init("A-US-4436493161");
+
+      // Initialize Supabase
+      await Supabase.initialize(
+        url: 'https://fdrysfgctvdtvrxpldxb.supabase.co',
+        anonKey:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcnlzZmdjdHZkdHZyeHBsZHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjEyNDMyMjgsImV4cCI6MjAzNjgxOTIyOH0.7wcpER7Kch2A9zm5MiTKowd7IQ3Q2jSVkDytGzdTZHU',
+        authOptions: const FlutterAuthClientOptions(
+          detectSessionInUri: true,
+        ),
+      );
+
+      // Set up error handling
+      FlutterError.onError = (details) {
+        if (kReleaseMode) {
+          reportError(details);
+        }
+        FlutterError.presentError(details);
+      };
+      PlatformDispatcher.instance.onError = (error, stack) {
+        if (kReleaseMode) {
+          reportError(FlutterErrorDetails(exception: error, stack: stack));
+        }
+        return false;
+      };
+
+      runApp(const App());
+    },
+    (error, stackTrace) {
+      final details = FlutterErrorDetails(exception: error, stack: stackTrace);
+      if (kReleaseMode) {
+        reportError(details);
+      }
+      FlutterError.presentError(details);
+    },
   );
-
-  runApp(const App());
 }
 
 final supabase = Supabase.instance.client;
@@ -94,7 +136,9 @@ class App extends StatelessWidget {
       child: MaterialApp(
         title: title,
         theme: theme,
-        home: Home(title: title),
+        home: InheritedSessionWidget(
+          child: Home(title: title),
+        ),
       ),
     );
   }

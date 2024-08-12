@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/overlay/radial_overlay.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
-import 'package:parallel_stats/tracker/paragon_avatar.dart';
+import 'package:primea/overlay/radial_overlay.dart';
+import 'package:primea/tracker/paragon.dart';
+import 'package:primea/tracker/paragon_avatar.dart';
 
 class ParallelAvatar extends StatefulWidget {
   final ParallelType parallel;

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/model/match/match_result_option.dart';
-import 'package:parallel_stats/snack/basic.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
-import 'package:parallel_stats/util/string.dart';
+import 'package:primea/model/match/match_result_option.dart';
+import 'package:primea/snack/basic.dart';
+import 'package:primea/tracker/paragon.dart';
 
 class QuickAddButton extends StatelessWidget {
   final ParallelType parallel;
@@ -23,7 +22,7 @@ class QuickAddButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          parallel.name.toTitleCase(),
+          parallel.name,
           style: TextStyle(
             color: parallel.color,
           ),

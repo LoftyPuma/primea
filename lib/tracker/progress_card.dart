@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/model/match/inherited_match_results.dart';
-import 'package:parallel_stats/model/match/match_results.dart';
-import 'package:parallel_stats/model/match/player_turn.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
+import 'package:primea/model/match/inherited_match_results.dart';
+import 'package:primea/model/match/match_results.dart';
+import 'package:primea/model/match/player_turn.dart';
+import 'package:primea/tracker/paragon.dart';
 
 class ProgressCard extends StatefulWidget {
   final String title;

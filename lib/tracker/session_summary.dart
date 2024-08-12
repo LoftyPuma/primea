@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:parallel_stats/model/match/inherited_match_list.dart';
-import 'package:parallel_stats/model/match/inherited_match_results.dart';
-import 'package:parallel_stats/model/match/match_results.dart';
-import 'package:parallel_stats/tracker/paragon_avatar.dart';
-import 'package:parallel_stats/tracker/progress_card.dart';
+import 'package:primea/model/match/inherited_match_list.dart';
+import 'package:primea/model/match/inherited_match_results.dart';
+import 'package:primea/model/match/match_results.dart';
+import 'package:primea/tracker/paragon_avatar.dart';
+import 'package:primea/tracker/progress_card.dart';
 
 class SessionSummary extends StatefulWidget {
   final int sessionIndex;

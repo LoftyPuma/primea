@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/model/match/match_model.dart';
-import 'package:parallel_stats/tracker/paragon_avatar.dart';
+import 'package:primea/model/deck/deck.dart';
+import 'package:primea/model/match/match_model.dart';
+import 'package:primea/tracker/paragon_avatar.dart';
 
 class ParagonStack extends StatelessWidget {
   final MatchModel match;
+  final Deck? deck;
 
   const ParagonStack({
     super.key,
     required this.match,
+    this.deck,
   });
 
   @override
@@ -23,7 +26,10 @@ class ParagonStack extends StatelessWidget {
               paragon: match.opponentParagon,
             ),
           ),
-          ParagonAvatar(paragon: match.paragon),
+          ParagonAvatar(
+            paragon: match.paragon,
+            deck: deck,
+          ),
         ],
       ),
     );
