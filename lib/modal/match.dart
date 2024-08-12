@@ -95,6 +95,7 @@ class MatchModalState extends State<MatchModal> {
                           onParagonSelected: (paragon) {
                             setState(() {
                               this.paragon = paragon;
+                              deck = null;
                             });
                             Navigator.pop(context);
                           },

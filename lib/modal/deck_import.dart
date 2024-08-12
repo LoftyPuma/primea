@@ -75,6 +75,7 @@ class _DeckImportModalState extends State<DeckImportModal> {
                   createdAt: widget.createdAt,
                   updatedAt:
                       widget.createdAt != null ? DateTime.now().toUtc() : null,
+                  previousName: widget.name,
                 );
                 if (context.mounted) {
                   Navigator.of(context).pop<DeckModel>(deckModel);

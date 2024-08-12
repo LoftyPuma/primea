@@ -26,6 +26,7 @@ class DeckModel {
     String code, {
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? previousName,
   }) async {
     final List<int> parsedCodes = List.empty(growable: true);
     final List<String> deck = code.split(',');
@@ -57,6 +58,7 @@ class DeckModel {
               'updated_at': updatedAt?.toIso8601String(),
             })
             .eq('created_at', createdAt.toIso8601String())
+            .eq('name', previousName!)
             .select()
             .single(),
       );
