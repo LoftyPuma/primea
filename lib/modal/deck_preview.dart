@@ -178,27 +178,31 @@ class _DeckPreviewState extends State<DeckPreview>
         child: ListenableBuilder(
           listenable: _mainController,
           builder: (context, _) => Container(
-            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              image: DecorationImage(
-                alignment: Alignment.topCenter,
-                image: AssetImage(paragon.art!),
-                fit: BoxFit.none,
-                filterQuality: FilterQuality.none,
-                scale: _zoomAnimation.value,
-                colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(_filterAnimation.value),
-                  BlendMode.darken,
-                ),
-              ),
             ),
             child: Stack(
               alignment: const Alignment(0, .3),
               children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    image: DecorationImage(
+                      alignment: Alignment.topCenter,
+                      image: AssetImage(paragon.art!),
+                      fit: BoxFit.none,
+                      filterQuality: FilterQuality.none,
+                      scale: _zoomAnimation.value,
+                      colorFilter: ColorFilter.mode(
+                        Colors.black.withOpacity(_filterAnimation.value),
+                        BlendMode.darken,
+                      ),
+                    ),
+                  ),
+                ),
                 Positioned(
-                  top: -10,
-                  right: -10,
+                  top: 0,
+                  right: 0,
                   child: FadeTransition(
                     opacity: _typeOpacityAnimation,
                     child: IconButton(
@@ -255,8 +259,8 @@ class _DeckPreviewState extends State<DeckPreview>
                   ),
                 ),
                 Positioned(
-                  top: 20,
-                  right: -10,
+                  top: 30,
+                  right: 0,
                   child: FadeTransition(
                     opacity: _typeOpacityAnimation,
                     child: IconButton(
@@ -284,8 +288,8 @@ class _DeckPreviewState extends State<DeckPreview>
                   ),
                 ),
                 Positioned(
-                  top: 0,
-                  left: 0,
+                  top: 10,
+                  left: 10,
                   child: FadeTransition(
                     opacity: _typeOpacityAnimation,
                     child: FittedBox(
@@ -360,8 +364,8 @@ class _DeckPreviewState extends State<DeckPreview>
                   ),
                 ),
                 Positioned(
-                  top: 0,
-                  left: 0,
+                  top: 10,
+                  left: 10,
                   child: FadeTransition(
                     opacity: _parallelOpacityAnimation,
                     child: RichText(
@@ -411,9 +415,9 @@ class _DeckPreviewState extends State<DeckPreview>
                   ),
                 ),
                 Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
+                  bottom: 10,
+                  left: 10,
+                  right: 10,
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: RichText(
