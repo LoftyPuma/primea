@@ -214,4 +214,9 @@ class MatchResults extends ChangeNotifier {
     recordMatch(newMatch);
     notifyListeners();
   }
+
+  void clear() {
+    _matchupCounts = {};
+    notifyListeners();
+  }
 }

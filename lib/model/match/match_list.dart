@@ -297,4 +297,22 @@ class MatchList extends ChangeNotifier {
     notifyListeners();
     return removed;
   }
+
+  void clear() {
+    _matchList.clear();
+    _listKey.currentState?.removeAllItems(
+      (context, animation) => SizeTransition(
+        sizeFactor: animation,
+        child: Match(
+          match: _matchList[0],
+          onEdit: null,
+          onDelete: null,
+        ),
+      ),
+      duration: const Duration(),
+    );
+    _totalMatches = 0;
+    initialized = false;
+    notifyListeners();
+  }
 }

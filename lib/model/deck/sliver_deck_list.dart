@@ -53,4 +53,13 @@ class SliverDeckList<T> extends ChangeNotifier {
   int get length => _items.length;
 
   T operator [](int index) => _items[index];
+
+  void clear() {
+    _items.clear();
+    _animatedGrid?.removeAllItems(
+      (context, animation) => removedItemBuilder(_items[0], context, animation),
+      duration: const Duration(),
+    );
+    notifyListeners();
+  }
 }

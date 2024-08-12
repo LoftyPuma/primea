@@ -124,10 +124,6 @@ class _AccountState extends State<Account> {
                   children: List.generate(numberOfSessions, (index) => index)
                       .map((index) {
                     final session = matchList.nextSession(index);
-                    for (var match in session!) {
-                      print(
-                          'Session: $index, Match: ${match.id}, matchTime: ${match.matchTime}');
-                    }
                     return ExpansionPanel(
                       isExpanded: expandedPanels[index],
                       headerBuilder: (BuildContext context, bool isExpanded) {

@@ -67,6 +67,19 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
     setState(() {
       session = data.session;
+      switch (data.event) {
+        case AuthChangeEvent.signedOut:
+          chosenParagon = Paragon.unknown;
+          selectedDeck = null;
+          deckCount = 0;
+          deckList.clear();
+          matchList.clear();
+          matchResults.clear();
+          break;
+        case AuthChangeEvent.signedIn:
+          _init();
+        default:
+      }
     });
     if (session != null && !session!.isExpired) {
       try {
@@ -96,6 +109,21 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     }
   }
 
+  void _init() {
+    _fetchDecks().then((futureDecks) {
+      deckList.insertAll(0, futureDecks);
+      setState(() {
+        try {
+          selectedDeck = futureDecks.singleWhere(
+              (deck) => deck.name == session?.user.userMetadata?["deck"]);
+        } on StateError catch (_) {}
+      });
+    });
+
+    chosenParagon = Paragon.values
+        .byName(session?.user.userMetadata?["paragon"] ?? "unknown");
+  }
+
   @override
   void initState() {
     deckList = SliverDeckList<Deck>(
@@ -112,13 +140,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         );
       },
     );
-    _fetchDecks().then((futureDecks) {
-      deckList.insertAll(0, futureDecks);
-      setState(() {
-        selectedDeck = futureDecks.singleWhere(
-            (deck) => deck.name == session?.user.userMetadata?["deck"]);
-      });
-    });
 
     matchList = MatchList(_listKey, matchResults);
     _tabController = TabController(
@@ -127,9 +148,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       animationDuration: const Duration(milliseconds: 250),
     );
 
-    chosenParagon = Paragon.values
-        .byName(session?.user.userMetadata?["paragon"] ?? "unknown");
-
+    _init();
     supabase.auth.onAuthStateChange.listen(handleAuthStateChange);
     super.initState();
   }
