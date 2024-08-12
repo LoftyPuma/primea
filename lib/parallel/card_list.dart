@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/parallel/card_display.dart';
-import 'package:parallel_stats/parallel/card_model.dart';
+import 'package:primea/parallel/card_display.dart';
+import 'package:primea/parallel/card_model.dart';
 
 class CardList extends StatelessWidget {
   final Future<List<CardModel>> cards;

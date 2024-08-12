@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/model/match/match_list.dart';
+import 'package:primea/model/match/match_list.dart';
 
 class InheritedMatchList extends InheritedNotifier<MatchList> {
   const InheritedMatchList({

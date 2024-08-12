@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
-import 'package:parallel_stats/tracker/paragon_avatar.dart';
+import 'package:primea/tracker/paragon.dart';
+import 'package:primea/tracker/paragon_avatar.dart';
 
 class RadialOverlay extends StatefulWidget {
   final ParagonAvatar child;

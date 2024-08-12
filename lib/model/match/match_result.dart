@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:parallel_stats/model/match/match_model.dart';
-import 'package:parallel_stats/model/match/match_result_option.dart';
-import 'package:parallel_stats/model/match/player_turn.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
+import 'package:primea/model/match/match_model.dart';
+import 'package:primea/model/match/match_result_option.dart';
+import 'package:primea/model/match/player_turn.dart';
+import 'package:primea/tracker/paragon.dart';
 
 class MatchResult {
   final Paragon paragon;

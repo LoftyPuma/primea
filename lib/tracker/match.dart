@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:parallel_stats/model/match/match_model.dart';
-import 'package:parallel_stats/model/match/match_result_option.dart';
-import 'package:parallel_stats/model/match/player_rank.dart';
-import 'package:parallel_stats/snack/basic.dart';
-import 'package:parallel_stats/tracker/paragon_avatar.dart';
-import 'package:parallel_stats/util/string.dart';
+import 'package:primea/model/deck/deck.dart';
+import 'package:primea/model/match/match_model.dart';
+import 'package:primea/model/match/match_result_option.dart';
+import 'package:primea/model/match/player_rank.dart';
+import 'package:primea/snack/basic.dart';
+import 'package:primea/tracker/paragon_stack.dart';
+import 'package:primea/util/string.dart';
 
 class Match extends StatelessWidget {
   final MatchModel match;
+  final Deck? deck;
   final Function(BuildContext context)? onEdit;
   final Function(BuildContext context)? onDelete;
 
@@ -17,6 +19,7 @@ class Match extends StatelessWidget {
     required this.match,
     required this.onEdit,
     required this.onDelete,
+    this.deck,
   });
 
   @override
@@ -56,87 +59,105 @@ class Match extends StatelessWidget {
                   onDelete!(context);
                 },
         ),
-        const Spacer(),
-        Padding(
-          padding: const EdgeInsets.all(4),
-          child: Tooltip(
-            message: match.playerTurn.value ? 'Going 1st' : 'Going 2nd',
-            child: Icon(
-              match.playerTurn.value
-                  ? Icons.looks_one_rounded
-                  : Icons.looks_two_rounded,
-              color: match.playerTurn.value ? Colors.yellow[600] : Colors.cyan,
+        Flexible(
+          flex: 2,
+          child: FittedBox(
+            child: ParagonStack(
+              match: match,
+              deck: deck,
             ),
           ),
         ),
-        Flexible(
-          flex: 2,
-          child: FittedBox(
-            child: ParagonAvatar(paragon: match.paragon),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(4),
-          child: Tooltip(
-            message: match.result.tooltip,
-            child: [MatchResultOption.draw, MatchResultOption.disconnect]
-                    .contains(match.result)
-                ? Icon(
-                    match.result.icon,
-                    color: match.result.color,
-                  )
-                : match.result == MatchResultOption.win
-                    ? CircleAvatar(
-                        backgroundColor: Colors.green,
-                        radius: 12,
-                        child: Baseline(
-                          baseline: 18,
-                          baselineType: TextBaseline.alphabetic,
-                          child: Text(
-                            "W",
-                            style:
-                                Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              shadows: [
-                                const Shadow(
-                                  color: Colors.black,
-                                  offset: Offset(1, 1),
-                                  blurRadius: 2,
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Tooltip(
+                    message: match.playerTurn.value ? 'Going 1st' : 'Going 2nd',
+                    child: Icon(
+                      match.playerTurn.value
+                          ? Icons.looks_one_rounded
+                          : Icons.looks_two_rounded,
+                      color: match.playerTurn.value
+                          ? Colors.yellow[600]
+                          : Colors.cyan,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Tooltip(
+                    message: match.result.tooltip,
+                    child: [
+                      MatchResultOption.draw,
+                      MatchResultOption.disconnect
+                    ].contains(match.result)
+                        ? Icon(
+                            match.result.icon,
+                            color: match.result.color,
+                          )
+                        : match.result == MatchResultOption.win
+                            ? CircleAvatar(
+                                backgroundColor: Colors.green,
+                                radius: 12,
+                                child: Baseline(
+                                  baseline: 18,
+                                  baselineType: TextBaseline.alphabetic,
+                                  child: Text(
+                                    "W",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                      shadows: [
+                                        const Shadow(
+                                          color: Colors.black,
+                                          offset: Offset(1, 1),
+                                          blurRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
-                    : CircleAvatar(
-                        backgroundColor: Colors.red,
-                        radius: 12,
-                        child: Baseline(
-                          baseline: 18,
-                          baselineType: TextBaseline.alphabetic,
-                          child: Text(
-                            "L",
-                            style:
-                                Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              shadows: [
-                                const Shadow(
-                                  color: Colors.black,
-                                  offset: Offset(1, 1),
-                                  blurRadius: 2,
+                              )
+                            : CircleAvatar(
+                                backgroundColor: Colors.red,
+                                radius: 12,
+                                child: Baseline(
+                                  baseline: 18,
+                                  baselineType: TextBaseline.alphabetic,
+                                  child: Text(
+                                    "L",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                      shadows: [
+                                        const Shadow(
+                                          color: Colors.black,
+                                          offset: Offset(1, 1),
+                                          blurRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-          ),
+                              ),
+                  ),
+                ),
+              ],
+            ),
+            if (match.deckName != null)
+              Text(
+                match.deckName!,
+                overflow: TextOverflow.ellipsis,
+              ),
+          ],
         ),
-        Flexible(
-          flex: 2,
-          child: FittedBox(
-            child: ParagonAvatar(paragon: match.opponentParagon),
-          ),
-        ),
-        const Spacer(),
         Expanded(
           flex: 3,
           child: Column(
@@ -176,9 +197,11 @@ class Match extends StatelessWidget {
                   ),
                 ),
               ),
+              // TODO: fix time not updating on edit
               FittedBox(
                 child: Text(
                   DateFormat.MMMMd().add_jm().format(match.matchTime.toLocal()),
+                  key: ValueKey(match.matchTime),
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
               ),

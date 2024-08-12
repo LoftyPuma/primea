@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/model/deck/deck.dart';
+import 'package:primea/model/deck/deck.dart';
+import 'package:primea/model/deck/deck_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DeckImportModal extends StatefulWidget {
-  final Function onImport;
+  final String? name;
+  final String? code;
+  final DateTime? createdAt;
 
-  const DeckImportModal({super.key, required this.onImport});
+  const DeckImportModal({
+    super.key,
+    this.name,
+    this.code,
+    this.createdAt,
+  });
 
   @override
   State<DeckImportModal> createState() => _DeckImportModalState();
@@ -13,6 +22,13 @@ class DeckImportModal extends StatefulWidget {
 class _DeckImportModalState extends State<DeckImportModal> {
   final TextEditingController _deckNameController = TextEditingController();
   final TextEditingController _deckCodeController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _deckNameController.text = widget.name ?? "";
+    _deckCodeController.text = widget.code ?? "";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,15 +68,125 @@ class _DeckImportModalState extends State<DeckImportModal> {
           ),
           ElevatedButton(
             onPressed: () async {
-              final deck = await Deck.fromString(
-                _deckNameController.text,
-                _deckCodeController.text,
-              );
-              if (context.mounted) {
-                Navigator.of(context).pop(deck);
+              try {
+                final deckModel = await DeckModel.fromCode(
+                  _deckNameController.text,
+                  _deckCodeController.text,
+                  createdAt: widget.createdAt,
+                  updatedAt:
+                      widget.createdAt != null ? DateTime.now().toUtc() : null,
+                );
+                if (context.mounted) {
+                  Navigator.of(context).pop<DeckModel>(deckModel);
+                }
+              } on PostgrestException catch (e, stackTrace) {
+                String message;
+                switch (e.code) {
+                  case "23505":
+                    message =
+                        "You already have a deck with that name, choose a different one.";
+                    break;
+                  case "23514":
+                    message = "Deck name must have at least 1 character";
+                    break;
+                  default:
+                    message =
+                        "There was an error saving the deck, ensure the deck code is correct";
+                }
+                if (context.mounted) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      icon: const Icon(
+                        Icons.error,
+                        color: Colors.red,
+                      ),
+                      title: const Text("Error saving deck"),
+                      content: Text(message),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                FlutterError.reportError(
+                  FlutterErrorDetails(
+                    exception: e,
+                    stack: stackTrace,
+                    context: ErrorDescription(
+                        "Error saving deck (name: '${_deckNameController.text}', code: '${_deckCodeController.text}')"),
+                  ),
+                );
+              } on FormatException catch (e, stackTrace) {
+                if (context.mounted) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      icon: const Icon(
+                        Icons.error,
+                        color: Colors.red,
+                      ),
+                      title: const Text("Error saving deck"),
+                      content: Text("${e.message} (${e.source})"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                FlutterError.reportError(
+                  FlutterErrorDetails(
+                    exception: e,
+                    stack: stackTrace,
+                    context: ErrorDescription(
+                        "Error saving deck (name: '${_deckNameController.text}', code: '${_deckCodeController.text}')"),
+                  ),
+                );
+              } catch (e, stackTrace) {
+                if (context.mounted) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      icon: const Icon(
+                        Icons.error,
+                        color: Colors.red,
+                      ),
+                      title: const Text("Error saving deck"),
+                      content: const Text(
+                          "There was an error saving the deck, ensure the deck code is correct and you don't already have a deck with that name."),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                FlutterError.reportError(
+                  FlutterErrorDetails(
+                    exception: e,
+                    stack: stackTrace,
+                    context: ErrorDescription(
+                        "Error saving deck (name: '${_deckNameController.text}', code: '${_deckCodeController.text}')"),
+                  ),
+                );
               }
             },
-            child: const Text("Create"),
+            child: Text(widget.name == null ? "Create" : "Update"),
           ),
         ],
       ),

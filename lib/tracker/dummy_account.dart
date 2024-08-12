@@ -1,17 +1,17 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/modal/match.dart';
-import 'package:parallel_stats/model/match/inherited_match_results.dart';
-import 'package:parallel_stats/model/match/match_result_option.dart';
-import 'package:parallel_stats/model/match/match_results.dart';
-import 'package:parallel_stats/model/match/player_turn.dart';
-import 'package:parallel_stats/tracker/match.dart';
-import 'package:parallel_stats/model/match/match_model.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
-import 'package:parallel_stats/tracker/progress_card.dart';
-import 'package:parallel_stats/tracker/quick_add.dart';
-import 'package:parallel_stats/util/string.dart';
+import 'package:primea/modal/match.dart';
+import 'package:primea/model/match/inherited_match_results.dart';
+import 'package:primea/model/match/match_result_option.dart';
+import 'package:primea/model/match/match_results.dart';
+import 'package:primea/model/match/player_turn.dart';
+import 'package:primea/tracker/match.dart';
+import 'package:primea/model/match/match_model.dart';
+import 'package:primea/tracker/paragon.dart';
+import 'package:primea/tracker/progress_card.dart';
+import 'package:primea/tracker/quick_add.dart';
+import 'package:primea/util/string.dart';
 
 class DummyAccount extends StatefulWidget {
   final Paragon chosenParagon;

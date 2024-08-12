@@ -4,13 +4,13 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/modal/match.dart';
-import 'package:parallel_stats/model/match/match_model.dart';
-import 'package:parallel_stats/model/match/match_result_option.dart';
-import 'package:parallel_stats/model/match/player_rank.dart';
-import 'package:parallel_stats/model/match/player_turn.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
-import 'package:parallel_stats/tracker/match.dart';
+import 'package:primea/modal/match.dart';
+import 'package:primea/model/match/match_model.dart';
+import 'package:primea/model/match/match_result_option.dart';
+import 'package:primea/model/match/player_rank.dart';
+import 'package:primea/model/match/player_turn.dart';
+import 'package:primea/tracker/paragon.dart';
+import 'package:primea/tracker/match.dart';
 
 enum CsvColumn {
   paragon,

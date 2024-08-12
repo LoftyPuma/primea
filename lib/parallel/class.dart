@@ -1,5 +1,5 @@
-import 'package:parallel_stats/parallel/augmentation.dart';
-import 'package:parallel_stats/parallel/state.dart';
+import 'package:primea/parallel/augmentation.dart';
+import 'package:primea/parallel/state.dart';
 
 enum CardClassEnum {
   fe,

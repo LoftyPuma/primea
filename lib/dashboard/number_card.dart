@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/dashboard/card.dart';
+import 'package:primea/dashboard/card.dart';
 
 class NumberCard extends StatelessWidget {
   final String title;

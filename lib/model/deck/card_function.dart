@@ -1,11 +1,12 @@
-import 'package:parallel_stats/model/deck/card_expansion.dart';
-import 'package:parallel_stats/model/deck/card_rarity.dart';
-import 'package:parallel_stats/model/deck/card_subtype.dart';
-import 'package:parallel_stats/model/deck/card_type.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
+import 'package:primea/model/deck/card_expansion.dart';
+import 'package:primea/model/deck/card_rarity.dart';
+import 'package:primea/model/deck/card_subtype.dart';
+import 'package:primea/model/deck/card_type.dart';
+import 'package:primea/tracker/paragon.dart';
 
 class CardFunction {
   static const String cardFunctionTableName = 'card_functions';
+  static const String cardPrefix = 'CB-';
 
   int id;
   String basename;
@@ -51,9 +52,9 @@ class CardFunction {
         cost = json['cost'],
         attack = json['attack'],
         health = json['health'],
-        cardType = CardType.values.byName(json['card_type']),
+        cardType = CardType.fromName(json['card_type']),
         subtype = json['subtype'] != null
             ? CardSubtype.values.byName(json['subtype'])
             : null,
-        expansion = CardExpansion.values.byName(json['expansion']);
+        expansion = CardExpansion.fromName(json['expansion']);
 }

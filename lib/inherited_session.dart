@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/main.dart';
-import 'package:parallel_stats/model/match/inherited_match_list.dart';
-import 'package:parallel_stats/model/match/inherited_match_results.dart';
-import 'package:parallel_stats/model/match/match_list.dart';
-import 'package:parallel_stats/model/match/match_results.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
+import 'package:primea/main.dart';
+import 'package:primea/model/match/inherited_match_list.dart';
+import 'package:primea/model/match/inherited_match_results.dart';
+import 'package:primea/model/match/match_list.dart';
+import 'package:primea/model/match/match_results.dart';
+import 'package:primea/tracker/paragon.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class InheritedSession extends InheritedModel<String> {

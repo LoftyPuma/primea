@@ -1,8 +1,10 @@
-import 'package:parallel_stats/model/match/match_result_option.dart';
-import 'package:parallel_stats/model/match/player_rank.dart';
-import 'package:parallel_stats/model/match/player_turn.dart';
-import 'package:parallel_stats/tracker/keys.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
+import 'package:primea/model/deck/deck.dart';
+import 'package:primea/model/deck/deck_model.dart';
+import 'package:primea/model/match/match_result_option.dart';
+import 'package:primea/model/match/player_rank.dart';
+import 'package:primea/model/match/player_turn.dart';
+import 'package:primea/tracker/keys.dart';
+import 'package:primea/tracker/paragon.dart';
 
 class MatchModel {
   static const gamesTableName = 'games';
@@ -18,6 +20,8 @@ class MatchModel {
   final Rank? opponentRank;
   final int? mmrDelta;
   final double? primeEarned;
+  final String? deckName;
+  final String? notes;
   final List<KeyModel> keysActivated;
 
   const MatchModel({
@@ -32,6 +36,8 @@ class MatchModel {
     this.opponentRank,
     this.mmrDelta,
     this.primeEarned,
+    this.deckName,
+    this.notes,
     this.keysActivated = const [],
   });
 
@@ -53,8 +59,13 @@ class MatchModel {
             : null,
         playerTurn =
             json['player_one'] ? PlayerTurn.going1st : PlayerTurn.going2nd,
-        result = MatchResultOption.values.byName(json['result']);
-  // keysActivated = List<KeyModel>.from(json['keysActivated']);
+        result = MatchResultOption.values.byName(json['result']),
+        deckName = json['deck_name'],
+        notes = json['notes'];
+
+  Future<Deck?> get deck async => deckName == null
+      ? null
+      : await (await DeckModel.fromName(deckName!)).toDeck();
 
   Map<String, dynamic> toJson() {
     final json = {
@@ -67,6 +78,8 @@ class MatchModel {
       'opponent_rank': opponentRank?.name,
       'mmr_delta': mmrDelta,
       'prime_estimate': primeEarned,
+      'deck_name': deckName,
+      'notes': notes,
       // 'keysActivated': keysActivated,
     };
     if (id != null) {
@@ -89,6 +102,7 @@ class MatchModel {
         opponentRank == other.opponentRank &&
         mmrDelta == other.mmrDelta &&
         primeEarned == other.primeEarned &&
+        deckName == other.deckName &&
         keysActivated == other.keysActivated;
   }
 
@@ -105,6 +119,7 @@ class MatchModel {
         opponentRank,
         mmrDelta,
         primeEarned,
+        deckName,
         keysActivated,
       );
 }

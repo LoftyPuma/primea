@@ -1,4 +1,4 @@
-name: parallel_stats
+name: primea
 description: "A new way to view your parallel stats."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0
+version: 0.1.0
 
 environment:
   sdk: ">=3.3.3 <4.0.0"
@@ -37,7 +37,8 @@ dependencies:
   supabase_flutter: ^2.5.8
   intl: ^0.19.0
   vector_graphics: ^1.1.11+1
-  aptabase_flutter: ^0.1.1
+  aptabase_flutter: ^0.3.0
+  collection: ^1.18.0
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +67,7 @@ flutter:
   assets:
     - assets/unknown_origin.png
     - assets/paragons/
+    - assets/paragons/art/
     - assets/ranks/
     - assets/parallel_logos/vec/
     - assets/brands/twitch/

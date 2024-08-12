@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:parallel_stats/parallel/card_model.dart';
-import 'package:parallel_stats/parallel/class.dart';
+import 'package:primea/parallel/card_model.dart';
+import 'package:primea/parallel/class.dart';
 
 class CardDisplay extends StatelessWidget {
   static final placeholderImage = SvgPicture.network(

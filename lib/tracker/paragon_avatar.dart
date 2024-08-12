@@ -1,23 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
-import 'package:parallel_stats/util/string.dart';
+import 'package:primea/model/deck/deck.dart';
+import 'package:primea/model/deck/mini_deck.dart';
+import 'package:primea/tracker/paragon.dart';
+import 'package:primea/util/string.dart';
 import 'package:vector_graphics/vector_graphics.dart';
 
 class ParagonAvatar extends StatelessWidget {
   final Paragon paragon;
+  final Deck? deck;
   final String? tooltip;
   final Color backgroundColor;
 
   const ParagonAvatar({
     super.key,
     required this.paragon,
+    this.deck,
     this.tooltip,
     this.backgroundColor = Colors.transparent,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (deck != null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 8),
+        child: MiniDeck(deck: deck!),
+      );
+    }
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -66,7 +76,7 @@ class ParagonAvatar extends StatelessWidget {
             children: [
               if (paragon.image != null && paragon != Paragon.unknown)
                 Positioned(
-                  top: 4,
+                  top: 0,
                   left: 0,
                   child: FittedBox(
                     fit: BoxFit.contain,

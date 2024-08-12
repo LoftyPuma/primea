@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' show get;
 import 'package:html/parser.dart';
 
-import 'package:parallel_stats/parallel/card_model.dart';
-import 'package:parallel_stats/parallel/function.dart';
+import 'package:primea/parallel/card_model.dart';
+import 'package:primea/parallel/function.dart';
 
 class Parallel {
   Future<List<CardModel>> fetchCards() async {

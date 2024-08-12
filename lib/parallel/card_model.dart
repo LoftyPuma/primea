@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/parallel/augmentation.dart';
-import 'package:parallel_stats/parallel/class.dart';
-import 'package:parallel_stats/parallel/expansion.dart';
-import 'package:parallel_stats/parallel/faction.dart';
-import 'package:parallel_stats/parallel/function.dart';
-import 'package:parallel_stats/parallel/state.dart';
+import 'package:primea/parallel/augmentation.dart';
+import 'package:primea/parallel/class.dart';
+import 'package:primea/parallel/expansion.dart';
+import 'package:primea/parallel/faction.dart';
+import 'package:primea/parallel/function.dart';
+import 'package:primea/parallel/state.dart';
 
 const String _echoSuffix = "- echo";
 const String _seSuffix = "[se]";

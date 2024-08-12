@@ -1,10 +1,10 @@
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
-import 'package:parallel_stats/main.dart';
-import 'package:parallel_stats/model/match/match_model.dart';
-import 'package:parallel_stats/model/match/match_result.dart';
-import 'package:parallel_stats/model/match/player_turn.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
+import 'package:primea/main.dart';
+import 'package:primea/model/match/match_model.dart';
+import 'package:primea/model/match/match_result.dart';
+import 'package:primea/model/match/player_turn.dart';
+import 'package:primea/tracker/paragon.dart';
 
 class MatchResults extends ChangeNotifier {
   Map<PlayerTurn, Map<Paragon, Map<Paragon, MatchResultsCount>>> _matchupCounts;

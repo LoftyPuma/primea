@@ -1,7 +1,7 @@
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:parallel_stats/main.dart';
+import 'package:primea/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OAuthProviderData {

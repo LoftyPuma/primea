@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:parallel_stats/modal/paragon_picker.dart';
-import 'package:parallel_stats/model/match/match_model.dart';
-import 'package:parallel_stats/model/match/match_result_option.dart';
-import 'package:parallel_stats/model/match/player_rank.dart';
-import 'package:parallel_stats/model/match/player_turn.dart';
-import 'package:parallel_stats/tracker/paragon.dart';
-import 'package:parallel_stats/tracker/paragon_avatar.dart';
-import 'package:parallel_stats/util/string.dart';
+import 'package:primea/modal/paragon_picker.dart';
+import 'package:primea/model/deck/deck.dart';
+import 'package:primea/model/match/match_model.dart';
+import 'package:primea/model/match/match_result_option.dart';
+import 'package:primea/model/match/player_rank.dart';
+import 'package:primea/model/match/player_turn.dart';
+import 'package:primea/tracker/paragon.dart';
+import 'package:primea/tracker/paragon_avatar.dart';
+import 'package:primea/util/string.dart';
 
 class MatchModal extends StatefulWidget {
   final MatchModel match;
+  final Iterable<Deck>? deckList;
 
   const MatchModal({
     super.key,
     required this.match,
+    this.deckList,
   });
 
   @override
@@ -28,11 +31,13 @@ class MatchModalState extends State<MatchModal> {
   late PlayerTurn playerTurn;
   late Set<MatchResultOption> result;
   late DateTime matchTime;
+  Deck? deck;
   Rank? rank;
 
   TextEditingController opponentUsernameController = TextEditingController();
   TextEditingController mmrDeltaController = TextEditingController();
   TextEditingController primeController = TextEditingController();
+  TextEditingController notesController = TextEditingController();
 
   @override
   void initState() {
@@ -44,7 +49,13 @@ class MatchModalState extends State<MatchModal> {
     opponentUsernameController.text = widget.match.opponentUsername ?? '';
     mmrDeltaController.text = widget.match.mmrDelta?.toString() ?? '';
     primeController.text = widget.match.primeEarned?.toString() ?? '';
+    notesController.text = widget.match.notes ?? '';
     rank = widget.match.opponentRank;
+    try {
+      // find the saved deck but ignore the StateError if it's not found
+      deck = widget.deckList
+          ?.singleWhere((deck) => deck.name == widget.match.deckName);
+    } on StateError catch (_) {}
     super.initState();
   }
 
@@ -80,16 +91,27 @@ class MatchModalState extends State<MatchModal> {
                       context: context,
                       builder: (context) {
                         return ParagonPicker(
+                          scrollController: ScrollController(),
+                          deckList: widget.deckList,
                           onParagonSelected: (paragon) {
                             setState(() {
                               this.paragon = paragon;
                             });
                             Navigator.pop(context);
                           },
+                          onDeckSelected: (deck) {
+                            setState(() {
+                              this.deck = deck;
+                            });
+                            Navigator.pop(context);
+                          },
                         );
                       },
                     ),
-                    icon: ParagonAvatar(paragon: paragon),
+                    icon: ParagonAvatar(
+                      paragon: paragon,
+                      deck: deck,
+                    ),
                   ),
                   const Text('VS'),
                   IconButton(
@@ -99,12 +121,14 @@ class MatchModalState extends State<MatchModal> {
                       context: context,
                       builder: (context) {
                         return ParagonPicker(
+                          scrollController: ScrollController(),
                           onParagonSelected: (paragon) {
                             setState(() {
                               opponentParagon = paragon;
                             });
                             Navigator.pop(context);
                           },
+                          onDeckSelected: (_) {},
                         );
                       },
                     ),
@@ -190,13 +214,13 @@ class MatchModalState extends State<MatchModal> {
                       ),
                     ),
                     onPressed: () async {
-                      final newDate = (await showDatePicker(
+                      final newDate = await showDatePicker(
                         context: context,
                         firstDate: DateTime(2022),
                         lastDate: DateTime.now(),
                         initialDate: matchTime.toLocal(),
-                      ))
-                          ?.toUtc();
+                      )
+                        ?..toUtc();
                       if (newDate != null) {
                         setState(() {
                           matchTime = DateTime(
@@ -229,6 +253,9 @@ class MatchModalState extends State<MatchModal> {
                         ),
                       ),
                     ),
+                    label: Text(
+                      DateFormat.jm().format(matchTime.toLocal()),
+                    ),
                     onPressed: () async {
                       final newTime = await showTimePicker(
                         context: context,
@@ -236,23 +263,22 @@ class MatchModalState extends State<MatchModal> {
                             TimeOfDay.fromDateTime(matchTime.toLocal()),
                       );
                       if (newTime != null) {
+                        var localTime = matchTime.toLocal();
+
                         setState(() {
                           matchTime = DateTime(
-                            matchTime.year,
-                            matchTime.month,
-                            matchTime.day,
+                            localTime.year,
+                            localTime.month,
+                            localTime.day,
                             newTime.hour,
                             newTime.minute,
-                            matchTime.second,
-                            matchTime.millisecond,
-                            matchTime.microsecond,
+                            localTime.second,
+                            localTime.millisecond,
+                            localTime.microsecond,
                           );
                         });
                       }
                     },
-                    label: Text(
-                      DateFormat.jm().format(matchTime.toLocal()),
-                    ),
                   ),
                 ],
               ),
@@ -279,6 +305,7 @@ class MatchModalState extends State<MatchModal> {
                 width: 500,
                 child: Wrap(
                   alignment: WrapAlignment.spaceEvenly,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
@@ -331,6 +358,46 @@ class MatchModalState extends State<MatchModal> {
                           decoration: const InputDecoration(
                             labelText: 'MMR',
                           ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Badge(
+                        label: Icon(
+                          Icons.note_add_rounded,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onError,
+                        ),
+                        isLabelVisible: notesController.text.isNotEmpty,
+                        child: TextButton.icon(
+                          icon: const Icon(Icons.notes),
+                          label: const Text("Notes"),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text("Match Notes"),
+                                  content: TextFormField(
+                                    maxLines: 4,
+                                    controller: notesController,
+                                    decoration: const InputDecoration(
+                                      hintText: 'Enter any notes here',
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text("Close"),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -410,6 +477,7 @@ class MatchModalState extends State<MatchModal> {
                             primeEarned: primeController.text.isEmpty
                                 ? null
                                 : double.tryParse(primeController.text),
+                            deckName: deck?.name,
                           ),
                         );
                       },

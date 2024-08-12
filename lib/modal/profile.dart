@@ -1,30 +1,43 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:parallel_stats/main.dart';
-import 'package:parallel_stats/modal/deck_import.dart';
-import 'package:parallel_stats/modal/oauth_button.dart';
-import 'package:parallel_stats/util/string.dart';
+import 'package:primea/main.dart';
+import 'package:primea/modal/deck_import.dart';
+import 'package:primea/modal/deck_preview.dart';
+import 'package:primea/modal/oauth_button.dart';
+import 'package:primea/model/deck/deck_model.dart';
+import 'package:primea/model/deck/sliver_deck_list.dart';
+import 'package:primea/util/string.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Profile extends StatefulWidget {
   final Session session;
+  final ScrollController scrollController;
+  final GlobalKey<SliverAnimatedGridState> gridKey;
+
+  final SliverDeckList decks;
 
   const Profile({
     super.key,
     required this.session,
+    required this.scrollController,
+    required this.gridKey,
+    required this.decks,
   });
 
   @override
-  State<Profile> createState() => _ProfileState();
+  State<Profile> createState() => ProfileState();
 }
 
-class _ProfileState extends State<Profile> {
+class ProfileState extends State<Profile> {
+  // Future<Iterable<Bond>> bonds = Bond.fetchAll();
+
+  bool settingsExpanded = false;
+
   final Future<List<UserIdentity>> userIdentities =
       supabase.auth.getUserIdentities();
 
-  _linkIdentity(BuildContext context, OAuthProvider provider) async {
+  Future<void> _linkIdentity(
+      BuildContext context, OAuthProvider provider) async {
     try {
       await supabase.auth.linkIdentity(
         provider,
@@ -83,7 +96,7 @@ class _ProfileState extends State<Profile> {
     }
   }
 
-  _unlinkIdentity(
+  Future<void> _unlinkIdentity(
     BuildContext context,
     OAuthProvider provider,
     UserIdentity identity,
@@ -184,22 +197,48 @@ class _ProfileState extends State<Profile> {
     }
   }
 
-  // _getDeck(String name) async {
-  //   await supabase.from('decks').select('').inFilter(column, value)
-  //   await supabase.from('card_functions').select('').inFilter(column, value)
-  // }
+  @override
+  void initState() {
+    super.initState();
+    // decks = widget.decks;
+    // deckList = SliverDeckList(
+    //   listKey: _gridKey,
+    //   removedItemBuilder: (item, context, animation) {
+    //     return ScaleTransition(
+    //       scale: animation,
+    //       child: DeckPreview(
+    //         key: ValueKey(item.name),
+    //         deck: item,
+    //         onUpdate: (_) {},
+    //         onDelete: () {},
+    //       ),
+    //     );
+    //   },
+    // );
+    // decks.then((futureDecks) {
+    //   setState(() {
+    //     deckList.insertAll(0, futureDecks);
+    //   });
+    // });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final currentUser = supabase.auth.currentUser;
-    return SingleChildScrollView(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        constraints: const BoxConstraints(minWidth: 450),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, right: 8),
+      child: CustomScrollView(
+        controller: widget.scrollController,
+        shrinkWrap: true,
+        slivers: [
+          SliverToBoxAdapter(
+            // greeting
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
@@ -223,267 +262,316 @@ class _ProfileState extends State<Profile> {
                 ),
               ],
             ),
-            // bond(s) the user is a member of
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.spaceAround,
-                children: [
-                  const Chip(label: Text("ParagonsDAO")),
-                  const Chip(label: Text("YGG")),
-                  ...[
-                    Badge(
-                      offset: const Offset(-25, -8),
-                      label: const Text("pending"),
-                      child: ActionChip(
-                        avatar: const Icon(Icons.info),
-                        side: const BorderSide(style: BorderStyle.none),
-                        label: const Text(
-                          "EXILE",
-                        ),
-                        onPressed: () {
-                          print("examine bond");
-                        },
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            FutureBuilder(
-              future: userIdentities,
-              builder: (context, snapshot) {
-                List<Widget> children;
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                  case ConnectionState.waiting:
-                  case ConnectionState.active:
-                    children = OAuthButton.providers.entries.map(
-                      (entry) {
-                        final provider = entry.key;
-                        final data = entry.value;
-                        return OutlinedButton.icon(
-                          icon: Image.asset(data.icon, width: 24, height: 24),
-                          label: Text(provider.name.toTitleCase()),
-                          onPressed: null,
-                        );
-                      },
-                    ).toList();
-                  case ConnectionState.done:
-                    if (snapshot.hasError) {
-                      children = const [
-                        Text(
-                          'Error loading identities. Please refresh the page.',
-                        )
-                      ];
-                    } else if (snapshot.hasData) {
-                      children = List.generate(
-                        OAuthButton.providers.length,
-                        (index) {
-                          final provider =
-                              OAuthButton.providers.keys.elementAt(index);
-                          final data = OAuthButton.providers[provider]!;
-                          final identityIndex = snapshot.data!
-                              .indexWhere((id) => id.provider == provider.name);
+          ),
 
-                          if (identityIndex == -1) {
-                            return OutlinedButton.icon(
-                              icon:
-                                  Image.asset(data.icon, width: 24, height: 24),
-                              label: Text(
-                                  "Connect ${provider.name.toTitleCase()}"),
-                              onPressed: () async {
-                                await _linkIdentity(context, provider);
+          // bonds the user is a part of or was invited to
+          // SliverToBoxAdapter(
+          //   child: FutureBuilder(
+          //     future: bonds,
+          //     builder: (context, snapshot) {
+          //       Widget child;
+          //       if (snapshot.hasError ||
+          //           (snapshot.connectionState == ConnectionState.done &&
+          //               !snapshot.hasData)) {
+          //         child = InkWell(
+          //           key: const ValueKey("retry"),
+          //           borderRadius: BorderRadius.circular(20),
+          //           onTap: () {
+          //             setState(() {
+          //               decks = _fetchDecks();
+          //             });
+          //           },
+          //           child: Column(
+          //             mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //             children: [
+          //               const Icon(Icons.error),
+          //               const Text("Retry"),
+          //               Text(
+          //                 snapshot.error?.toString() ?? "Failed to load decks",
+          //                 style: Theme.of(context).textTheme.bodySmall,
+          //               ),
+          //             ],
+          //           ),
+          //         );
+          //       } else if (snapshot.connectionState != ConnectionState.done) {
+          //         child = const Column(
+          //           key: ValueKey("loading"),
+          //           mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //           children: [
+          //             CircularProgressIndicator(),
+          //             Text("Loading decks..."),
+          //           ],
+          //         );
+          //       }
+
+          //       if (!snapshot.hasData) {
+          //         child = Container();
+          //       } else {
+          //         child = const Wrap(
+          //           spacing: 8,
+          //           runSpacing: 8,
+          //           alignment: WrapAlignment.spaceAround,
+
+          //           // children: [
+          //           //   const Chip(label: Text("ParagonsDAO")),
+          //           //   const Chip(label: Text("YGG")),
+          //           //   ...[
+          //           //     Badge(
+          //           //       offset: const Offset(-25, -8),
+          //           //       label: const Text("pending"),
+          //           //       child: ActionChip(
+          //           //         avatar: const Icon(Icons.info),
+          //           //         side: const BorderSide(style: BorderStyle.none),
+          //           //         label: const Text(
+          //           //           "EXILE",
+          //           //         ),
+          //           //         onPressed: () {
+          //           //           print("examine bond");
+          //           //         },
+          //           //       ),
+          //           //     ),
+          //           //   ],
+          //           // ],
+          //         );
+          //       }
+
+          //       return AnimatedScale(
+          //         scale: snapshot.hasData && snapshot.data!.isNotEmpty ? 1 : 0,
+          //         duration: const Duration(milliseconds: 250),
+          //         child: Padding(
+          //           padding: const EdgeInsets.only(bottom: 16),
+          //           child: child,
+          //         ),
+          //       );
+          //     },
+          //   ),
+          // ),
+
+          // user settings
+          SliverPadding(
+            padding: const EdgeInsets.only(bottom: 16),
+            sliver: SliverToBoxAdapter(
+              child: ExpansionTile(
+                initiallyExpanded: false,
+                leading: const Icon(Icons.settings),
+                title: const Text("Settings"),
+                expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // OutlinedButton.icon(
+                  //   icon: const Icon(Icons.upload_file),
+                  //   label: const Text("Import CSV"),
+                  //   onPressed: () async {
+                  //     final importedMatches =
+                  //         await showDialog<List<MatchModel>>(
+                  //       context: context,
+                  //       builder: (context) => const Dialog(
+                  //         child: Import(),
+                  //       ),
+                  //     );
+                  //     if (importedMatches != null) {
+                  //       await matchList.addAll(importedMatches);
+                  //       if (mounted) {
+                  //         // ignore: use_build_context_synchronously
+                  //         ScaffoldMessenger.of(context).showSnackBar(
+                  //           SnackBar(
+                  //             showCloseIcon: true,
+                  //             content: Text(
+                  //               "Imported ${importedMatches.length} matches.",
+                  //             ),
+                  //           ),
+                  //         );
+                  //       }
+                  //     }
+                  //   },
+                  // ),
+                  FutureBuilder(
+                    future: userIdentities,
+                    builder: (context, snapshot) {
+                      List<Widget> children;
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.none:
+                        case ConnectionState.waiting:
+                        case ConnectionState.active:
+                          children = OAuthButton.providers.entries.map(
+                            (entry) {
+                              final provider = entry.key;
+                              final data = entry.value;
+                              return OutlinedButton.icon(
+                                icon: Image.asset(data.icon,
+                                    width: 24, height: 24),
+                                label: Text(provider.name.toTitleCase()),
+                                onPressed: null,
+                              );
+                            },
+                          ).toList();
+                        case ConnectionState.done:
+                          if (snapshot.hasError) {
+                            children = const [
+                              Text(
+                                'Error loading identities. Please refresh the page.',
+                              )
+                            ];
+                          } else if (snapshot.hasData) {
+                            children = List.generate(
+                              OAuthButton.providers.length,
+                              (index) {
+                                final provider =
+                                    OAuthButton.providers.keys.elementAt(index);
+                                final data = OAuthButton.providers[provider]!;
+                                final identityIndex = snapshot.data!.indexWhere(
+                                    (id) => id.provider == provider.name);
+
+                                if (identityIndex == -1) {
+                                  return OutlinedButton.icon(
+                                    icon: Image.asset(data.icon,
+                                        width: 24, height: 24),
+                                    label: Text(
+                                        "Connect ${provider.name.toTitleCase()}"),
+                                    onPressed: () async {
+                                      await _linkIdentity(context, provider);
+                                    },
+                                  );
+                                } else {
+                                  final identity =
+                                      snapshot.data![identityIndex];
+                                  return FilledButton.icon(
+                                    label: Text(
+                                      identity.identityData?['name'] ??
+                                          identity.identityData?['email'] ??
+                                          provider.name.toTitleCase(),
+                                    ),
+                                    icon: Image.asset(data.icon,
+                                        width: 24, height: 24),
+                                    onPressed: snapshot.data!.length <= 1
+                                        ? null
+                                        : () async {
+                                            await _unlinkIdentity(
+                                              context,
+                                              provider,
+                                              snapshot.data![identityIndex],
+                                            );
+                                          },
+                                  );
+                                }
                               },
+                              growable: false,
                             );
                           } else {
-                            final identity = snapshot.data![identityIndex];
-                            return FilledButton.icon(
-                              label: Text(
-                                identity.identityData?['name'] ??
-                                    identity.identityData?['email'] ??
-                                    provider.name.toTitleCase(),
-                              ),
-                              icon:
-                                  Image.asset(data.icon, width: 24, height: 24),
-                              onPressed: snapshot.data!.length <= 1
-                                  ? null
-                                  : () async {
-                                      await _unlinkIdentity(
-                                        context,
-                                        provider,
-                                        snapshot.data![identityIndex],
-                                      );
-                                    },
-                            );
-                          }
-                        },
-                        growable: false,
-                      );
-                    } else {
-                      children = OAuthButton.providers.entries.map(
-                        (entry) {
-                          final provider = entry.key;
-                          final data = entry.value;
-                          return OutlinedButton.icon(
-                            icon: Image.asset(data.icon, width: 24, height: 24),
-                            label: Text(provider.name.toTitleCase()),
-                            onPressed: () async {
-                              await _linkIdentity(context, provider);
-                            },
-                          );
-                        },
-                      ).toList();
-                    }
-                }
-                return Padding(
-                  padding: const EdgeInsets.only(top: 16, bottom: 16),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: children,
-                  ),
-                );
-              },
-            ),
-            // user's saved decks
-            Center(
-              child: Wrap(
-                direction: Axis.horizontal,
-                spacing: 16,
-                runSpacing: 16,
-                alignment: WrapAlignment.spaceAround,
-                children: [
-                  SizedBox(
-                    width: 150,
-                    child: AspectRatio(
-                      aspectRatio: 3 / 4,
-                      child: Card(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: InkWell(
-                          onTap: () async {
-                            await showDialog(
-                              context: context,
-                              builder: (context) {
-                                return Dialog(
-                                  child: DeckImportModal(onImport: () {}),
+                            children = OAuthButton.providers.entries.map(
+                              (entry) {
+                                final provider = entry.key;
+                                final data = entry.value;
+                                return OutlinedButton.icon(
+                                  icon: Image.asset(data.icon,
+                                      width: 24, height: 24),
+                                  label: Text(provider.name.toTitleCase()),
+                                  onPressed: () async {
+                                    await _linkIdentity(context, provider);
+                                  },
                                 );
                               },
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(16),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Positioned(
-                                  bottom: 1,
-                                  child: Text(
-                                    "New Deck",
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                ),
-                                const Icon(Icons.add, size: 48),
-                              ],
-                            ),
-                          ),
+                            ).toList();
+                          }
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 16, bottom: 16),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: children,
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                  SizedBox(
-                    width: 150,
-                    child: AspectRatio(
-                      aspectRatio: 3 / 4,
-                      child: Card(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Positioned(
-                                top: 1,
-                                left: 1,
-                                child: Text(
-                                  "22 units\n10 effects\n2 relics\n1 upgrade",
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 1,
-                                left: 1,
-                                child: Text(
-                                  "BURN BABY BURN\nCatherine LaPointe",
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text("Streamer Mode"),
                       ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 150,
-                    child: AspectRatio(
-                      aspectRatio: 3 / 4,
-                      child: Card(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Positioned(
-                                top: 1,
-                                left: 1,
-                                child: Text(
-                                  "22 units\n10 effects\n2 relics\n1 upgrade",
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 1,
-                                left: 1,
-                                child: Text(
-                                  "BURN BABY BURN\nCatherine LaPointe",
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      Switch(
+                        value: currentUser?.userMetadata?['streamer_mode'] ??
+                            false,
+                        onChanged: (value) async {
+                          await supabase.auth.updateUser(UserAttributes(
+                            data: {
+                              "streamer_mode": value,
+                            },
+                          ));
+                          setState(() {});
+                        },
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+
+          // user's saved decks
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextButton.icon(
+                icon: const Icon(Icons.add),
+                label: const Text("New Deck"),
+                onPressed: () async {
+                  final newDeckModel = await showDialog<DeckModel>(
+                    context: context,
+                    builder: (context) {
+                      return const Dialog(
+                        child: DeckImportModal(),
+                      );
+                    },
+                  );
+                  if (newDeckModel != null) {
+                    final newDeck = await newDeckModel.toDeck();
+                    setState(() {
+                      widget.decks.insert(0, newDeck);
+                    });
+                  }
+                },
+              ),
+            ),
+          ),
+          ListenableBuilder(
+            listenable: widget.decks,
+            builder: (context, child) {
+              return SliverAnimatedGrid(
+                key: widget.gridKey,
+                initialItemCount: widget.decks.length,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 200,
+                  childAspectRatio: 3 / 4,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                ),
+                itemBuilder: (context, index, animation) {
+                  if (index > (widget.decks.length)) {
+                    return Container();
+                  }
+                  final deck = widget.decks[index];
+                  return ScaleTransition(
+                    scale: animation,
+                    child: DeckPreview(
+                      key: ValueKey(deck.name),
+                      deck: deck,
+                      onUpdate: (updatedDeck) async {
+                        widget.decks.removeAt(index);
+                        Future.delayed(const Duration(milliseconds: 250), () {
+                          widget.decks.insert(0, updatedDeck);
+                        });
+                      },
+                      onDelete: () {
+                        widget.decks.removeAt(index);
+                      },
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 }
-
-// 380,214,621,611,713,385,653,237,236,218,232,691,602,82,204,613,386,213,616
