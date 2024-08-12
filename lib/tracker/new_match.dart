@@ -10,7 +10,6 @@ import 'package:primea/model/match/player_turn.dart';
 import 'package:primea/snack/basic.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/parallel_avatar.dart';
-import 'package:primea/util/string.dart';
 
 class NewMatch extends StatefulWidget {
   final Paragon chosenParagon;
@@ -175,7 +174,7 @@ class _NewMatchState extends State<NewMatch> {
                             .map(
                               (rank) => DropdownMenuItem<Rank>(
                                 value: rank,
-                                child: Text(rank.name.toTitleCase()),
+                                child: Text(rank.title),
                               ),
                             )
                             .toList(),
@@ -364,7 +363,7 @@ class _NewMatchState extends State<NewMatch> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         BasicSnack(
                           content: Text(
-                            "Saving ${selection.first.name} vs ${chosenParagon.title.isEmpty ? chosenParagon.name.toTitleCase() : chosenParagon.title}",
+                            "Saving ${selection.first.name} vs ${chosenParagon.title.isEmpty ? chosenParagon.name : chosenParagon.title}",
                           ),
                         ),
                       );

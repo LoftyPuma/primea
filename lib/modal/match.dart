@@ -9,7 +9,6 @@ import 'package:primea/model/match/player_rank.dart';
 import 'package:primea/model/match/player_turn.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/paragon_avatar.dart';
-import 'package:primea/util/string.dart';
 
 class MatchModal extends StatefulWidget {
   final MatchModel match;
@@ -333,7 +332,7 @@ class MatchModalState extends State<MatchModal> {
                             .map(
                               (rank) => DropdownMenuItem<Rank>(
                                 value: rank,
-                                child: Text(rank.name.toTitleCase()),
+                                child: Text(rank.title),
                               ),
                             )
                             .toList(),
@@ -454,7 +453,7 @@ class MatchModalState extends State<MatchModal> {
                           SnackBar(
                             showCloseIcon: true,
                             content: Text(
-                              "Saving ${currentPlayer.toTitleCase()} ${result.first.name} vs ${opponent.toTitleCase()}",
+                              "Saving $currentPlayer ${result.first.name} vs $opponent",
                             ),
                           ),
                         );

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 
 enum ParallelType {
-  universal(color: Colors.white70),
-  augencore(color: Color(0xFFFF7432)),
-  earthen(color: Color(0xFF49BC31)),
-  kathari(color: Color(0xFF1E90DD)),
-  marcolian(color: Color(0xFFE20A1A)),
-  shroud(color: Color(0xFF6438C6));
+  universal(title: 'Universal', color: Colors.white70),
+  augencore(title: 'Augencore', color: Color(0xFFFF7432)),
+  earthen(title: 'Earthen', color: Color(0xFF49BC31)),
+  kathari(title: 'Kathari', color: Color(0xFF1E90DD)),
+  marcolian(title: 'Marcolian', color: Color(0xFFE20A1A)),
+  shroud(title: 'Shroud', color: Color(0xFF6438C6));
 
   const ParallelType({
+    required this.title,
     required this.color,
   });
 
   final Color color;
+  final String title;
 
   Paragon get paragon {
     switch (this) {

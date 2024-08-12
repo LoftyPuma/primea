@@ -6,7 +6,6 @@ import 'package:primea/model/match/match_result_option.dart';
 import 'package:primea/model/match/player_rank.dart';
 import 'package:primea/snack/basic.dart';
 import 'package:primea/tracker/paragon_stack.dart';
-import 'package:primea/util/string.dart';
 
 class Match extends StatelessWidget {
   final MatchModel match;
@@ -53,7 +52,7 @@ class Match extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     BasicSnack(
                       content: Text(
-                          "Deleting ${currentPlayer.toTitleCase()} ${match.result.name} vs ${opponent.toTitleCase()}"),
+                          "Deleting $currentPlayer ${match.result.name} vs $opponent"),
                     ),
                   );
                   onDelete!(context);
@@ -216,7 +215,7 @@ class Match extends StatelessWidget {
               right: match.opponentRank!.index <= Rank.platinum.index ? 6 : 0,
             ),
             child: Tooltip(
-              message: match.opponentRank?.name.toTitleCase(),
+              message: match.opponentRank?.title,
               child: Image.asset(
                 "assets/ranks/${match.opponentRank?.name}.png",
                 fit: BoxFit.contain,

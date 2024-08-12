@@ -7,7 +7,6 @@ import 'package:primea/model/match/player_turn.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/paragon_avatar.dart';
 import 'package:primea/tracker/progress_card.dart';
-import 'package:primea/util/string.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({
@@ -158,7 +157,7 @@ class _DashboardState extends State<Dashboard>
                                         )
                                         .toList(),
                                     child: Text(
-                                      element.name.toTitleCase(),
+                                      element.title,
                                     ),
                                   ),
                                 ),
@@ -216,7 +215,7 @@ class _DashboardState extends State<Dashboard>
                                         )
                                         .toList(),
                                     child: Text(
-                                      element.name.toTitleCase(),
+                                      element.title,
                                     ),
                                   ),
                                 ),
@@ -260,7 +259,7 @@ class _DashboardState extends State<Dashboard>
                           backgroundColor: selectedParagon?.parallel.color,
                         ),
                         label: Text(
-                            "You: ${selectedParagon!.title.isEmpty ? selectedParagon!.name.toTitleCase() : selectedParagon!.title}"),
+                            "You: ${selectedParagon!.title.isEmpty ? selectedParagon!.name : selectedParagon!.title}"),
                         onDeleted: () {
                           setState(() {
                             selectedParagon = null;
@@ -273,7 +272,7 @@ class _DashboardState extends State<Dashboard>
                           backgroundColor: opponentParagon?.parallel.color,
                         ),
                         label: Text(
-                            "Opponent: ${opponentParagon!.title.isEmpty ? opponentParagon!.name.toTitleCase() : opponentParagon!.title}"),
+                            "Opponent: ${opponentParagon!.title.isEmpty ? opponentParagon!.name : opponentParagon!.title}"),
                         onDeleted: () {
                           setState(() {
                             opponentParagon = null;

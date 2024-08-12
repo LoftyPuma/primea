@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:primea/model/deck/deck.dart';
 import 'package:primea/model/deck/mini_deck.dart';
 import 'package:primea/tracker/paragon.dart';
-import 'package:primea/util/string.dart';
 import 'package:vector_graphics/vector_graphics.dart';
 
 class ParagonAvatar extends StatelessWidget {
@@ -61,7 +60,7 @@ class ParagonAvatar extends StatelessWidget {
                     const TextSpan(text: '\n'),
                   if (paragon.parallel.name != ParallelType.universal.name)
                     TextSpan(
-                      text: paragon.parallel.name.toTitleCase(),
+                      text: paragon.parallel.title,
                     ),
                 ],
               )

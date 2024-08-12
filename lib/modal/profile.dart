@@ -6,7 +6,6 @@ import 'package:primea/modal/deck_preview.dart';
 import 'package:primea/modal/oauth_button.dart';
 import 'package:primea/model/deck/deck_model.dart';
 import 'package:primea/model/deck/sliver_deck_list.dart';
-import 'package:primea/util/string.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Profile extends StatefulWidget {
@@ -49,10 +48,10 @@ class ProfileState extends State<Profile> {
           builder: (context) {
             return AlertDialog(
               title: Text(
-                "Connected ${provider.name.toTitleCase()}",
+                "Connected ${provider.name}",
               ),
               content: Text(
-                "You have successfully connected your ${provider.name.toTitleCase()} account to Primea.World.",
+                "You have successfully connected your ${provider.name} account to Primea.World.",
               ),
               actions: [
                 TextButton(
@@ -76,10 +75,10 @@ class ProfileState extends State<Profile> {
           builder: (context) {
             return AlertDialog(
               title: Text(
-                "Failed to connect ${provider.name.toTitleCase()}",
+                "Failed to connect ${provider.name}",
               ),
               content: Text(
-                "There was an error connecting to ${provider.name.toTitleCase()}. ${e.toString()}",
+                "There was an error connecting to ${provider.name}. ${e.toString()}",
               ),
               actions: [
                 TextButton(
@@ -110,9 +109,9 @@ class ProfileState extends State<Profile> {
               Icons.warning,
               color: Colors.red,
             ),
-            title: Text("Disconnect ${provider.name.toTitleCase()}"),
+            title: Text("Disconnect ${provider.name}"),
             content: Text(
-              "Are you sure you want to disconnect your ${provider.name.toTitleCase()} account? You will not be able to login to Primea.World with ${provider.name.toTitleCase()} unless you reconnect your account.",
+              "Are you sure you want to disconnect your ${provider.name} account? You will not be able to login to Primea.World with ${provider.name} unless you reconnect your account.",
             ),
             actionsAlignment: MainAxisAlignment.spaceBetween,
             actions: [
@@ -149,10 +148,10 @@ class ProfileState extends State<Profile> {
             builder: (context) {
               return AlertDialog(
                 title: Text(
-                  "Connected ${provider.name.toTitleCase()}",
+                  "Disconnected ${provider.name}",
                 ),
                 content: Text(
-                  "You have successfully connected your ${provider.name.toTitleCase()} account to Primea.World.",
+                  "You have successfully disconnected your ${provider.name} account from Primea.World.",
                 ),
                 actions: [
                   TextButton(
@@ -177,10 +176,10 @@ class ProfileState extends State<Profile> {
           builder: (context) {
             return AlertDialog(
               title: Text(
-                "Failed to unlink ${provider.name.toTitleCase()}",
+                "Failed to unlink ${provider.name}",
               ),
               content: Text(
-                "There was an error unlinking to ${provider.name.toTitleCase()}. ${e.toString()}",
+                "There was an error unlinking to ${provider.name}. ${e.toString()}",
               ),
               actions: [
                 TextButton(
@@ -399,7 +398,7 @@ class ProfileState extends State<Profile> {
                               return OutlinedButton.icon(
                                 icon: Image.asset(data.icon,
                                     width: 24, height: 24),
-                                label: Text(provider.name.toTitleCase()),
+                                label: Text(provider.name),
                                 onPressed: null,
                               );
                             },
@@ -425,8 +424,7 @@ class ProfileState extends State<Profile> {
                                   return OutlinedButton.icon(
                                     icon: Image.asset(data.icon,
                                         width: 24, height: 24),
-                                    label: Text(
-                                        "Connect ${provider.name.toTitleCase()}"),
+                                    label: Text("Connect ${provider.name}"),
                                     onPressed: () async {
                                       await _linkIdentity(context, provider);
                                     },
@@ -438,7 +436,7 @@ class ProfileState extends State<Profile> {
                                     label: Text(
                                       identity.identityData?['name'] ??
                                           identity.identityData?['email'] ??
-                                          provider.name.toTitleCase(),
+                                          provider.name,
                                     ),
                                     icon: Image.asset(data.icon,
                                         width: 24, height: 24),
@@ -464,7 +462,7 @@ class ProfileState extends State<Profile> {
                                 return OutlinedButton.icon(
                                   icon: Image.asset(data.icon,
                                       width: 24, height: 24),
-                                  label: Text(provider.name.toTitleCase()),
+                                  label: Text(provider.name),
                                   onPressed: () async {
                                     await _linkIdentity(context, provider);
                                   },

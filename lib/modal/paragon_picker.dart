@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:primea/model/deck/deck.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/parallel_avatar.dart';
-import 'package:primea/util/string.dart';
 
 class ParagonPicker extends StatelessWidget {
   final ScrollController scrollController;
@@ -110,8 +109,7 @@ class ParagonPicker extends StatelessWidget {
                                           const TextSpan(text: '\n'),
                                         if (mappedDeck.isUniversal)
                                           TextSpan(
-                                            text: ParallelType.universal.name
-                                                .toTitleCase(),
+                                            text: ParallelType.universal.title,
                                           ),
                                       ],
                                     ),

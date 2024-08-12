@@ -11,7 +11,6 @@ import 'package:primea/model/match/match_model.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/progress_card.dart';
 import 'package:primea/tracker/quick_add.dart';
-import 'package:primea/util/string.dart';
 
 class DummyAccount extends StatefulWidget {
   final Paragon chosenParagon;
@@ -198,7 +197,7 @@ class _DummyAccountState extends State<DummyAccount> {
                                 SnackBar(
                                   showCloseIcon: true,
                                   content: Text(
-                                    "Saving match: ${currentPlayer.toTitleCase()} vs ${opponent.toTitleCase()}",
+                                    "Saving match: $currentPlayer vs $opponent",
                                   ),
                                 ),
                               );
