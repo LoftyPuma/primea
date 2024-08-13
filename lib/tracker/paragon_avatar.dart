@@ -105,8 +105,8 @@ class ParagonAvatar extends StatelessWidget {
                   ),
                 ),
               if (paragon.image != null)
-                Image.asset(
-                  paragon.image!,
+                Image(
+                  image: ResizeImage(AssetImage(paragon.image!), width: 64),
                   width: 64,
                   height: 64,
                 ),

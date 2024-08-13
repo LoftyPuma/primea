@@ -1,4 +1,3 @@
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:primea/dashboard/number_card.dart';
 import 'package:primea/model/match/inherited_match_list.dart';
@@ -7,6 +6,7 @@ import 'package:primea/model/match/player_turn.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/paragon_avatar.dart';
 import 'package:primea/tracker/progress_card.dart';
+import 'package:primea/util/analytics.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({
@@ -45,7 +45,7 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    Aptabase.instance.trackEvent("load", {"page": "dashboard"});
+    Analytics.instance.trackEvent("load", {"page": "dashboard"});
 
     final matchList = InheritedMatchList.of(context);
     final matchResults = InheritedMatchResults.of(context);

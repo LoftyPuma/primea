@@ -1,4 +1,3 @@
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:primea/dashboard/dashboard.dart';
@@ -22,6 +21,7 @@ import 'package:primea/tracker/account.dart';
 import 'package:primea/tracker/dummy_account.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/paragon_avatar.dart';
+import 'package:primea/util/analytics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vector_graphics/vector_graphics.dart';
 
@@ -60,7 +60,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   int deckCount = 0;
 
   handleAuthStateChange(AuthState data) async {
-    Aptabase.instance.trackEvent(
+    Analytics.instance.trackEvent(
       "authStateChanged",
       {"event": data.event.name},
     );
@@ -82,28 +82,31 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       }
     });
     if (session != null && !session!.isExpired) {
+      DateTime matchStart = DateTime.now(), resultsStart = DateTime.now();
       try {
         if (matchResults.isEmpty) {
           Future(() async {
-            final start = DateTime.now();
+            matchStart = DateTime.now();
             await matchResults.init();
-            Aptabase.instance.trackEvent("initializeMatchResults", {
-              "duration": DateTime.now().difference(start).inMilliseconds,
-            });
           });
         }
         if (matchList.isEmpty) {
           Future(() async {
-            final start = DateTime.now();
+            resultsStart = DateTime.now();
             await matchList.init();
-            Aptabase.instance.trackEvent("initializeMatchList", {
-              "duration": DateTime.now().difference(start).inMilliseconds,
-            });
           });
         }
       } catch (e) {
-        Aptabase.instance.trackEvent("homeInitError", {
+        Analytics.instance.trackEvent("homeInitError", {
           "error": e.toString(),
+        });
+      } finally {
+        Analytics.instance.trackEvent("initializeMatchResults", {
+          "duration": DateTime.now().difference(matchStart).inMilliseconds,
+        });
+
+        Analytics.instance.trackEvent("initializeMatchList", {
+          "duration": DateTime.now().difference(resultsStart).inMilliseconds,
         });
       }
     }
@@ -161,7 +164,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    Aptabase.instance.trackEvent("load", {"page": "home"});
+    Analytics.instance.trackEvent("load", {"page": "home"});
 
     return InheritedSession(
       session: session,

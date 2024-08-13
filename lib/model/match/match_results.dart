@@ -1,10 +1,10 @@
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:primea/main.dart';
 import 'package:primea/model/match/match_model.dart';
 import 'package:primea/model/match/match_result.dart';
 import 'package:primea/model/match/player_turn.dart';
 import 'package:primea/tracker/paragon.dart';
+import 'package:primea/util/analytics.dart';
 
 class MatchResults extends ChangeNotifier {
   Map<PlayerTurn, Map<Paragon, Map<Paragon, MatchResultsCount>>> _matchupCounts;
@@ -29,7 +29,7 @@ class MatchResults extends ChangeNotifier {
       initialized = true;
       notifyListeners();
     } on Error catch (e) {
-      Aptabase.instance.trackEvent("initError", {
+      Analytics.instance.trackEvent("initError", {
         "error": e.toString(),
         "class": "matchResults",
         "stackTrace": e.stackTrace.toString(),

@@ -72,32 +72,6 @@ class Deck {
     return deck;
   }
 
-  // static Future<Deck> fromString(String name, String deckCode) async {
-  //   final List<int> parsedCodes = List.empty(growable: true);
-  //   final List<String> deck = deckCode.split(',');
-
-  //   for (var card in deck) {
-  //     final parts = card.split(CardFunction.cardPrefix);
-  //     final count = parts[0].isEmpty ? 1 : int.parse(parts[0].substring(0, 1));
-  //     final cardId = int.parse(parts[1].split(':')[0]);
-  //     parsedCodes.addAll(List.filled(count, cardId));
-  //   }
-  //   await supabase.from(deckTableName).insert({
-  //     'name': name,
-  //     'cards': parsedCodes,
-  //   });
-
-  //   final cardFunctionsJson = await supabase
-  //       .from(CardFunction.cardFunctionTableName)
-  //       .select()
-  //       .inFilter('id', parsedCodes);
-
-  //   final cardFunctions =
-  //       cardFunctionsJson.map((json) => CardFunction.fromJson(json));
-
-  //   return Deck(name: name, cards: cardFunctions);
-  // }
-
   String toCode() {
     final Iterable<String> cardCodes = cards.entries.map((entry) {
       final card = entry.key;

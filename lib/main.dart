@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:primea/home.dart';
 import 'package:primea/inherited_session.dart';
+import 'package:primea/util/analytics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const errorTable = 'errors';
@@ -23,9 +23,6 @@ Future<void> main() async {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-
-      // Initialize Aptabase
-      await Aptabase.init("A-US-4436493161");
 
       // Initialize Supabase
       await Supabase.initialize(
@@ -72,7 +69,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Aptabase.instance.trackEvent("load", {"page": "main"});
+    Analytics.instance.trackEvent("load", {"page": "main"});
 
     final theme = ThemeData(
       useMaterial3: true,

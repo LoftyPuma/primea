@@ -216,8 +216,13 @@ class Match extends StatelessWidget {
             ),
             child: Tooltip(
               message: match.opponentRank?.title,
-              child: Image.asset(
-                "assets/ranks/${match.opponentRank?.name}.png",
+              child: Image(
+                image: ResizeImage(
+                  AssetImage(
+                    "assets/ranks/${match.opponentRank?.name}.png",
+                  ),
+                  width: 104,
+                ),
                 fit: BoxFit.contain,
               ),
             ),

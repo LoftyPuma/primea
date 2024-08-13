@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -9,6 +8,7 @@ import 'package:primea/model/match/match_model.dart';
 import 'package:primea/model/match/match_result_option.dart';
 import 'package:primea/model/match/match_results.dart';
 import 'package:primea/tracker/match.dart';
+import 'package:primea/util/analytics.dart';
 
 class MatchList extends ChangeNotifier {
   final MatchResults matchResults;
@@ -133,7 +133,7 @@ class MatchList extends ChangeNotifier {
       initialized = true;
       notifyListeners();
     } on Error catch (e) {
-      Aptabase.instance.trackEvent("initError", {
+      Analytics.instance.trackEvent("initError", {
         "error": e.toString(),
         "class": "matchList",
         "stackTrace": e.stackTrace.toString(),

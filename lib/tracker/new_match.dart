@@ -1,4 +1,3 @@
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:primea/model/deck/deck.dart';
@@ -10,6 +9,7 @@ import 'package:primea/model/match/player_turn.dart';
 import 'package:primea/snack/basic.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/parallel_avatar.dart';
+import 'package:primea/util/analytics.dart';
 
 class NewMatch extends StatefulWidget {
   final Paragon chosenParagon;
@@ -395,7 +395,7 @@ class _NewMatchState extends State<NewMatch> {
                         _mmrController.clear();
                         _primeController.clear();
                       });
-                      Aptabase.instance.trackEvent("createMatch", {
+                      Analytics.instance.trackEvent("createMatch", {
                         "duration":
                             DateTime.now().difference(start).inMilliseconds,
                       });

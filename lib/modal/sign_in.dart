@@ -1,8 +1,8 @@
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:primea/main.dart';
 import 'package:primea/modal/oauth_button.dart';
+import 'package:primea/util/analytics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignInModal extends StatefulWidget {
@@ -246,7 +246,7 @@ class SignInModalState extends State<SignInModal> {
                           password: _passwordController.text,
                           email: _emailController.text,
                         );
-                        Aptabase.instance.trackEvent("signIn", {
+                        Analytics.instance.trackEvent("signIn", {
                           "provider": "email",
                         });
                         if (context.mounted) {

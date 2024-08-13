@@ -1,4 +1,3 @@
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:primea/modal/match.dart';
 import 'package:primea/model/deck/deck.dart';
@@ -12,6 +11,7 @@ import 'package:primea/tracker/new_match.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/paragon_stack.dart';
 import 'package:primea/tracker/session_summary.dart';
+import 'package:primea/util/analytics.dart';
 
 class Account extends StatefulWidget {
   final GlobalKey<AnimatedListState> listKey;
@@ -72,7 +72,7 @@ class _AccountState extends State<Account> {
 
   @override
   Widget build(BuildContext context) {
-    Aptabase.instance.trackEvent("load", {"page": "account"});
+    Analytics.instance.trackEvent("load", {"page": "account"});
     final matchResults = InheritedMatchResults.of(context);
     final matchList = InheritedMatchList.of(context);
 
@@ -200,7 +200,7 @@ class _AccountState extends State<Account> {
                                   updatedMatch.id != null) {
                                 await matchList.update(updatedMatch);
                               }
-                              Aptabase.instance.trackEvent("updateMatch", {
+                              Analytics.instance.trackEvent("updateMatch", {
                                 "duration": DateTime.now()
                                     .difference(start)
                                     .inMilliseconds,
@@ -210,7 +210,7 @@ class _AccountState extends State<Account> {
                               final start = DateTime.now();
                               final removed = await matchList.remove(match);
                               matchResults.removeMatch(removed);
-                              Aptabase.instance.trackEvent("deleteMatch", {
+                              Analytics.instance.trackEvent("deleteMatch", {
                                 "duration": DateTime.now()
                                     .difference(start)
                                     .inMilliseconds,

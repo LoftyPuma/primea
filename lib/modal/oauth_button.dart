@@ -1,7 +1,7 @@
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:primea/main.dart';
+import 'package:primea/util/analytics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OAuthProviderData {
@@ -46,7 +46,7 @@ class OAuthButton extends StatelessWidget {
           redirectTo:
               kIsWeb ? "/auth/callback" : "world.primea://auth/callback",
         );
-        Aptabase.instance.trackEvent("signIn", {
+        Analytics.instance.trackEvent("signIn", {
           "provider": provider.toString(),
         });
 
