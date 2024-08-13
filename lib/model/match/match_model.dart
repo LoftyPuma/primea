@@ -21,6 +21,7 @@ class MatchModel {
   final int? mmrDelta;
   final double? primeEarned;
   final String? deckName;
+  final DateTime? deckCreatedAt;
   final String? notes;
   final List<KeyModel> keysActivated;
 
@@ -37,6 +38,7 @@ class MatchModel {
     this.mmrDelta,
     this.primeEarned,
     this.deckName,
+    this.deckCreatedAt,
     this.notes,
     this.keysActivated = const [],
   });
@@ -61,6 +63,9 @@ class MatchModel {
             json['player_one'] ? PlayerTurn.going1st : PlayerTurn.going2nd,
         result = MatchResultOption.values.byName(json['result']),
         deckName = json['deck_name'],
+        deckCreatedAt = json['deck_created_at'] != null
+            ? DateTime.parse(json['deck_created_at'])
+            : null,
         notes = json['notes'];
 
   Future<Deck?> get deck async => deckName == null
@@ -79,6 +84,7 @@ class MatchModel {
       'mmr_delta': mmrDelta,
       'prime_estimate': primeEarned,
       'deck_name': deckName,
+      'deck_created_at': deckCreatedAt?.toUtc().toIso8601String(),
       'notes': notes,
       // 'keysActivated': keysActivated,
     };
@@ -103,6 +109,7 @@ class MatchModel {
         mmrDelta == other.mmrDelta &&
         primeEarned == other.primeEarned &&
         deckName == other.deckName &&
+        deckCreatedAt == other.deckCreatedAt &&
         keysActivated == other.keysActivated;
   }
 
@@ -120,6 +127,7 @@ class MatchModel {
         mmrDelta,
         primeEarned,
         deckName,
+        deckCreatedAt,
         keysActivated,
       );
 }

@@ -381,6 +381,7 @@ class _NewMatchState extends State<NewMatch> {
                           mmrDelta: int.tryParse(_mmrController.text),
                           primeEarned: double.tryParse(_primeController.text),
                           deckName: widget.chosenDeck?.name,
+                          deckCreatedAt: widget.chosenDeck?.createdAt,
                           notes: _notesController.text.isEmpty
                               ? null
                               : _notesController.text,

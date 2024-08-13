@@ -48,7 +48,7 @@ class _DeckPreviewState extends State<DeckPreview>
       vsync: this,
     );
 
-    _zoomAnimation = Tween<double>(begin: 3.7, end: 2.5).animate(
+    _zoomAnimation = Tween<double>(begin: .85, end: .65).animate(
       CurvedAnimation(
         parent: _mainController,
         curve: Curves.easeInOut,
@@ -184,18 +184,23 @@ class _DeckPreviewState extends State<DeckPreview>
             child: Stack(
               alignment: const Alignment(0, .3),
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    image: DecorationImage(
-                      alignment: Alignment.topCenter,
-                      image: AssetImage(paragon.art!),
-                      fit: BoxFit.none,
-                      filterQuality: FilterQuality.none,
-                      scale: _zoomAnimation.value,
-                      colorFilter: ColorFilter.mode(
-                        Colors.black.withOpacity(_filterAnimation.value),
-                        BlendMode.darken,
+                LayoutBuilder(
+                  builder: (context, constraints) => Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      image: DecorationImage(
+                        alignment: Alignment.topCenter,
+                        image: ResizeImage(
+                          AssetImage(paragon.art!),
+                          width: constraints.maxWidth.toInt(),
+                        ),
+                        fit: BoxFit.none,
+                        filterQuality: FilterQuality.none,
+                        scale: _zoomAnimation.value,
+                        colorFilter: ColorFilter.mode(
+                          Colors.black.withOpacity(_filterAnimation.value),
+                          BlendMode.darken,
+                        ),
                       ),
                     ),
                   ),

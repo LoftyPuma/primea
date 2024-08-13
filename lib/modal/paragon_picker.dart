@@ -124,56 +124,72 @@ class ParagonPicker extends StatelessWidget {
                                           child: Column(
                                             children: [
                                               Expanded(
-                                                child: Container(
-                                                  padding:
-                                                      const EdgeInsets.all(12),
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                      color: mappedDeck
-                                                              .isUniversal
-                                                          ? ParallelType
-                                                              .universal.color
-                                                          : mappedDeck.paragon
-                                                              .parallel.color
-                                                              .withAlpha(200),
-                                                      width: 2,
-                                                    ),
-                                                    boxShadow: [
-                                                      BoxShadow(
+                                                child: LayoutBuilder(
+                                                  builder:
+                                                      (context, constraints) =>
+                                                          Container(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            12),
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
                                                         color: mappedDeck
                                                                 .isUniversal
                                                             ? ParallelType
                                                                 .universal.color
-                                                                .withAlpha(200)
                                                             : mappedDeck.paragon
                                                                 .parallel.color
                                                                 .withAlpha(200),
-                                                        blurRadius: 8,
-                                                        offset:
-                                                            const Offset(0, 2),
+                                                        width: 2,
                                                       ),
-                                                    ],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16),
-                                                    image: DecorationImage(
-                                                      alignment:
-                                                          Alignment.center,
-                                                      colorFilter:
-                                                          ColorFilter.mode(
-                                                        Colors.black
-                                                            .withOpacity(0.2),
-                                                        BlendMode.darken,
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: mappedDeck
+                                                                  .isUniversal
+                                                              ? ParallelType
+                                                                  .universal
+                                                                  .color
+                                                                  .withAlpha(
+                                                                      200)
+                                                              : mappedDeck
+                                                                  .paragon
+                                                                  .parallel
+                                                                  .color
+                                                                  .withAlpha(
+                                                                      200),
+                                                          blurRadius: 8,
+                                                          offset: const Offset(
+                                                              0, 2),
+                                                        ),
+                                                      ],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              16),
+                                                      image: DecorationImage(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        colorFilter:
+                                                            ColorFilter.mode(
+                                                          Colors.black
+                                                              .withOpacity(0.2),
+                                                          BlendMode.darken,
+                                                        ),
+                                                        image: ResizeImage(
+                                                          AssetImage(
+                                                            Paragon.fromCardID(
+                                                                    mappedDeck
+                                                                        .paragon
+                                                                        .id)
+                                                                .art!,
+                                                          ),
+                                                          width: constraints
+                                                              .maxWidth
+                                                              .toInt(),
+                                                        ),
+                                                        fit: BoxFit.cover,
+                                                        filterQuality:
+                                                            FilterQuality.none,
                                                       ),
-                                                      image: AssetImage(
-                                                        Paragon.fromCardID(
-                                                                mappedDeck
-                                                                    .paragon.id)
-                                                            .art!,
-                                                      ),
-                                                      fit: BoxFit.cover,
-                                                      filterQuality:
-                                                          FilterQuality.none,
                                                     ),
                                                   ),
                                                 ),

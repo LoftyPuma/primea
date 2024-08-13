@@ -41,8 +41,11 @@ class MiniDeck extends StatelessWidget {
               Colors.black.withOpacity(0.2),
               BlendMode.darken,
             ),
-            image: AssetImage(
-              Paragon.fromCardID(deck.paragon.id).art!,
+            image: ResizeImage(
+              AssetImage(
+                Paragon.fromCardID(deck.paragon.id).art!,
+              ),
+              width: MediaQuery.of(context).size.width.toInt(),
             ),
             fit: BoxFit.cover,
             filterQuality: FilterQuality.none,
