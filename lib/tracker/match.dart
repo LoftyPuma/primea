@@ -150,9 +150,9 @@ class Match extends StatelessWidget {
                 ),
               ],
             ),
-            if (match.deckName != null)
+            if (deck != null)
               Text(
-                match.deckName!,
+                deck!.name,
                 overflow: TextOverflow.ellipsis,
               ),
           ],

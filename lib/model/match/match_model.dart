@@ -20,8 +20,7 @@ class MatchModel {
   final Rank? opponentRank;
   final int? mmrDelta;
   final double? primeEarned;
-  final String? deckName;
-  final DateTime? deckCreatedAt;
+  final String? deckId;
   final String? notes;
   final List<KeyModel> keysActivated;
 
@@ -37,8 +36,7 @@ class MatchModel {
     this.opponentRank,
     this.mmrDelta,
     this.primeEarned,
-    this.deckName,
-    this.deckCreatedAt,
+    this.deckId,
     this.notes,
     this.keysActivated = const [],
   });
@@ -62,15 +60,11 @@ class MatchModel {
         playerTurn =
             json['player_one'] ? PlayerTurn.going1st : PlayerTurn.going2nd,
         result = MatchResultOption.values.byName(json['result']),
-        deckName = json['deck_name'],
-        deckCreatedAt = json['deck_created_at'] != null
-            ? DateTime.parse(json['deck_created_at'])
-            : null,
+        deckId = json['deck_id'],
         notes = json['notes'];
 
-  Future<Deck?> get deck async => deckName == null
-      ? null
-      : await (await DeckModel.fromName(deckName!)).toDeck();
+  Future<Deck?> get deck async =>
+      deckId == null ? null : await (await DeckModel.fromID(deckId!)).toDeck();
 
   Map<String, dynamic> toJson() {
     final json = {
@@ -83,8 +77,7 @@ class MatchModel {
       'opponent_rank': opponentRank?.name,
       'mmr_delta': mmrDelta,
       'prime_estimate': primeEarned,
-      'deck_name': deckName,
-      'deck_created_at': deckCreatedAt?.toUtc().toIso8601String(),
+      'deck_id': deckId,
       'notes': notes,
       // 'keysActivated': keysActivated,
     };
@@ -108,8 +101,7 @@ class MatchModel {
         opponentRank == other.opponentRank &&
         mmrDelta == other.mmrDelta &&
         primeEarned == other.primeEarned &&
-        deckName == other.deckName &&
-        deckCreatedAt == other.deckCreatedAt &&
+        deckId == other.deckId &&
         keysActivated == other.keysActivated;
   }
 
@@ -126,8 +118,7 @@ class MatchModel {
         opponentRank,
         mmrDelta,
         primeEarned,
-        deckName,
-        deckCreatedAt,
+        deckId,
         keysActivated,
       );
 }

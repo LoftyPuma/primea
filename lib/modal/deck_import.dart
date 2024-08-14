@@ -6,13 +6,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class DeckImportModal extends StatefulWidget {
   final String? name;
   final String? code;
-  final DateTime? createdAt;
+  final String? id;
 
   const DeckImportModal({
     super.key,
     this.name,
     this.code,
-    this.createdAt,
+    this.id,
   });
 
   @override
@@ -72,10 +72,7 @@ class _DeckImportModalState extends State<DeckImportModal> {
                 final deckModel = await DeckModel.fromCode(
                   _deckNameController.text,
                   _deckCodeController.text,
-                  createdAt: widget.createdAt,
-                  updatedAt:
-                      widget.createdAt != null ? DateTime.now().toUtc() : null,
-                  previousName: widget.name,
+                  id: widget.id,
                 );
                 if (context.mounted) {
                   Navigator.of(context).pop<DeckModel>(deckModel);

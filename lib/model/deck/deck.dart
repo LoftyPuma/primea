@@ -9,6 +9,7 @@ class Deck {
     r'^((?<count>\dx|)(?<card>CB-\d+)(?<rarity>:\w+|)(,|))+$',
   );
 
+  String id;
   String name;
   Map<CardFunction, int> cards;
   DateTime createdAt;
@@ -23,6 +24,7 @@ class Deck {
       .every((card) => card.parallel == ParallelType.universal);
 
   Deck({
+    required this.id,
     required this.name,
     required Iterable<CardFunction> cards,
     required this.createdAt,
@@ -36,7 +38,8 @@ class Deck {
         );
 
   Deck.fromJson(Map<String, dynamic> json)
-      : name = json['name'],
+      : id = json['id'],
+        name = json['name'],
         createdAt = DateTime.parse(json['created_at']),
         updatedAt = DateTime.parse(json['updated_at']),
         cards = {
@@ -44,9 +47,9 @@ class Deck {
             CardFunction.fromJson(card['id']): card['count'],
         };
 
-  static Future<Deck> byName(String name) async {
+  static Future<Deck> byID(String id) async {
     final deckJson =
-        await supabase.from(deckTableName).select().eq('name', name).single();
+        await supabase.from(deckTableName).select().eq('id', id).single();
 
     final cardFunctionsJson = await supabase
         .from(CardFunction.cardFunctionTableName)
@@ -64,7 +67,8 @@ class Deck {
     final cardList = cards.map((card) => cardFunctions[card]!);
 
     final deck = Deck(
-      name: name,
+      id: id,
+      name: deckJson['name'],
       cards: cardList,
       createdAt: DateTime.parse(deckJson['created_at']),
       updatedAt: DateTime.parse(deckJson['updated_at']),
@@ -86,6 +90,7 @@ class Deck {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'deck': cards.keys.map((card) {
         final count = cards[card];

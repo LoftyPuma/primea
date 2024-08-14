@@ -3,12 +3,14 @@ import 'package:primea/model/deck/deck.dart';
 import 'package:primea/model/deck/card_function.dart';
 
 class DeckModel {
+  final String id;
   final String name;
   final DateTime createdAt;
   final DateTime updatedAt;
   final List<int> cards;
 
   const DeckModel({
+    required this.id,
     required this.name,
     required this.createdAt,
     required this.updatedAt,
@@ -16,7 +18,8 @@ class DeckModel {
   });
 
   DeckModel.fromJson(Map<String, dynamic> json)
-      : name = json['name'],
+      : id = json['id'],
+        name = json['name'],
         createdAt = DateTime.parse(json['created_at']),
         updatedAt = DateTime.parse(json['updated_at']),
         cards = List<int>.from(json['cards']);
@@ -24,9 +27,7 @@ class DeckModel {
   static Future<DeckModel> fromCode(
     String name,
     String code, {
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    String? previousName,
+    String? id,
   }) async {
     final List<int> parsedCodes = List.empty(growable: true);
     final List<String> deck = code.split(',');
@@ -37,7 +38,7 @@ class DeckModel {
       final cardId = int.parse(parts[1].split(':')[0]);
       parsedCodes.addAll(List.filled(count, cardId));
     }
-    if (createdAt == null) {
+    if (id == null) {
       return DeckModel.fromJson(
         await supabase
             .from(Deck.deckTableName)
@@ -55,22 +56,18 @@ class DeckModel {
             .update({
               'name': name,
               'cards': parsedCodes,
-              'updated_at': updatedAt?.toIso8601String(),
+              'updated_at': DateTime.now().toUtc().toIso8601String(),
             })
-            .eq('created_at', createdAt.toIso8601String())
-            .eq('name', previousName!)
+            .eq('id', id)
             .select()
             .single(),
       );
     }
   }
 
-  static Future<DeckModel> fromName(String name) async {
-    final deckJson = await supabase
-        .from(Deck.deckTableName)
-        .select()
-        .eq('name', name)
-        .single();
+  static Future<DeckModel> fromID(String id) async {
+    final deckJson =
+        await supabase.from(Deck.deckTableName).select().eq('id', id).single();
 
     return DeckModel.fromJson(deckJson);
   }
@@ -105,6 +102,7 @@ class DeckModel {
 
     return deckModels.map(
       (deckModel) => Deck(
+        id: deckModel.id,
         name: deckModel.name,
         cards: deckModel.cards.map((card) => cardFunctions[card]!),
         createdAt: deckModel.createdAt,
@@ -129,6 +127,7 @@ class DeckModel {
     final cardList = cards.map((card) => cardFunctions[card]!);
 
     return Deck(
+      id: id,
       name: name,
       cards: cardList,
       createdAt: createdAt,

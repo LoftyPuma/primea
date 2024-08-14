@@ -53,7 +53,7 @@ class MatchModalState extends State<MatchModal> {
     try {
       // find the saved deck but ignore the StateError if it's not found
       deck = widget.deckList
-          ?.singleWhere((deck) => deck.name == widget.match.deckName);
+          ?.singleWhere((deck) => deck.id == widget.match.deckId);
     } on StateError catch (_) {}
     super.initState();
   }
@@ -477,7 +477,7 @@ class MatchModalState extends State<MatchModal> {
                             primeEarned: primeController.text.isEmpty
                                 ? null
                                 : double.tryParse(primeController.text),
-                            deckName: deck?.name,
+                            deckId: deck?.id,
                           ),
                         );
                       },

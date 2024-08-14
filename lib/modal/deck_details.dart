@@ -336,7 +336,7 @@ class _DeckDetailsState extends State<DeckDetails> {
                           child: DeckImportModal(
                             name: widget.deck.name,
                             code: widget.deck.toCode(),
-                            createdAt: widget.deck.createdAt,
+                            id: widget.deck.id,
                           ),
                         );
                       },
