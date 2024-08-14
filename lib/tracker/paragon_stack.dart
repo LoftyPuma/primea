@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:primea/model/deck/deck.dart';
 import 'package:primea/model/match/match_model.dart';
 import 'package:primea/tracker/paragon_avatar.dart';
 
