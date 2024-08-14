@@ -82,33 +82,31 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       }
     });
     if (session != null && !session!.isExpired) {
-      DateTime matchStart = DateTime.now(), resultsStart = DateTime.now();
       try {
         if (matchResults.isEmpty) {
           Future(() async {
-            matchStart = DateTime.now();
+            final matchStart = DateTime.now();
             await matchResults.init();
+            Analytics.instance.trackEvent("initializeMatchResults", {
+              "duration": DateTime.now().difference(matchStart).inMilliseconds,
+            });
           });
         }
         if (matchList.isEmpty) {
           Future(() async {
-            resultsStart = DateTime.now();
+            final resultsStart = DateTime.now();
             await matchList.init();
+            Analytics.instance.trackEvent("initializeMatchList", {
+              "duration":
+                  DateTime.now().difference(resultsStart).inMilliseconds,
+            });
           });
         }
       } catch (e) {
         Analytics.instance.trackEvent("homeInitError", {
           "error": e.toString(),
         });
-      } finally {
-        Analytics.instance.trackEvent("initializeMatchResults", {
-          "duration": DateTime.now().difference(matchStart).inMilliseconds,
-        });
-
-        Analytics.instance.trackEvent("initializeMatchList", {
-          "duration": DateTime.now().difference(resultsStart).inMilliseconds,
-        });
-      }
+      } finally {}
     }
   }
 
