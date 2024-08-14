@@ -9,6 +9,8 @@ import 'package:primea/model/deck/deck.dart';
 import 'package:primea/model/deck/deck_model.dart';
 import 'package:primea/model/deck/deck_summary.dart';
 import 'package:primea/tracker/paragon.dart';
+import 'package:primea/util/analytics.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vector_graphics/vector_graphics.dart';
 
 class DeckPreview extends StatefulWidget {
@@ -253,10 +255,22 @@ class _DeckPreviewState extends State<DeckPreview>
                           ),
                         );
                         if (confirm == true) {
-                          await supabase
-                              .from(Deck.deckTableName)
-                              .delete()
-                              .eq('name', widget.deck.name);
+                          try {
+                            await supabase
+                                .from(Deck.deckTableName)
+                                .delete()
+                                .eq('name', widget.deck.name);
+                          } on PostgrestException catch (e) {
+                            Analytics.instance.trackEvent('deleteDeck', {
+                              'error': e.message,
+                              'details': e.details,
+                              'hint': e.hint,
+                              'code': e.code,
+                              'deck_id': widget.deck.id,
+                            });
+                            await supabase.from(Deck.deckTableName).update(
+                                {'hidden': true}).eq('id', widget.deck.id);
+                          }
                           widget.onDelete();
                         }
                       },

@@ -5,12 +5,10 @@ import 'package:primea/tracker/paragon_avatar.dart';
 
 class ParagonStack extends StatelessWidget {
   final MatchModel match;
-  final Deck? deck;
 
   const ParagonStack({
     super.key,
     required this.match,
-    this.deck,
   });
 
   @override
@@ -28,7 +26,7 @@ class ParagonStack extends StatelessWidget {
           ),
           ParagonAvatar(
             paragon: match.paragon,
-            deck: deck,
+            deck: match.deck,
           ),
         ],
       ),

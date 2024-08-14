@@ -175,16 +175,10 @@ class _AccountState extends State<Account> {
                         itemCount: session?.length ?? 0,
                         itemBuilder: (context, index) {
                           final match = session!.elementAt(index);
-                          Deck? deck;
-                          try {
-                            deck = widget.decks?.singleWhere(
-                                (deck) => deck.id == match.deckId);
-                          } on StateError catch (_) {}
                           return Match(
                             key: ValueKey(
                                 match.id! + match.matchTime.toString()),
                             match: match,
-                            deck: deck,
                             onEdit: (context) async {
                               final updatedMatch = await showDialog<MatchModel>(
                                 context: context,

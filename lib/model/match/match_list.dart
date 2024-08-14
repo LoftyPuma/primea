@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:primea/main.dart';
+import 'package:primea/model/deck/deck_model.dart';
 import 'package:primea/model/match/match_model.dart';
 import 'package:primea/model/match/match_result_option.dart';
 import 'package:primea/model/match/match_results.dart';
@@ -148,7 +149,7 @@ class MatchList extends ChangeNotifier {
     oldestMatchTimestamp ??= DateTime.now().toUtc();
     var matches = await supabase
         .from(MatchModel.gamesTableName)
-        .select()
+        .select('*, decks(*)')
         .lt('game_time',
             oldestMatchTimestamp.subtract(const Duration(milliseconds: 10)))
         .order(
@@ -156,8 +157,15 @@ class MatchList extends ChangeNotifier {
         )
         .limit(limit)
         .count();
+
     _totalMatches = matches.count;
-    return matches.data.map((game) => MatchModel.fromJson(game)).toList();
+    final enrichedMatched = matches.data.map((game) async {
+      if (game['decks'] != null) {
+        game['deck'] = await DeckModel.fromJson(game['decks']).toDeck();
+      }
+      return MatchModel.fromJson(game);
+    });
+    return Future.wait(enrichedMatched);
   }
 
   Future<int> loadMore() async {

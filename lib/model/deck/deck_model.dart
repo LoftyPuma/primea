@@ -1,4 +1,5 @@
 import 'package:primea/main.dart';
+import 'package:primea/model/deck/card_function_cache.dart';
 import 'package:primea/model/deck/deck.dart';
 import 'package:primea/model/deck/card_function.dart';
 
@@ -76,6 +77,7 @@ class DeckModel {
     final deckJson = await supabase
         .from(Deck.deckTableName)
         .select()
+        .eq('hidden', false)
         .order('updated_at', ascending: false);
 
     return deckJson.map((json) => DeckModel.fromJson(json));
@@ -112,10 +114,12 @@ class DeckModel {
   }
 
   Future<Deck> toDeck() async {
+    final cacheResults = CardFunctionCache.getAll(cards);
+
     final cardFunctionsJson = await supabase
         .from(CardFunction.cardFunctionTableName)
         .select()
-        .inFilter('id', cards);
+        .inFilter('id', cacheResults.cardIds);
 
     final cardFunctions = Map.fromEntries(cardFunctionsJson.map(
       (json) => MapEntry(
@@ -123,6 +127,10 @@ class DeckModel {
         CardFunction.fromJson(json),
       ),
     ));
+    // add cached results to cardFunctions
+    cardFunctions.addAll(cacheResults.cardFunctions);
+
+    CardFunctionCache.setAll(cardFunctions);
 
     final cardList = cards.map((card) => cardFunctions[card]!);
 

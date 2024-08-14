@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:primea/model/deck/deck.dart';
 import 'package:primea/model/match/match_model.dart';
 import 'package:primea/model/match/match_result_option.dart';
 import 'package:primea/model/match/player_rank.dart';
@@ -9,7 +8,6 @@ import 'package:primea/tracker/paragon_stack.dart';
 
 class Match extends StatelessWidget {
   final MatchModel match;
-  final Deck? deck;
   final Function(BuildContext context)? onEdit;
   final Function(BuildContext context)? onDelete;
 
@@ -18,7 +16,6 @@ class Match extends StatelessWidget {
     required this.match,
     required this.onEdit,
     required this.onDelete,
-    this.deck,
   });
 
   @override
@@ -63,7 +60,6 @@ class Match extends StatelessWidget {
           child: FittedBox(
             child: ParagonStack(
               match: match,
-              deck: deck,
             ),
           ),
         ),
@@ -150,9 +146,9 @@ class Match extends StatelessWidget {
                 ),
               ],
             ),
-            if (deck != null)
+            if (match.deck != null)
               Text(
-                deck!.name,
+                match.deck!.name,
                 overflow: TextOverflow.ellipsis,
               ),
           ],

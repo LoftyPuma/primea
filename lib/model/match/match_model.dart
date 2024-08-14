@@ -1,5 +1,4 @@
 import 'package:primea/model/deck/deck.dart';
-import 'package:primea/model/deck/deck_model.dart';
 import 'package:primea/model/match/match_result_option.dart';
 import 'package:primea/model/match/player_rank.dart';
 import 'package:primea/model/match/player_turn.dart';
@@ -21,6 +20,7 @@ class MatchModel {
   final int? mmrDelta;
   final double? primeEarned;
   final String? deckId;
+  final Deck? deck;
   final String? notes;
   final List<KeyModel> keysActivated;
 
@@ -37,6 +37,7 @@ class MatchModel {
     this.mmrDelta,
     this.primeEarned,
     this.deckId,
+    this.deck,
     this.notes,
     this.keysActivated = const [],
   });
@@ -61,10 +62,8 @@ class MatchModel {
             json['player_one'] ? PlayerTurn.going1st : PlayerTurn.going2nd,
         result = MatchResultOption.values.byName(json['result']),
         deckId = json['deck_id'],
+        deck = json['deck'] is Deck ? json['deck'] : null,
         notes = json['notes'];
-
-  Future<Deck?> get deck async =>
-      deckId == null ? null : await (await DeckModel.fromID(deckId!)).toDeck();
 
   Map<String, dynamic> toJson() {
     final json = {
