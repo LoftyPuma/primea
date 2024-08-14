@@ -177,8 +177,8 @@ class _AccountState extends State<Account> {
                           final match = session!.elementAt(index);
                           Deck? deck;
                           try {
-                            deck = widget.decks
-                                ?.singleWhere((deck) => deck.id == match.id);
+                            deck = widget.decks?.singleWhere(
+                                (deck) => deck.id == match.deckId);
                           } on StateError catch (_) {}
                           return Match(
                             key: ValueKey(
