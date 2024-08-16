@@ -213,42 +213,6 @@ class _NewMatchState extends State<NewMatch> {
                 Flexible(
                   child: FittedBox(
                     child: SizedBox(
-                      width: 120,
-                      child: TextButton.icon(
-                        label: const Text("Notes"),
-                        icon: const Icon(Icons.notes),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: const Text("Match Notes"),
-                                content: TextFormField(
-                                  maxLines: 4,
-                                  controller: _notesController,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Enter any notes here',
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text("Close"),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Flexible(
-                  child: FittedBox(
-                    child: SizedBox(
                       width: 100,
                       child: TextField(
                         keyboardType: const TextInputType.numberWithOptions(
@@ -270,6 +234,16 @@ class _NewMatchState extends State<NewMatch> {
                   ),
                 ),
               ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: TextFormField(
+              controller: _notesController,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: 'Match Notes',
+              ),
             ),
           ),
           FittedBox(

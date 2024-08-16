@@ -363,46 +363,6 @@ class MatchModalState extends State<MatchModal> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Badge(
-                        label: Icon(
-                          Icons.note_add_rounded,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.onError,
-                        ),
-                        isLabelVisible: notesController.text.isNotEmpty,
-                        child: TextButton.icon(
-                          icon: const Icon(Icons.notes),
-                          label: const Text("Notes"),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: const Text("Match Notes"),
-                                  content: TextFormField(
-                                    maxLines: 4,
-                                    controller: notesController,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Enter any notes here',
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text("Close"),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16),
                       child: SizedBox(
                         width: 100,
                         child: TextField(
@@ -424,6 +384,17 @@ class MatchModalState extends State<MatchModal> {
                       ),
                     ),
                   ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(16),
+                constraints: BoxConstraints.loose(const Size.fromWidth(450)),
+                child: TextField(
+                  controller: notesController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Match Notes',
+                  ),
                 ),
               ),
               Padding(
