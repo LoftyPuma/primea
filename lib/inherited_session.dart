@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:primea/main.dart';
-import 'package:primea/model/match/inherited_match_list.dart';
-import 'package:primea/model/match/inherited_match_results.dart';
-import 'package:primea/model/match/match_list.dart';
-import 'package:primea/model/match/match_results.dart';
-import 'package:primea/tracker/paragon.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class InheritedSession extends InheritedModel<String> {
@@ -56,31 +51,17 @@ class InheritedSessionWidget extends StatefulWidget {
 }
 
 class _InheritedSessionState extends State<InheritedSessionWidget> {
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-
-  Paragon chosenParagon = Paragon.unknown;
   Session? session = supabase.auth.currentSession;
-  MatchResults matchResults = MatchResults();
-  late MatchList matchList;
 
   handleAuthStateChange(AuthState data) async {
     setState(() {
       session = data.session;
     });
-    if (session != null && !session!.isExpired) {
-      if (matchResults.isEmpty) {
-        await matchResults.init();
-      }
-      if (matchList.isEmpty) {
-        await matchList.init();
-      }
-    }
-    supabase.auth.onAuthStateChange.listen(handleAuthStateChange);
   }
 
   @override
   void initState() {
-    matchList = MatchList(_listKey, matchResults);
+    supabase.auth.onAuthStateChange.listen(handleAuthStateChange);
 
     super.initState();
   }
@@ -89,13 +70,7 @@ class _InheritedSessionState extends State<InheritedSessionWidget> {
   Widget build(BuildContext context) {
     return InheritedSession(
       session: session,
-      child: InheritedMatchList(
-        matchList: matchList,
-        child: InheritedMatchResults(
-          matchResults: matchResults,
-          child: widget.child,
-        ),
-      ),
+      child: widget.child,
     );
   }
 }
