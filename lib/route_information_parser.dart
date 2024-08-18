@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 enum PrimeaTabs {
@@ -37,7 +38,9 @@ class PrimeaRouteInformationParser
   @override
   Future<PrimeaRoutePath> parseRouteInformation(
       RouteInformation routeInformation) {
-    print("${routeInformation.uri.toString()}#${routeInformation.uri.query}");
+    if (kDebugMode) {
+      print("${routeInformation.uri.toString()}#${routeInformation.uri.query}");
+    }
     final path = routeInformation.uri.pathSegments;
     if (path.isEmpty) {
       return Future.value(const PrimeaRoutePath.landing());
