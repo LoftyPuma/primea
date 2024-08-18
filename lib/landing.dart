@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:primea/main.dart';
 import 'package:primea/tracker/paragon.dart';
+import 'package:primea/util/analytics.dart';
 
 class Landing extends StatefulWidget {
   const Landing({super.key});
@@ -88,17 +89,8 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin {
   }();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    Analytics.instance.trackEvent("load", {'page': 'landing'});
     super.build(context);
     return SingleChildScrollView(
       child: Column(
@@ -107,7 +99,7 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin {
         children: [
           Container(
             margin: const EdgeInsets.all(16),
-            height: 400,
+            height: 200,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               gradient: LinearGradient(
@@ -371,18 +363,33 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin {
                     physics: const NeverScrollableScrollPhysics(),
                     padding: EdgeInsets.zero,
                     itemBuilder: (context, index) {
-                      if (index >= snapshot.data!.length) {
+                      if (index == 0) {
+                        return const ListTile(
+                          title: Text(
+                            'Paragon Win Rates',
+                          ),
+                        );
+                      }
+                      if (index > snapshot.data!.length) {
                         return null;
                       }
-                      final counts = snapshot.data!.elementAt(index);
+                      final counts = snapshot.data!.elementAt(index - 1);
                       final paragon = counts.paragon;
                       return Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHigh
-                              .withAlpha(200),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              paragon.parallel.color,
+                              Theme.of(context).colorScheme.surfaceContainer,
+                            ],
+                            stops: [
+                              0.0,
+                              (counts.wins / counts.matches),
+                            ],
+                          ),
                         ),
                         margin: const EdgeInsets.all(8),
                         child: ListTile(
@@ -402,11 +409,45 @@ class _LandingState extends State<Landing> with AutomaticKeepAliveClientMixin {
                             ),
                           ),
                           subtitle: Text(
-                            'Wins: ${counts.wins}, Matches: ${counts.matches}, Win Rate: ${((counts.wins / counts.matches) * 100).toStringAsFixed(0)}%',
+                            'Matches: ${counts.matches}',
                             style: const TextStyle(
                               shadows: [
                                 Shadow(
                                   blurRadius: 3,
+                                ),
+                              ],
+                            ),
+                          ),
+                          trailing: RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      "${((counts.wins / counts.matches) * 100).toStringAsFixed(1)}%\n",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                    shadows: [
+                                      const Shadow(
+                                        blurRadius: 3,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: "Win Rate",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(
+                                    shadows: [
+                                      const Shadow(
+                                        blurRadius: 3,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
