@@ -48,10 +48,7 @@ class _ProgressCardState extends State<ProgressCard>
     _valueAnimation = Tween(
       begin: 0.0,
       end: 1.0,
-    ).animate(_controller)
-      ..addListener(() {
-        setState(() {});
-      });
+    ).animate(_controller);
 
     _colorAnimation = TweenSequence<Color?>(
       [
@@ -107,16 +104,18 @@ class _ProgressCardState extends State<ProgressCard>
   Widget build(BuildContext context) {
     _matchResults ??= InheritedMatchResults.of(context);
 
-    if (_controller.value == 0) {
+    final double value = _matchResults
+            ?.count(
+              paragon: widget.paragon,
+              opponentParagon: widget.opponentParagon,
+              playerTurn: widget.playerTurn,
+            )
+            .winRate ??
+        0;
+
+    if (_controller.value != value) {
       _controller.animateTo(
-        _matchResults
-                ?.count(
-                  paragon: widget.paragon,
-                  opponentParagon: widget.opponentParagon,
-                  playerTurn: widget.playerTurn,
-                )
-                .winRate ??
-            0,
+        value,
         duration: const Duration(milliseconds: 0),
         curve: Curves.bounceOut,
       );

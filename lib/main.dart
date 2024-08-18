@@ -3,12 +3,14 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:primea/home.dart';
-import 'package:primea/inherited_session.dart';
+import 'package:primea/route_information_parser.dart';
+import 'package:primea/router_delegate.dart';
 import 'package:primea/util/analytics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const errorTable = 'errors';
+
+final supabase = Supabase.instance.client;
 
 Future<void> reportError(FlutterErrorDetails details) async {
   await supabase.from(errorTable).insert({
@@ -48,7 +50,7 @@ Future<void> main() async {
         return false;
       };
 
-      runApp(const App());
+      runApp(App(title: 'Primea'));
     },
     (error, stackTrace) {
       final details = FlutterErrorDetails(exception: error, stack: stackTrace);
@@ -60,12 +62,15 @@ Future<void> main() async {
   );
 }
 
-final supabase = Supabase.instance.client;
-
 class App extends StatelessWidget {
-  const App({super.key});
+  App({super.key, required this.title})
+      : _routerDelegate = PrimeaRouterDelegate(title),
+        _routeInformationParser = PrimeaRouteInformationParser();
 
-  final title = 'Primea';
+  final String title;
+
+  final PrimeaRouterDelegate _routerDelegate;
+  final PrimeaRouteInformationParser _routeInformationParser;
 
   @override
   Widget build(BuildContext context) {
@@ -129,13 +134,13 @@ class App extends StatelessWidget {
         ),
       ),
     );
+
     return SafeArea(
-      child: MaterialApp(
+      child: MaterialApp.router(
         title: title,
         theme: theme,
-        home: InheritedSessionWidget(
-          child: Home(title: title),
-        ),
+        routerDelegate: _routerDelegate,
+        routeInformationParser: _routeInformationParser,
       ),
     );
   }

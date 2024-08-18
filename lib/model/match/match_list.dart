@@ -203,6 +203,9 @@ class MatchList extends ChangeNotifier {
         .select()
         .limit(1)
         .single();
+    if (newMatchResponse['deck_id'] == newMatch.deck?.id) {
+      newMatchResponse['deck'] = newMatch.deck;
+    }
     final newMatchModel = MatchModel.fromJson(newMatchResponse);
     _matchList.insert(0, newMatchModel);
     matchResults.recordMatch(newMatchModel);

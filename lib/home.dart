@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:primea/dashboard/dashboard.dart';
 import 'package:primea/inherited_session.dart';
+import 'package:primea/landing.dart';
 import 'package:primea/main.dart';
 import 'package:primea/modal/deck_preview.dart';
 import 'package:primea/modal/import.dart';
@@ -17,6 +18,7 @@ import 'package:primea/model/match/inherited_match_results.dart';
 import 'package:primea/model/match/match_list.dart';
 import 'package:primea/model/match/match_model.dart';
 import 'package:primea/model/match/match_results.dart';
+import 'package:primea/route_information_parser.dart';
 import 'package:primea/tracker/account.dart';
 import 'package:primea/tracker/dummy_account.dart';
 import 'package:primea/tracker/paragon.dart';
@@ -29,15 +31,18 @@ class Home extends StatefulWidget {
   const Home({
     super.key,
     required this.title,
+    this.initialTab = PrimeaTabs.landing,
   });
 
   final String title;
+  final PrimeaTabs initialTab;
 
   @override
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+class _HomeState extends State<Home>
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   final GlobalKey<SliverAnimatedGridState> _profileDeckGridKey =
       GlobalKey<SliverAnimatedGridState>();
@@ -58,6 +63,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Paragon chosenParagon = Paragon.unknown;
   Deck? selectedDeck;
   int deckCount = 0;
+
+  @override
+  bool get wantKeepAlive => true;
 
   handleAuthStateChange(AuthState data) async {
     Analytics.instance.trackEvent(
@@ -116,7 +124,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       setState(() {
         try {
           selectedDeck = futureDecks.singleWhere(
-              (deck) => deck.name == session?.user.userMetadata?["deck"]);
+              (deck) => deck.id == session?.user.userMetadata?["deck"]);
         } on StateError catch (_) {}
       });
     });
@@ -143,8 +151,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     );
 
     matchList = MatchList(_listKey, matchResults);
+
     _tabController = TabController(
-      length: 2,
+      initialIndex: widget.initialTab.index,
+      length: 3,
       vsync: this,
       animationDuration: const Duration(milliseconds: 250),
     );
@@ -163,6 +173,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     Analytics.instance.trackEvent("load", {"page": "home"});
 
     return InheritedSession(
@@ -201,8 +212,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         for (var match in importedMatches) {
                           matchResults.recordMatch(match);
                         }
-                        if (mounted) {
-                          // ignore: use_build_context_synchronously
+                        if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               showCloseIcon: true,
@@ -270,125 +280,127 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               ],
             ),
             extendBody: true,
-            bottomNavigationBar: BottomAppBar(
-              clipBehavior: Clip.antiAlias,
-              shape: const AutomaticNotchedShape(
-                RoundedRectangleBorder(),
-                StadiumBorder(
-                  side: BorderSide(
-                    color: Colors.black,
-                    width: 0.5,
-                  ),
-                ),
-              ),
-              notchMargin: 0,
-              child: TabBar(
-                controller: _tabController,
-                tabAlignment: TabAlignment.fill,
-                tabs: const [
-                  Tab(
-                    icon: Icon(Icons.games_outlined),
-                    text: "Matches",
-                  ),
-                  Tab(
-                    icon: Icon(Icons.dashboard_sharp),
-                    text: "Dashboard",
-                  ),
-                ],
-              ),
-            ),
-            body: TabBarView(
-              controller: _tabController,
-              children: [
-                SingleChildScrollView(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    child: session == null
-                        ? DummyAccount(chosenParagon: chosenParagon)
-                        : Account(
-                            listKey: _listKey,
-                            chosenParagon: chosenParagon,
-                            chosenDeck: selectedDeck,
-                            decks: deckList.items,
+            bottomNavigationBar: session != null
+                ? BottomAppBar(
+                    clipBehavior: Clip.antiAlias,
+                    child: TabBar(
+                      controller: _tabController,
+                      tabAlignment: TabAlignment.fill,
+                      tabs: const [
+                        Tab(
+                          icon: Icon(Icons.data_array_sharp),
+                          text: "Home",
+                        ),
+                        Tab(
+                          icon: Icon(Icons.games_outlined),
+                          text: "Matches",
+                        ),
+                        Tab(
+                          icon: Icon(Icons.dashboard_sharp),
+                          text: "Dashboard",
+                        ),
+                      ],
+                    ),
+                  )
+                : null,
+            body: session != null
+                ? TabBarView(
+                    controller: _tabController,
+                    children: [
+                      const Landing(),
+                      SingleChildScrollView(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          child: session == null
+                              ? DummyAccount(chosenParagon: chosenParagon)
+                              : Account(
+                                  listKey: _listKey,
+                                  chosenParagon: chosenParagon,
+                                  chosenDeck: selectedDeck,
+                                  decks: deckList.items,
+                                ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: supabase.auth.currentUser
+                                      ?.userMetadata?['streamer_mode'] ??
+                                  false
+                              ? const Color(0xFF0047BB)
+                              : Theme.of(context).colorScheme.surface,
+                        ),
+                        child: const Dashboard(),
+                      ),
+                    ],
+                  )
+                : const Landing(),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            floatingActionButton: session != null
+                ? IconButton(
+                    onPressed: () => showModalBottomSheet(
+                      showDragHandle: false,
+                      enableDrag: true,
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) {
+                        return DraggableScrollableSheet(
+                          initialChildSize: 0.26,
+                          maxChildSize: 0.75,
+                          minChildSize: 0.25,
+                          expand: false,
+                          snap: true,
+                          snapSizes: const [0.26, 0.75],
+                          controller: _profileScrollController,
+                          builder: (context, scrollController) => ParagonPicker(
+                            scrollController: scrollController,
+                            deckList: deckList.items,
+                            onParagonSelected: (paragon) {
+                              setState(() {
+                                chosenParagon = paragon;
+                                selectedDeck = null;
+                              });
+                              if (session != null && !session!.isExpired) {
+                                supabase.auth.updateUser(
+                                  UserAttributes(
+                                    data: <String, dynamic>{
+                                      "paragon": paragon.name,
+                                      "deck": null,
+                                    },
+                                  ),
+                                );
+                              }
+                              Navigator.pop(context);
+                            },
+                            onDeckSelected: (chosenDeck) {
+                              setState(() {
+                                chosenParagon =
+                                    Paragon.fromCardID(chosenDeck.paragon.id);
+                                selectedDeck = chosenDeck;
+                              });
+                              if (session != null && !session!.isExpired) {
+                                supabase.auth.updateUser(
+                                  UserAttributes(
+                                    data: <String, dynamic>{
+                                      "paragon": chosenParagon.name,
+                                      "deck": chosenDeck.id,
+                                    },
+                                  ),
+                                );
+                              }
+                              Navigator.pop(context);
+                            },
                           ),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: supabase.auth.currentUser
-                                ?.userMetadata?['streamer_mode'] ??
-                            false
-                        ? const Color(0xFF0047BB)
-                        : Theme.of(context).colorScheme.surface,
-                  ),
-                  child: const Dashboard(),
-                ),
-              ],
-            ),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.endDocked,
-            floatingActionButton: IconButton(
-              onPressed: () => showModalBottomSheet(
-                showDragHandle: false,
-                enableDrag: true,
-                context: context,
-                isScrollControlled: true,
-                builder: (context) {
-                  return DraggableScrollableSheet(
-                    initialChildSize: 0.26,
-                    maxChildSize: 0.75,
-                    minChildSize: 0.25,
-                    expand: false,
-                    snap: true,
-                    snapSizes: const [0.26, 0.75],
-                    controller: _profileScrollController,
-                    builder: (context, scrollController) => ParagonPicker(
-                      scrollController: scrollController,
-                      deckList: deckList.items,
-                      onParagonSelected: (paragon) {
-                        setState(() {
-                          chosenParagon = paragon;
-                        });
-                        if (session != null && !session!.isExpired) {
-                          supabase.auth.updateUser(
-                            UserAttributes(
-                              data: <String, dynamic>{
-                                "paragon": paragon.name,
-                              },
-                            ),
-                          );
-                        }
-                        Navigator.pop(context);
-                      },
-                      onDeckSelected: (chosenDeck) {
-                        setState(() {
-                          chosenParagon =
-                              Paragon.fromCardID(chosenDeck.paragon.id);
-                          selectedDeck = chosenDeck;
-                        });
-                        if (session != null && !session!.isExpired) {
-                          supabase.auth.updateUser(
-                            UserAttributes(
-                              data: <String, dynamic>{
-                                "paragon": chosenParagon.name,
-                                "deck": chosenDeck.name,
-                              },
-                            ),
-                          );
-                        }
-                        Navigator.pop(context);
+                        );
                       },
                     ),
-                  );
-                },
-              ),
-              icon: selectedDeck == null
-                  ? ParagonAvatar(
-                      paragon: chosenParagon,
-                      tooltip: "Select your Paragon",
-                    )
-                  : MiniDeck(deck: selectedDeck!),
-            ),
+                    icon: selectedDeck == null
+                        ? ParagonAvatar(
+                            paragon: chosenParagon,
+                            tooltip: "Select your Paragon",
+                          )
+                        : MiniDeck(deck: selectedDeck!),
+                  )
+                : null,
           ),
         ),
       ),

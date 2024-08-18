@@ -31,11 +31,14 @@ class Account extends StatefulWidget {
   State<Account> createState() => _AccountState();
 }
 
-class _AccountState extends State<Account> {
+class _AccountState extends State<Account> with AutomaticKeepAliveClientMixin {
   bool loadMoreEnabled = true;
 
   List<bool> expandedPanels = List.empty(growable: true);
   List<GlobalKey> repaintKeys = List.empty(growable: true);
+
+  @override
+  bool get wantKeepAlive => true;
 
   Widget placeholder = Padding(
     padding: const EdgeInsets.all(8),
@@ -72,6 +75,7 @@ class _AccountState extends State<Account> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     Analytics.instance.trackEvent("load", {"page": "account"});
     final matchResults = InheritedMatchResults.of(context);
     final matchList = InheritedMatchList.of(context);

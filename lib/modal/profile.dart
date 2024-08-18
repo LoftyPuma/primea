@@ -523,9 +523,7 @@ class ProfileState extends State<Profile> {
                   );
                   if (newDeckModel != null) {
                     final newDeck = await newDeckModel.toDeck();
-                    setState(() {
-                      widget.decks.insert(0, newDeck);
-                    });
+                    widget.decks.insert(0, newDeck);
                   }
                 },
               ),
