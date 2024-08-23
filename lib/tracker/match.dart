@@ -192,7 +192,7 @@ class Match extends StatelessWidget {
                             if (match.primeEarned != null)
                               TextSpan(
                                 text:
-                                    "${match.primeEarned?.toStringAsPrecision(2)} PRIME",
+                                    "${match.primeEarned?.toStringAsPrecision(3)} PRIME",
                                 style: Theme.of(context).textTheme.labelMedium,
                               ),
                           ],

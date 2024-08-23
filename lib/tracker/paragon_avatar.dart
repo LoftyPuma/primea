@@ -23,7 +23,7 @@ class ParagonAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     if (deck != null) {
       return Padding(
-        padding: const EdgeInsets.only(top: 8, bottom: 8),
+        padding: const EdgeInsets.only(top: 8, bottom: 8, left: 8, right: 8),
         child: MiniDeck(deck: deck!),
       );
     }

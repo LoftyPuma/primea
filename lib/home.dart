@@ -67,7 +67,7 @@ class _HomeState extends State<Home>
   @override
   bool get wantKeepAlive => true;
 
-  handleAuthStateChange(AuthState data) async {
+  void handleAuthStateChange(AuthState data) async {
     Analytics.instance.trackEvent(
       "authStateChanged",
       {"event": data.event.name},

@@ -449,6 +449,7 @@ class MatchModalState extends State<MatchModal> {
                                 ? null
                                 : double.tryParse(primeController.text),
                             deckId: deck?.id,
+                            deck: deck,
                             notes: notesController.text.isEmpty
                                 ? null
                                 : notesController.text,
