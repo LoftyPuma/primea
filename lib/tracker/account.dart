@@ -66,15 +66,22 @@ class _AccountState extends State<Account> with AutomaticKeepAliveClientMixin {
       });
     }
 
-    return SizedBox(
-      width: 720,
-      child: Column(
-        children: [
-          NewMatch(
+    return Column(
+      children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 720,
+          ),
+          child: NewMatch(
             chosenParagon: widget.chosenParagon,
             chosenDeck: widget.chosenDeck,
           ),
-          ListenableBuilder(
+        ),
+        ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 720,
+          ),
+          child: ListenableBuilder(
             listenable: matchList,
             builder: (context, child) {
               return Padding(
@@ -187,11 +194,11 @@ class _AccountState extends State<Account> with AutomaticKeepAliveClientMixin {
               );
             },
           ),
-          const SizedBox(
-            height: 80,
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(
+          height: 80,
+        ),
+      ],
     );
   }
 }
