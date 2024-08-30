@@ -195,6 +195,10 @@ class _AccountState extends State<Account> with AutomaticKeepAliveClientMixin {
             },
           ),
         ),
+        if (!matchList.initialized)
+          const CircularProgressIndicator()
+        else if (matchList.length == 0)
+          const Text("No matches found"),
         const SizedBox(
           height: 80,
         ),
