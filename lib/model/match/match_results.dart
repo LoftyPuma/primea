@@ -3,6 +3,7 @@ import 'package:primea/main.dart';
 import 'package:primea/model/match/match_model.dart';
 import 'package:primea/model/match/match_result.dart';
 import 'package:primea/model/match/player_turn.dart';
+import 'package:primea/model/season/season.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/util/analytics.dart';
 
@@ -22,9 +23,9 @@ class MatchResults extends ChangeNotifier {
 
   bool initialized = false;
 
-  Future<void> init() async {
+  Future<void> init(Future<Season> season) async {
     try {
-      final matchResults = await _fetchMatchResults();
+      final matchResults = await _fetchMatchResults(await season);
       _matchupCounts = _initializeMatchupCounts(matchResults);
       initialized = true;
       notifyListeners();
@@ -37,10 +38,13 @@ class MatchResults extends ChangeNotifier {
     }
   }
 
-  Future<Set<MatchResult>> _fetchMatchResults() async {
-    var response = await supabase.from(MatchModel.gamesTableName).select(
+  Future<Set<MatchResult>> _fetchMatchResults(Season season) async {
+    var response = await supabase
+        .from(MatchModel.gamesTableName)
+        .select(
           "count(), paragon, opponent_paragon, result, player_one",
-        );
+        )
+        .eq('season', season.id);
     return MatchResults._fromJson(response);
   }
 

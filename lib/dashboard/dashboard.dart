@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:primea/dashboard/number_card.dart';
-import 'package:primea/model/match/inherited_match_list.dart';
+import 'package:primea/main.dart';
 import 'package:primea/model/match/inherited_match_results.dart';
+import 'package:primea/model/match/match_model.dart';
+import 'package:primea/model/match/match_results.dart';
 import 'package:primea/model/match/player_turn.dart';
+import 'package:primea/model/season/season.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/paragon_avatar.dart';
 import 'package:primea/tracker/progress_card.dart';
 import 'package:primea/util/analytics.dart';
 
 class Dashboard extends StatefulWidget {
+  final Future<Iterable<Season>> seasons;
+
   const Dashboard({
     super.key,
+    required this.seasons,
   });
 
   @override
@@ -19,6 +25,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with AutomaticKeepAliveClientMixin {
+  Season? season;
   Paragon? selectedParagon;
   Paragon? opponentParagon;
   PlayerTurn? playerTurn;
@@ -36,6 +43,12 @@ class _DashboardState extends State<Dashboard>
   static const double spacing = 8;
   static const double squareSize = 150;
 
+  MatchResults? _matchResults;
+
+  Future<List<Map<String, dynamic>>> seasonMatchesCount =
+      supabase.from(MatchModel.gamesTableName).select('season, id.count()');
+  Map<int, int> seasonMatchCounts = {};
+
   double _calculateDimension(int tileCount) {
     final bufferSpace =
         tileCount == 1 ? 0 : (tileCount) * _DashboardState.spacing;
@@ -43,15 +56,98 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
+  void initState() {
+    super.initState();
+    seasonMatchesCount.then((counts) {
+      setState(() {
+        for (var element in counts) {
+          seasonMatchCounts[element['season']] = element['count'];
+        }
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
     Analytics.instance.trackEvent("load", {"page": "dashboard"});
 
-    final matchList = InheritedMatchList.of(context);
-    final matchResults = InheritedMatchResults.of(context);
+    _matchResults ??= InheritedMatchResults.of(context);
 
     return ListView(
       children: [
+        Center(
+          child: FutureBuilder(
+            future: widget.seasons,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final now = DateTime.now();
+                season ??= snapshot.data?.singleWhere(
+                  (s) => s.startDate.isBefore(now) && s.endDate.isAfter(now),
+                  orElse: () => snapshot.data!.first,
+                );
+              }
+              if (season != null &&
+                  snapshot.hasData &&
+                  seasonMatchCounts.isNotEmpty) {
+                bool isDisabled = seasonMatchCounts.length <= 1;
+                Color? disabledColor =
+                    Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white54
+                        : Colors.grey[600];
+                return DropdownButton<Season>(
+                  items: snapshot.data
+                      ?.where((s) => seasonMatchCounts.containsKey(s.id))
+                      .map(
+                        (s) => DropdownMenuItem(
+                          value: s,
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "${s.name} // ${s.title}\n",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelLarge
+                                      ?.copyWith(
+                                        color:
+                                            isDisabled ? disabledColor : null,
+                                      ),
+                                ),
+                                TextSpan(
+                                  text:
+                                      "${seasonMatchCounts[s.id] ?? 0} matches",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(
+                                        color:
+                                            isDisabled ? disabledColor : null,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  value: season,
+                  onChanged: isDisabled
+                      ? null
+                      : (value) async {
+                          if (value != null) {
+                            await _matchResults?.init(Future.value(value));
+                          }
+                          setState(() {
+                            season = value;
+                          });
+                        },
+                );
+              }
+              return Container();
+            },
+          ),
+        ),
         Center(
           child: ConstrainedBox(
             constraints: BoxConstraints.loose(
@@ -306,26 +402,21 @@ class _DashboardState extends State<Dashboard>
                 alignment: WrapAlignment.center,
                 children: [
                   NumberCard(
-                    title: 'Win streak',
-                    height: squareSize,
-                    width: _calculateDimension(2),
-                    value: matchList.winStreak.toString(),
-                  ),
-                  NumberCard(
                     title: 'Matches Played',
                     height: squareSize,
                     width: _calculateDimension(2),
                     primaryColor: selectedParagon?.parallel.color,
                     secondaryColor: opponentParagon?.parallel.color,
-                    value: matchResults
-                        .count(
-                          paragon: selectedParagon,
-                          opponentParagon: opponentParagon,
-                          playerTurn: playerTurn,
-                        )
-                        .total
-                        .toDouble()
-                        .toStringAsFixed(0),
+                    value: _matchResults
+                            ?.count(
+                              paragon: selectedParagon,
+                              opponentParagon: opponentParagon,
+                              playerTurn: playerTurn,
+                            )
+                            .total
+                            .toDouble()
+                            .toStringAsFixed(0) ??
+                        "0",
                   ),
                   NumberCard(
                     title: 'Going 1st',
@@ -333,15 +424,16 @@ class _DashboardState extends State<Dashboard>
                     width: squareSize,
                     primaryColor: selectedParagon?.parallel.color,
                     secondaryColor: opponentParagon?.parallel.color,
-                    value: matchResults
-                        .count(
-                          paragon: selectedParagon,
-                          opponentParagon: opponentParagon,
-                          playerTurn: PlayerTurn.going1st,
-                        )
-                        .total
-                        .toDouble()
-                        .toStringAsFixed(0),
+                    value: _matchResults
+                            ?.count(
+                              paragon: selectedParagon,
+                              opponentParagon: opponentParagon,
+                              playerTurn: PlayerTurn.going1st,
+                            )
+                            .total
+                            .toDouble()
+                            .toStringAsFixed(0) ??
+                        "0",
                   ),
                   NumberCard(
                     title: 'Going 2nd',
@@ -349,15 +441,16 @@ class _DashboardState extends State<Dashboard>
                     width: squareSize,
                     primaryColor: selectedParagon?.parallel.color,
                     secondaryColor: opponentParagon?.parallel.color,
-                    value: matchResults
-                        .count(
-                          paragon: selectedParagon,
-                          opponentParagon: opponentParagon,
-                          playerTurn: PlayerTurn.going2nd,
-                        )
-                        .total
-                        .toDouble()
-                        .toStringAsFixed(0),
+                    value: _matchResults
+                            ?.count(
+                              paragon: selectedParagon,
+                              opponentParagon: opponentParagon,
+                              playerTurn: PlayerTurn.going2nd,
+                            )
+                            .total
+                            .toDouble()
+                            .toStringAsFixed(0) ??
+                        "0",
                   ),
                   InkWell(
                     borderRadius: BorderRadius.circular(16),
@@ -377,15 +470,16 @@ class _DashboardState extends State<Dashboard>
                               switchable: true,
                               primaryColor: selectedParagon?.parallel.color,
                               secondaryColor: opponentParagon?.parallel.color,
-                              value: matchResults
-                                  .count(
-                                    paragon: selectedParagon,
-                                    opponentParagon: opponentParagon,
-                                    playerTurn: playerTurn,
-                                  )
-                                  .win
-                                  .toDouble()
-                                  .toStringAsFixed(0),
+                              value: _matchResults
+                                      ?.count(
+                                        paragon: selectedParagon,
+                                        opponentParagon: opponentParagon,
+                                        playerTurn: playerTurn,
+                                      )
+                                      .win
+                                      .toDouble()
+                                      .toStringAsFixed(0) ??
+                                  "0",
                             )
                           : NumberCard(
                               key: const ValueKey('matchesLost'),
@@ -395,15 +489,16 @@ class _DashboardState extends State<Dashboard>
                               switchable: true,
                               primaryColor: selectedParagon?.parallel.color,
                               secondaryColor: opponentParagon?.parallel.color,
-                              value: matchResults
-                                  .count(
-                                    paragon: selectedParagon,
-                                    opponentParagon: opponentParagon,
-                                    playerTurn: playerTurn,
-                                  )
-                                  .loss
-                                  .toDouble()
-                                  .toStringAsFixed(0),
+                              value: _matchResults
+                                      ?.count(
+                                        paragon: selectedParagon,
+                                        opponentParagon: opponentParagon,
+                                        playerTurn: playerTurn,
+                                      )
+                                      .loss
+                                      .toDouble()
+                                      .toStringAsFixed(0) ??
+                                  "0",
                             ),
                     ),
                   ),

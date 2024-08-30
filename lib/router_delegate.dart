@@ -29,7 +29,6 @@ class PrimeaRouterDelegate extends RouterDelegate<PrimeaRoutePath>
       key: ValueKey('HomePage'),
       child: Home(
         title: "Primea",
-        initialTab: PrimeaTabs.landing,
       ),
     ),
   ];

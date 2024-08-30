@@ -3,13 +3,10 @@ import 'package:primea/modal/match.dart';
 import 'package:primea/model/deck/deck.dart';
 import 'package:primea/model/match/inherited_match_list.dart';
 import 'package:primea/model/match/inherited_match_results.dart';
-import 'package:primea/model/match/match_result_option.dart';
-import 'package:primea/model/match/player_turn.dart';
 import 'package:primea/tracker/match.dart';
 import 'package:primea/model/match/match_model.dart';
 import 'package:primea/tracker/new_match.dart';
 import 'package:primea/tracker/paragon.dart';
-import 'package:primea/tracker/paragon_stack.dart';
 import 'package:primea/tracker/session_summary.dart';
 import 'package:primea/util/analytics.dart';
 
@@ -39,39 +36,6 @@ class _AccountState extends State<Account> with AutomaticKeepAliveClientMixin {
 
   @override
   bool get wantKeepAlive => true;
-
-  Widget placeholder = Padding(
-    padding: const EdgeInsets.all(8),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ParagonStack(
-          match: MatchModel(
-            paragon: Paragon.unknown,
-            playerTurn: PlayerTurn.going1st,
-            result: MatchResultOption.draw,
-            matchTime: DateTime.now().toUtc(),
-          ),
-        ),
-        const Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Add a match to get started!'),
-            ],
-          ),
-        ),
-        const Tooltip(
-          message: "TBD",
-          child: Icon(
-            Icons.question_mark_outlined,
-          ),
-        ),
-      ],
-    ),
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -223,31 +187,6 @@ class _AccountState extends State<Account> with AutomaticKeepAliveClientMixin {
               );
             },
           ),
-          if (!matchList.initialized || !matchResults.initialized)
-            const Padding(
-              padding: EdgeInsets.all(8),
-              child: CircularProgressIndicator(),
-            ),
-          if (matchList.initialized && matchResults.initialized)
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Tooltip(
-                message: !loadMoreEnabled ? "No older matches" : "",
-                child: OutlinedButton.icon(
-                  label: const Text("Load More"),
-                  icon: const Icon(Icons.add),
-                  onPressed: loadMoreEnabled
-                      ? () async {
-                          if (await matchList.loadMore() < matchList.limit) {
-                            setState(() {
-                              loadMoreEnabled = false;
-                            });
-                          }
-                        }
-                      : null,
-                ),
-              ),
-            ),
           const SizedBox(
             height: 80,
           ),

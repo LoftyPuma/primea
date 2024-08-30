@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:primea/main.dart';
@@ -8,6 +7,7 @@ import 'package:primea/model/deck/deck_model.dart';
 import 'package:primea/model/match/match_model.dart';
 import 'package:primea/model/match/match_result_option.dart';
 import 'package:primea/model/match/match_results.dart';
+import 'package:primea/model/season/season.dart';
 import 'package:primea/tracker/match.dart';
 import 'package:primea/util/analytics.dart';
 
@@ -22,8 +22,10 @@ class MatchList extends ChangeNotifier {
   int _totalMatches = 0;
   bool initialized = false;
 
-  MatchList(GlobalKey<AnimatedListState> listKey, this.matchResults)
-      : _listKey = listKey,
+  MatchList(
+    GlobalKey<AnimatedListState> listKey,
+    this.matchResults,
+  )   : _listKey = listKey,
         _matchList = List.empty(growable: true);
 
   GlobalKey<AnimatedListState> get listKey => _listKey;
@@ -125,9 +127,9 @@ class MatchList extends ChangeNotifier {
 
   operator [](int index) => _matchList[index];
 
-  Future<void> init() async {
+  Future<void> init(Future<Season> season) async {
     try {
-      final matches = await _fetchMatches();
+      final matches = await _fetchMatches(await season);
       _matchList.addAll(matches);
       _listKey.currentState?.insertAllItems(0, matches.length,
           duration: const Duration(milliseconds: 250));
@@ -142,53 +144,31 @@ class MatchList extends ChangeNotifier {
     }
   }
 
-  Future<List<MatchModel>> _fetchMatches({
-    DateTime? oldestMatchTimestamp,
-    int limit = _limit,
-  }) async {
-    oldestMatchTimestamp ??= DateTime.now().toUtc();
-    var matches = await supabase
-        .from(MatchModel.gamesTableName)
-        .select('*, decks(*)')
-        .lt('game_time',
-            oldestMatchTimestamp.subtract(const Duration(milliseconds: 10)))
-        .order(
-          "game_time",
-        )
-        .limit(limit)
-        .count();
+  Future<Iterable<MatchModel>> _fetchMatches(
+    Season season,
+  ) async {
+    Iterable<Future<MatchModel>> results = [];
+    int from = 0;
+    do {
+      var matches = await supabase
+          .from(MatchModel.gamesTableName)
+          .select('*, decks(*)')
+          .eq('season', season.id)
+          .order("game_time")
+          .range(from, from + _limit - 1)
+          .count();
 
-    _totalMatches = matches.count;
-    final enrichedMatched = matches.data.map((game) async {
-      if (game['decks'] != null) {
-        game['deck'] = await DeckModel.fromJson(game['decks']).toDeck();
-      }
-      return MatchModel.fromJson(game);
-    });
-    return Future.wait(enrichedMatched);
-  }
-
-  Future<int> loadMore() async {
-    final oldestMatchTimestamp = _matchList.isNotEmpty
-        ? _matchList.last.matchTime
-        : DateTime.now().toUtc();
-    final newMatches = await _fetchMatches(
-      oldestMatchTimestamp: oldestMatchTimestamp,
-    );
-    if (kDebugMode) {
-      print(
-        "Loaded ${newMatches.length} more matches from $oldestMatchTimestamp",
-      );
-    }
-    final oldLength = _matchList.length;
-    _matchList.addAll(newMatches);
-    _listKey.currentState?.insertAllItems(
-      oldLength,
-      newMatches.length,
-      duration: const Duration(milliseconds: 250),
-    );
-    notifyListeners();
-    return newMatches.length;
+      _totalMatches = matches.count;
+      final enrichedMatched = matches.data.map((game) async {
+        if (game['decks'] != null) {
+          game['deck'] = await DeckModel.fromJson(game['decks']).toDeck();
+        }
+        return MatchModel.fromJson(game);
+      });
+      results = results.followedBy(enrichedMatched);
+      from += enrichedMatched.length;
+    } while (_totalMatches > results.length);
+    return Future.wait(results);
   }
 
   Future<void> add(MatchModel newMatch) async {
@@ -217,7 +197,7 @@ class MatchList extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addAll(List<MatchModel> newMatches) async {
+  Future<void> addAll(Iterable<MatchModel> newMatches) async {
     final List<dynamic> insertedMatches = await supabase
         .from(MatchModel.gamesTableName)
         .insert(

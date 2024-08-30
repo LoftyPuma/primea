@@ -21,6 +21,7 @@ class MatchModel {
   final double? primeEarned;
   final String? deckId;
   final Deck? deck;
+  final int? season;
   final String? notes;
   final List<KeyModel> keysActivated;
 
@@ -38,6 +39,7 @@ class MatchModel {
     this.primeEarned,
     this.deckId,
     this.deck,
+    this.season,
     this.notes,
     this.keysActivated = const [],
   });
@@ -49,6 +51,7 @@ class MatchModel {
             : null,
         matchTime = DateTime.parse(json['game_time']),
         opponentUsername = json['opponent_username'],
+        season = json['season'],
         mmrDelta = json['mmr_delta'],
         primeEarned =
             json['prime_estimate'] != null ? json['prime_estimate'] + 0.0 : 0,
