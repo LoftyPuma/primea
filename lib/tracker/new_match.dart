@@ -368,6 +368,7 @@ class _NewMatchState extends State<NewMatch> {
                         _usernameController.clear();
                         _mmrController.clear();
                         _primeController.clear();
+                        _notesController.clear();
                       });
                       Analytics.instance.trackEvent("createMatch", {
                         "duration":
