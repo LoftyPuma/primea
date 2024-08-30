@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:primea/dashboard/number_card.dart';
 import 'package:primea/main.dart';
+import 'package:primea/model/match/inherited_match_list.dart';
 import 'package:primea/model/match/inherited_match_results.dart';
+import 'package:primea/model/match/match_list.dart';
 import 'package:primea/model/match/match_model.dart';
 import 'package:primea/model/match/match_results.dart';
 import 'package:primea/model/match/player_turn.dart';
@@ -10,6 +12,7 @@ import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/paragon_avatar.dart';
 import 'package:primea/tracker/progress_card.dart';
 import 'package:primea/util/analytics.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Dashboard extends StatefulWidget {
   final Future<Iterable<Season>> seasons;
@@ -44,6 +47,7 @@ class _DashboardState extends State<Dashboard>
   static const double squareSize = 150;
 
   MatchResults? _matchResults;
+  MatchList? _matchList;
 
   Future<List<Map<String, dynamic>>> seasonMatchesCount =
       supabase.from(MatchModel.gamesTableName).select('season, id.count()');
@@ -55,9 +59,40 @@ class _DashboardState extends State<Dashboard>
     return (_DashboardState.squareSize * tileCount.toDouble()) + bufferSpace;
   }
 
+  late final RealtimeChannel subscription;
+
+  @override
+  Future<void> dispose() async {
+    super.dispose();
+    await subscription.unsubscribe();
+  }
+
   @override
   void initState() {
     super.initState();
+
+    subscription = supabase
+        .channel("public:games")
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: "public",
+          table: MatchModel.gamesTableName,
+          callback: (payload) async {
+            _matchResults?.init(Future.value(season));
+            await supabase
+                .from(MatchModel.gamesTableName)
+                .select('season, id.count()')
+                .then((counts) {
+              setState(() {
+                for (var element in counts) {
+                  seasonMatchCounts[element['season']] = element['count'];
+                }
+              });
+            });
+          },
+        )
+        .subscribe();
+
     seasonMatchesCount.then((counts) {
       setState(() {
         for (var element in counts) {
@@ -73,6 +108,7 @@ class _DashboardState extends State<Dashboard>
     Analytics.instance.trackEvent("load", {"page": "dashboard"});
 
     _matchResults ??= InheritedMatchResults.of(context);
+    _matchList ??= InheritedMatchList.of(context);
 
     return ListView(
       children: [
@@ -407,16 +443,15 @@ class _DashboardState extends State<Dashboard>
                     width: _calculateDimension(2),
                     primaryColor: selectedParagon?.parallel.color,
                     secondaryColor: opponentParagon?.parallel.color,
-                    value: _matchResults
-                            ?.count(
-                              paragon: selectedParagon,
-                              opponentParagon: opponentParagon,
-                              playerTurn: playerTurn,
-                            )
-                            .total
-                            .toDouble()
-                            .toStringAsFixed(0) ??
-                        "0",
+                    value: _matchResults!
+                        .count(
+                          paragon: selectedParagon,
+                          opponentParagon: opponentParagon,
+                          playerTurn: playerTurn,
+                        )
+                        .total
+                        .toDouble()
+                        .toStringAsFixed(0),
                   ),
                   NumberCard(
                     title: 'Going 1st',
@@ -424,16 +459,15 @@ class _DashboardState extends State<Dashboard>
                     width: squareSize,
                     primaryColor: selectedParagon?.parallel.color,
                     secondaryColor: opponentParagon?.parallel.color,
-                    value: _matchResults
-                            ?.count(
-                              paragon: selectedParagon,
-                              opponentParagon: opponentParagon,
-                              playerTurn: PlayerTurn.going1st,
-                            )
-                            .total
-                            .toDouble()
-                            .toStringAsFixed(0) ??
-                        "0",
+                    value: _matchResults!
+                        .count(
+                          paragon: selectedParagon,
+                          opponentParagon: opponentParagon,
+                          playerTurn: PlayerTurn.going1st,
+                        )
+                        .total
+                        .toDouble()
+                        .toStringAsFixed(0),
                   ),
                   NumberCard(
                     title: 'Going 2nd',
@@ -441,16 +475,15 @@ class _DashboardState extends State<Dashboard>
                     width: squareSize,
                     primaryColor: selectedParagon?.parallel.color,
                     secondaryColor: opponentParagon?.parallel.color,
-                    value: _matchResults
-                            ?.count(
-                              paragon: selectedParagon,
-                              opponentParagon: opponentParagon,
-                              playerTurn: PlayerTurn.going2nd,
-                            )
-                            .total
-                            .toDouble()
-                            .toStringAsFixed(0) ??
-                        "0",
+                    value: _matchResults!
+                        .count(
+                          paragon: selectedParagon,
+                          opponentParagon: opponentParagon,
+                          playerTurn: PlayerTurn.going2nd,
+                        )
+                        .total
+                        .toDouble()
+                        .toStringAsFixed(0),
                   ),
                   InkWell(
                     borderRadius: BorderRadius.circular(16),
@@ -470,16 +503,15 @@ class _DashboardState extends State<Dashboard>
                               switchable: true,
                               primaryColor: selectedParagon?.parallel.color,
                               secondaryColor: opponentParagon?.parallel.color,
-                              value: _matchResults
-                                      ?.count(
-                                        paragon: selectedParagon,
-                                        opponentParagon: opponentParagon,
-                                        playerTurn: playerTurn,
-                                      )
-                                      .win
-                                      .toDouble()
-                                      .toStringAsFixed(0) ??
-                                  "0",
+                              value: _matchResults!
+                                  .count(
+                                    paragon: selectedParagon,
+                                    opponentParagon: opponentParagon,
+                                    playerTurn: playerTurn,
+                                  )
+                                  .win
+                                  .toDouble()
+                                  .toStringAsFixed(0),
                             )
                           : NumberCard(
                               key: const ValueKey('matchesLost'),
@@ -489,16 +521,15 @@ class _DashboardState extends State<Dashboard>
                               switchable: true,
                               primaryColor: selectedParagon?.parallel.color,
                               secondaryColor: opponentParagon?.parallel.color,
-                              value: _matchResults
-                                      ?.count(
-                                        paragon: selectedParagon,
-                                        opponentParagon: opponentParagon,
-                                        playerTurn: playerTurn,
-                                      )
-                                      .loss
-                                      .toDouble()
-                                      .toStringAsFixed(0) ??
-                                  "0",
+                              value: _matchResults!
+                                  .count(
+                                    paragon: selectedParagon,
+                                    opponentParagon: opponentParagon,
+                                    playerTurn: playerTurn,
+                                  )
+                                  .loss
+                                  .toDouble()
+                                  .toStringAsFixed(0),
                             ),
                     ),
                   ),

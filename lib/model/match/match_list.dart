@@ -171,6 +171,16 @@ class MatchList extends ChangeNotifier {
     return Future.wait(results);
   }
 
+  MatchModel? findMatch(String id) {
+    try {
+      return _matchList.singleWhere(
+        (element) => element.id == id,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> add(MatchModel newMatch) async {
     final newMatchResponse = await supabase
         .from(MatchModel.gamesTableName)
