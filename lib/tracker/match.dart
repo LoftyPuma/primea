@@ -14,8 +14,8 @@ class Match extends StatelessWidget {
   const Match({
     super.key,
     required this.match,
-    required this.onEdit,
-    required this.onDelete,
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
@@ -27,38 +27,40 @@ class Match extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: onEdit == null
-                    ? null
-                    : () {
-                        onEdit!(context);
-                      },
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete),
-                color: Colors.red,
-                onPressed: onDelete == null
-                    ? null
-                    : () {
-                        var currentPlayer = match.paragon.title.isEmpty
-                            ? match.paragon.name
-                            : match.paragon.title;
-                        var opponent = match.opponentParagon.title.isEmpty
-                            ? match.opponentParagon.name
-                            : match.opponentParagon.title;
-                        ScaffoldMessenger.of(context).hideCurrentSnackBar(
-                          reason: SnackBarClosedReason.dismiss,
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          BasicSnack(
-                            content: Text(
-                                "Deleting $currentPlayer ${match.result.name} vs $opponent"),
-                          ),
-                        );
-                        onDelete!(context);
-                      },
-              ),
+              if (onEdit != null)
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: onEdit == null
+                      ? null
+                      : () {
+                          onEdit!(context);
+                        },
+                ),
+              if (onDelete != null)
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  color: Colors.red,
+                  onPressed: onDelete == null
+                      ? null
+                      : () {
+                          var currentPlayer = match.paragon.title.isEmpty
+                              ? match.paragon.name
+                              : match.paragon.title;
+                          var opponent = match.opponentParagon.title.isEmpty
+                              ? match.opponentParagon.name
+                              : match.opponentParagon.title;
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar(
+                            reason: SnackBarClosedReason.dismiss,
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            BasicSnack(
+                              content: Text(
+                                  "Deleting $currentPlayer ${match.result.name} vs $opponent"),
+                            ),
+                          );
+                          onDelete!(context);
+                        },
+                ),
               Flexible(
                 flex: 2,
                 child: FittedBox(

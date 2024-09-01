@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:primea/dashboard/number_card.dart';
 import 'package:primea/main.dart';
-import 'package:primea/model/match/inherited_match_list.dart';
 import 'package:primea/model/match/inherited_match_results.dart';
+import 'package:primea/tracker/match.dart';
 import 'package:primea/model/match/match_list.dart';
 import 'package:primea/model/match/match_model.dart';
 import 'package:primea/model/match/match_results.dart';
@@ -11,15 +11,18 @@ import 'package:primea/model/season/season.dart';
 import 'package:primea/tracker/paragon.dart';
 import 'package:primea/tracker/paragon_avatar.dart';
 import 'package:primea/tracker/progress_card.dart';
+import 'package:primea/tracker/session_summary.dart';
 import 'package:primea/util/analytics.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Dashboard extends StatefulWidget {
   final Future<Iterable<Season>> seasons;
+  final TabController tabController;
 
   const Dashboard({
     super.key,
     required this.seasons,
+    required this.tabController,
   });
 
   @override
@@ -47,7 +50,10 @@ class _DashboardState extends State<Dashboard>
   static const double squareSize = 150;
 
   MatchResults? _matchResults;
+
+  List<bool>? expandedPanels;
   MatchList? _matchList;
+  bool loadingMatches = false;
 
   Future<List<Map<String, dynamic>>> seasonMatchesCount =
       supabase.from(MatchModel.gamesTableName).select('season, id.count()');
@@ -108,7 +114,6 @@ class _DashboardState extends State<Dashboard>
     Analytics.instance.trackEvent("load", {"page": "dashboard"});
 
     _matchResults ??= InheritedMatchResults.of(context);
-    _matchList ??= InheritedMatchList.of(context);
 
     return ListView(
       children: [
@@ -160,6 +165,9 @@ class _DashboardState extends State<Dashboard>
                     }
                     setState(() {
                       season = value;
+                      _matchList = null;
+                      loadingMatches = false;
+                      expandedPanels = null;
                     });
                   },
                 );
@@ -407,7 +415,7 @@ class _DashboardState extends State<Dashboard>
               top: 16,
               left: 16,
               right: 16,
-              bottom: 96,
+              bottom: 16,
             ),
             child: ConstrainedBox(
               constraints: BoxConstraints.loose(
@@ -579,6 +587,95 @@ class _DashboardState extends State<Dashboard>
               ),
             ),
           ),
+        ),
+        if (_matchList == null && season != null && !season!.isCurrent)
+          Center(
+            child: OutlinedButton(
+              onPressed: () async {
+                _matchList = MatchList(GlobalKey(), MatchResults());
+                setState(() {
+                  loadingMatches = true;
+                });
+                await _matchList!.init(Future.value(season));
+                setState(() {
+                  loadingMatches = false;
+                });
+              },
+              child: Text("View ${season?.name} Matches"),
+            ),
+          ),
+        if (loadingMatches)
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
+        if (_matchList != null)
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 720,
+              ),
+              child: ListenableBuilder(
+                listenable: _matchList!,
+                builder: (context, child) {
+                  final numberOfSessions = _matchList!.sessionCount;
+                  if (expandedPanels == null ||
+                      expandedPanels?.length != numberOfSessions) {
+                    expandedPanels = List.filled(numberOfSessions, false);
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      top: 8,
+                    ),
+                    child: ExpansionPanelList(
+                      dividerColor: Colors.transparent,
+                      materialGapSize: 16,
+                      expansionCallback: (panelIndex, isExpanded) {
+                        setState(() {
+                          expandedPanels?[panelIndex] = isExpanded;
+                        });
+                      },
+                      children:
+                          List.generate(numberOfSessions, (index) => index)
+                              .map((index) {
+                        final session = _matchList!.nextSession(index);
+                        return ExpansionPanel(
+                          isExpanded: expandedPanels?[index] ?? false,
+                          headerBuilder:
+                              (BuildContext context, bool isExpanded) {
+                            return ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                maxWidth: 720,
+                              ),
+                              child: SessionSummary(
+                                sessionIndex: index,
+                                isExpanded: isExpanded,
+                                matchList: _matchList,
+                              ),
+                            );
+                          },
+                          body: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: session?.length ?? 0,
+                            itemBuilder: (context, index) {
+                              final match = session!.elementAt(index);
+                              return Match(
+                                key: ValueKey(
+                                    match.id! + match.matchTime.toString()),
+                                match: match,
+                              );
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        const SizedBox(
+          height: 16,
         ),
       ],
     );

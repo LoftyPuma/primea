@@ -39,6 +39,11 @@ class Season extends Object {
         other.endDate == endDate;
   }
 
+  bool get isCurrent {
+    final now = DateTime.now().toUtc();
+    return now.isAfter(startDate) && now.isBefore(endDate);
+  }
+
   @override
   int get hashCode => Object.hash(
         id,

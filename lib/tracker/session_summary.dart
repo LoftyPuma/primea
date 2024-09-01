@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:primea/model/match/inherited_match_list.dart';
 import 'package:primea/model/match/inherited_match_results.dart';
+import 'package:primea/model/match/match_list.dart';
 import 'package:primea/model/match/match_results.dart';
 import 'package:primea/tracker/paragon_avatar.dart';
 import 'package:primea/tracker/progress_card.dart';
@@ -9,11 +10,13 @@ import 'package:primea/tracker/progress_card.dart';
 class SessionSummary extends StatefulWidget {
   final int sessionIndex;
   final bool isExpanded;
+  final MatchList? matchList;
 
   const SessionSummary({
     super.key,
     required this.sessionIndex,
     required this.isExpanded,
+    this.matchList,
   });
 
   @override
@@ -25,7 +28,7 @@ class _SessionSummaryState extends State<SessionSummary> {
 
   @override
   Widget build(BuildContext context) {
-    final matchList = InheritedMatchList.of(context);
+    final matchList = widget.matchList ?? InheritedMatchList.of(context);
 
     return Padding(
       padding: const EdgeInsets.only(top: 2, bottom: 2),

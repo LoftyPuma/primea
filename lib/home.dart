@@ -340,6 +340,7 @@ class _HomeState extends State<Home>
                         ),
                         child: Dashboard(
                           seasons: seasons,
+                          tabController: _tabController,
                         ),
                       ),
                     ],
