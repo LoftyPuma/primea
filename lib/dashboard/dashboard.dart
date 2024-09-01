@@ -126,12 +126,6 @@ class _DashboardState extends State<Dashboard>
               if (season != null &&
                   snapshot.hasData &&
                   seasonMatchCounts.isNotEmpty) {
-                bool isDisabled = seasonMatchCounts.length <= 1 &&
-                    seasonMatchCounts.containsKey(season?.id);
-                Color? disabledColor =
-                    Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white54
-                        : Colors.grey[600];
                 return DropdownButton<Season>(
                   items: snapshot.data
                       ?.where((s) =>
@@ -146,24 +140,12 @@ class _DashboardState extends State<Dashboard>
                               children: [
                                 TextSpan(
                                   text: "${s.name} // ${s.title}\n",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelLarge
-                                      ?.copyWith(
-                                        color:
-                                            isDisabled ? disabledColor : null,
-                                      ),
+                                  style: Theme.of(context).textTheme.labelLarge,
                                 ),
                                 TextSpan(
                                   text:
                                       "${seasonMatchCounts[s.id] ?? 0} matches",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelSmall
-                                      ?.copyWith(
-                                        color:
-                                            isDisabled ? disabledColor : null,
-                                      ),
+                                  style: Theme.of(context).textTheme.labelSmall,
                                 ),
                               ],
                             ),
@@ -172,16 +154,14 @@ class _DashboardState extends State<Dashboard>
                       )
                       .toList(),
                   value: season,
-                  onChanged: isDisabled
-                      ? null
-                      : (value) async {
-                          if (value != null) {
-                            await _matchResults?.init(Future.value(value));
-                          }
-                          setState(() {
-                            season = value;
-                          });
-                        },
+                  onChanged: (value) async {
+                    if (value != null) {
+                      await _matchResults?.init(Future.value(value));
+                    }
+                    setState(() {
+                      season = value;
+                    });
+                  },
                 );
               }
               return Container();
