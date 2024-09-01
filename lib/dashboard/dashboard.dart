@@ -126,7 +126,8 @@ class _DashboardState extends State<Dashboard>
               if (season != null &&
                   snapshot.hasData &&
                   seasonMatchCounts.isNotEmpty) {
-                bool isDisabled = seasonMatchCounts.length <= 1;
+                bool isDisabled = seasonMatchCounts.length <= 1 &&
+                    seasonMatchCounts.containsKey(season?.id);
                 Color? disabledColor =
                     Theme.of(context).brightness == Brightness.dark
                         ? Colors.white54
