@@ -133,7 +133,10 @@ class _DashboardState extends State<Dashboard>
                         : Colors.grey[600];
                 return DropdownButton<Season>(
                   items: snapshot.data
-                      ?.where((s) => seasonMatchCounts.containsKey(s.id))
+                      ?.where((s) =>
+                          seasonMatchCounts.containsKey(s.id) ||
+                          s.startDate.isBefore(DateTime.now().toUtc()) &&
+                              s.endDate.isAfter(DateTime.now().toUtc()))
                       .map(
                         (s) => DropdownMenuItem(
                           value: s,
