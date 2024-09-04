@@ -4,6 +4,7 @@ import 'package:primea/model/match/inherited_match_list.dart';
 import 'package:primea/model/match/inherited_match_results.dart';
 import 'package:primea/model/match/match_list.dart';
 import 'package:primea/model/match/match_results.dart';
+import 'package:primea/model/match/player_turn.dart';
 import 'package:primea/tracker/paragon_avatar.dart';
 import 'package:primea/tracker/progress_card.dart';
 
@@ -137,6 +138,46 @@ class _SessionSummaryState extends State<SessionSummary> {
                             "${session.length} Match${session.length > 1 ? "es" : ""}",
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      "(${session.fold(0, (acc, m) => acc += m.playerTurn == PlayerTurn.going1st ? 1 : 0)}) ",
+                                  style: Theme.of(context).textTheme.labelLarge,
+                                ),
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Tooltip(
+                                    message: "Going 1st",
+                                    child: Icon(
+                                      Icons.looks_one_rounded,
+                                      color: Colors.yellow[600],
+                                    ),
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: " - ",
+                                  style: Theme.of(context).textTheme.labelLarge,
+                                ),
+                                const WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Tooltip(
+                                    message: "Going 2nd",
+                                    child: Icon(
+                                      Icons.looks_two_rounded,
+                                      color: Colors.cyan,
+                                    ),
+                                  ),
+                                ),
+                                TextSpan(
+                                  text:
+                                      " (${session.fold(0, (acc, m) => acc += m.playerTurn == PlayerTurn.going2nd ? 1 : 0)})",
+                                  style: Theme.of(context).textTheme.labelLarge,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
