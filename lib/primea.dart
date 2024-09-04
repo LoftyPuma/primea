@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:primea/inherited_session.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Primea extends StatefulWidget {
   final String title;
   final Widget body;
+  final int? selectedPageIndex;
+  final Function(int) setSelectedPage;
 
   const Primea({
     super.key,
     required this.title,
     required this.body,
+    required this.selectedPageIndex,
+    required this.setSelectedPage,
   });
 
   @override
@@ -20,84 +23,70 @@ class Primea extends StatefulWidget {
 class _PrimeaState extends State<Primea> {
   Session? session = Supabase.instance.client.auth.currentSession;
 
+  int? selectedPageIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedPageIndex = widget.selectedPageIndex;
+  }
+
   @override
   Widget build(BuildContext context) {
     return InheritedSession(
       session: session,
       child: Scaffold(
-        drawer: Drawer(
-          shape: const LinearBorder(),
-          child: ListView(
-            padding: const EdgeInsets.only(top: 24),
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: TextButton(
-                  style: const ButtonStyle(alignment: Alignment.centerLeft),
-                  child: Text(
-                    "paragons".toUpperCase(),
-                    style: Theme.of(context).textTheme.headlineMedium,
+        body: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: selectedPageIndex,
+              elevation: 4,
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+              labelType: NavigationRailLabelType.all,
+              groupAlignment: 0,
+              onDestinationSelected: (index) {
+                setState(() {
+                  widget.setSelectedPage(index);
+                  selectedPageIndex = index;
+                });
+              },
+              destinations: [
+                NavigationRailDestination(
+                  icon: const Icon(Icons.data_array),
+                  selectedIcon: Icon(
+                    Icons.data_array,
+                    color: Theme.of(context).primaryColor,
                   ),
-                  onPressed: () {
-                    context.go('/');
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: TextButton(
-                  style: const ButtonStyle(alignment: Alignment.centerLeft),
-                  child: Text(
-                    "matches".toUpperCase(),
-                    style: Theme.of(context).textTheme.headlineMedium,
+                  label: Text(
+                    "Home",
+                    style: Theme.of(context).textTheme.labelLarge,
                   ),
-                  onPressed: () {
-                    context.go('/matches');
-                    Navigator.of(context).pop();
-                  },
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: TextButton(
-                  style: const ButtonStyle(alignment: Alignment.topLeft),
-                  child: Text(
-                    "dashboard".toUpperCase(),
-                    style: Theme.of(context).textTheme.headlineMedium,
+                NavigationRailDestination(
+                  icon: const Icon(Icons.games),
+                  selectedIcon: Icon(
+                    Icons.games,
+                    color: Theme.of(context).primaryColor,
                   ),
-                  onPressed: () {
-                    context.go('/dashboard');
-                    Navigator.of(context).pop();
-                  },
+                  label: Text(
+                    "Matches",
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar.medium(
-              leading: Builder(
-                builder: (context) => DrawerButton(
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                ),
-              ),
-              title: Text(widget.title),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () {},
+                NavigationRailDestination(
+                  icon: const Icon(Icons.dashboard),
+                  selectedIcon: Icon(
+                    Icons.dashboard,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  label: Text(
+                    "Dashboard",
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
                 ),
               ],
             ),
-            widget.body,
+            Expanded(child: widget.body),
           ],
         ),
       ),

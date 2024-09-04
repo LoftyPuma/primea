@@ -1,36 +1,40 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-enum PrimeaTabs {
-  landing,
-  matches,
-  dashboard,
+abstract class PrimeaPage {
+  const PrimeaPage();
+}
+
+class PrimeaUnknownPage extends PrimeaPage {
+  const PrimeaUnknownPage();
+}
+
+class PrimeaLandingPage extends PrimeaPage {
+  const PrimeaLandingPage();
+}
+
+class PrimeaMatchesPage extends PrimeaPage {
+  const PrimeaMatchesPage();
+}
+
+class PrimeaDashboardPage extends PrimeaPage {
+  const PrimeaDashboardPage();
 }
 
 class PrimeaRoutePath {
-  final bool isUnknown;
-  final PrimeaTabs tab;
+  final PrimeaPage page;
 
   const PrimeaRoutePath({
-    required this.isUnknown,
-    required this.tab,
+    required this.page,
   });
 
-  const PrimeaRoutePath.unknown()
-      : isUnknown = true,
-        tab = PrimeaTabs.landing;
+  const PrimeaRoutePath.unknown() : page = const PrimeaUnknownPage();
 
-  const PrimeaRoutePath.matches()
-      : isUnknown = false,
-        tab = PrimeaTabs.matches;
+  const PrimeaRoutePath.landing() : page = const PrimeaLandingPage();
 
-  const PrimeaRoutePath.dashboard()
-      : isUnknown = false,
-        tab = PrimeaTabs.dashboard;
+  const PrimeaRoutePath.matches() : page = const PrimeaMatchesPage();
 
-  const PrimeaRoutePath.landing()
-      : isUnknown = false,
-        tab = PrimeaTabs.landing;
+  const PrimeaRoutePath.dashboard() : page = const PrimeaDashboardPage();
 }
 
 class PrimeaRouteInformationParser
@@ -47,6 +51,7 @@ class PrimeaRouteInformationParser
     }
 
     switch (path.first) {
+      case '/':
       case 'auth':
         return Future.value(const PrimeaRoutePath.landing());
       case 'matches':
@@ -60,17 +65,16 @@ class PrimeaRouteInformationParser
 
   @override
   RouteInformation? restoreRouteInformation(PrimeaRoutePath configuration) {
-    if (configuration.isUnknown) {
-      return RouteInformation(uri: Uri.parse('/404'));
-    }
-
-    switch (configuration.tab) {
-      case PrimeaTabs.matches:
-        return RouteInformation(uri: Uri.parse('/matches'));
-      case PrimeaTabs.dashboard:
-        return RouteInformation(uri: Uri.parse('/dashboard'));
-      default:
+    switch (configuration.page) {
+      case PrimeaLandingPage _:
         return RouteInformation(uri: Uri.parse('/'));
+      case PrimeaMatchesPage _:
+        return RouteInformation(uri: Uri.parse('/matches'));
+      case PrimeaDashboardPage _:
+        return RouteInformation(uri: Uri.parse('/dashboard'));
+      case PrimeaUnknownPage _:
+      default:
+        return RouteInformation(uri: Uri.parse('/404'));
     }
   }
 }

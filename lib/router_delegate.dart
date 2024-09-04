@@ -1,35 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:primea/home.dart';
 import 'package:primea/route_information_parser.dart';
 
 class PrimeaRouterDelegate extends RouterDelegate<PrimeaRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<PrimeaRoutePath> {
-  PrimeaRouterDelegate(this.title) : navigatorKey = GlobalKey<NavigatorState>();
+  PrimeaRouterDelegate();
 
   @override
-  final GlobalKey<NavigatorState> navigatorKey;
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+  PrimeaPage _selectedTab = const PrimeaLandingPage();
 
-  final String title;
+  int? get selectedPageIndex {
+    switch (_selectedTab) {
+      case PrimeaLandingPage _:
+        return 0;
+      case PrimeaMatchesPage _:
+        return 1;
+      case PrimeaDashboardPage _:
+        return 2;
+      default:
+        return null;
+    }
+  }
 
-  bool _show404 = false;
-  PrimeaTabs _selectedTab = PrimeaTabs.landing;
+  setSelectedPageIndex(int page) {
+    switch (page) {
+      case 0:
+        _selectedTab = const PrimeaLandingPage();
+        break;
+      case 1:
+        _selectedTab = const PrimeaMatchesPage();
+        break;
+      case 2:
+        _selectedTab = const PrimeaDashboardPage();
+        break;
+      default:
+        _selectedTab = const PrimeaUnknownPage();
+    }
+    notifyListeners();
+  }
 
   @override
   PrimeaRoutePath get currentConfiguration {
     return PrimeaRoutePath(
-      isUnknown: _show404,
-      tab: _selectedTab,
+      page: _selectedTab,
     );
   }
 
   final List<MaterialPage<dynamic>> pages = [
-    const MaterialPage(
-      key: ValueKey('HomePage'),
-      child: Home(
-        title: "Primea",
-      ),
+    MaterialPage(
+      key: const ValueKey('HomePage'),
+      child: SingleChildScrollView(child: Container()),
     ),
   ];
 
@@ -41,12 +62,44 @@ class PrimeaRouterDelegate extends RouterDelegate<PrimeaRoutePath>
       onDidRemovePage: (page) {
         pages.remove(page);
       },
+      onGenerateRoute: (RouteSettings settings) {
+        switch (settings.name) {
+          case '/':
+          case 'auth':
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (BuildContext context) {
+                return Container();
+              },
+            );
+          case 'matches':
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (BuildContext context) {
+                return Container();
+              },
+            );
+          case 'dashboard':
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (BuildContext context) {
+                return Container();
+              },
+            );
+          default:
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (BuildContext context) {
+                return Container();
+              },
+            );
+        }
+      },
     );
   }
 
   @override
-  Future<void> setNewRoutePath(PrimeaRoutePath path) async {
-    _show404 = path.isUnknown;
-    _selectedTab = path.tab;
+  Future<void> setNewRoutePath(PrimeaRoutePath configuration) async {
+    _selectedTab = configuration.page;
   }
 }

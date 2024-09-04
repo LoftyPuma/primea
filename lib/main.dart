@@ -3,9 +3,11 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:primea/primea.dart';
 import 'package:primea/route_information_parser.dart';
 import 'package:primea/router_delegate.dart';
 import 'package:primea/util/analytics.dart';
+import 'package:primea/v2/not_found.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const errorTable = 'errors';
@@ -50,7 +52,7 @@ Future<void> main() async {
         return false;
       };
 
-      runApp(App(title: 'Primea'));
+      runApp(const App(title: 'Primea'));
     },
     (error, stackTrace) {
       final details = FlutterErrorDetails(exception: error, stack: stackTrace);
@@ -62,15 +64,25 @@ Future<void> main() async {
   );
 }
 
-class App extends StatelessWidget {
-  App({super.key, required this.title})
-      : _routerDelegate = PrimeaRouterDelegate(title),
-        _routeInformationParser = PrimeaRouteInformationParser();
+class App extends StatefulWidget {
+  const App({super.key, required this.title});
 
   final String title;
 
-  final PrimeaRouterDelegate _routerDelegate;
-  final PrimeaRouteInformationParser _routeInformationParser;
+  @override
+  State<StatefulWidget> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  late final PrimeaRouterDelegate _routerDelegate;
+  late final PrimeaRouteInformationParser _routeInformationParser;
+
+  @override
+  initState() {
+    super.initState();
+    _routerDelegate = PrimeaRouterDelegate();
+    _routeInformationParser = PrimeaRouteInformationParser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,11 +91,31 @@ class App extends StatelessWidget {
     final theme = ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFFDEF141),
+        seedColor: Colors.yellow,
+        // seedColor: const Color(0xFFDEF141),
         brightness: Brightness.dark,
       ),
       cardTheme: const CardTheme(
         shape: ContinuousRectangleBorder(),
+      ),
+      buttonTheme: const ButtonThemeData(
+        shape: LinearBorder(),
+      ),
+      iconButtonTheme: const IconButtonThemeData(
+        style: ButtonStyle(
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            ),
+          ),
+        ),
+      ),
+      textButtonTheme: const TextButtonThemeData(
+        style: ButtonStyle(
+          shape: WidgetStatePropertyAll(
+            LinearBorder(),
+          ),
+        ),
       ),
       fontFamily: 'Krypton',
       textTheme: const TextTheme(
@@ -137,10 +169,22 @@ class App extends StatelessWidget {
 
     return SafeArea(
       child: MaterialApp.router(
-        title: title,
+        title: widget.title,
         theme: theme,
         routerDelegate: _routerDelegate,
         routeInformationParser: _routeInformationParser,
+        builder: (context, child) {
+          return Primea(
+            title: widget.title,
+            body: child ??
+                NotFound(
+                  setSelectedPage: () =>
+                      _routerDelegate.setSelectedPageIndex(0),
+                ),
+            selectedPageIndex: _routerDelegate.selectedPageIndex,
+            setSelectedPage: _routerDelegate.setSelectedPageIndex,
+          );
+        },
       ),
     );
   }
